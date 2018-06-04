@@ -12,6 +12,9 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# Intellij project files
+.idea
+
 ### Linux ###
 *~
 
@@ -75,3 +78,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+paas-rds-metric-collector
