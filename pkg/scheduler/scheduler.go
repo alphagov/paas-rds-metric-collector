@@ -1,6 +1,8 @@
 package scheduler
 
 import (
+	"sync"
+
 	"code.cloudfoundry.org/lager"
 	"github.com/carlescere/scheduler"
 
@@ -30,6 +32,7 @@ type Scheduler struct {
 
 	workers map[string]*collectorWorker
 	job     *scheduler.Job
+	mux     sync.Mutex
 }
 
 // NewScheduler ...
@@ -59,6 +62,9 @@ func NewScheduler(
 func (w *Scheduler) Start() error {
 	var err error
 	w.job, err = scheduler.Every(w.instanceRefreshInterval).Seconds().Run(func() {
+		w.mux.Lock()
+		defer w.mux.Unlock()
+
 		serviceInstances, err := w.brokerinfo.ListInstanceGUIDs()
 		if err != nil {
 			w.logger.Error("unable to retreive instance guids", err)
@@ -83,6 +89,8 @@ func (w *Scheduler) Start() error {
 
 // Stop
 func (w *Scheduler) Stop() {
+	w.mux.Lock()
+	defer w.mux.Unlock()
 	w.job.Quit <- true
 	for _, id := range w.ListWorkers() {
 		w.StopWorker(id)

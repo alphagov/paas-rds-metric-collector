@@ -176,8 +176,11 @@ var _ = Describe("collector scheduler", func() {
 	})
 
 	Context("with working collector", func() {
+
+		var metricsCollectorDriverNewCollectorCall *mock.Call
+
 		BeforeEach(func() {
-			metricsCollectorDriver.On(
+			metricsCollectorDriverNewCollectorCall = metricsCollectorDriver.On(
 				"NewCollector", mock.Anything,
 			).Return(
 				metricsCollector, nil,
@@ -408,7 +411,48 @@ var _ = Describe("collector scheduler", func() {
 				metricsCollector.AssertNumberOfCalls(GinkgoT(), "Collect", 2)
 				return true
 			}).Should(BeTrue())
+		})
 
+		It("should stop the scheduler without any race condition", func() {
+
+			brokerInfo.On(
+				"ListInstanceGUIDs", mock.Anything,
+			).Return(
+				[]string{"instance-guid1"}, nil,
+			)
+
+			metricsCollectorDriverNewCollectorCall.After(700 * time.Millisecond)
+
+			scheduler.Start()
+
+			// Wait for scheduler job to start running
+			Eventually(func() bool {
+				return scheduler.job.IsRunning()
+			}).Should(BeTrue())
+
+			// Wait for the collector to collect metrics at least once
+			Eventually(func() []metrics.MetricEnvelope {
+				return metricsEmitter.envelopesReceived
+			}, 2*time.Second).Should(
+				HaveLen(1),
+			)
+
+			// Stop the scheduler
+			scheduler.Stop()
+
+			// Wait for scheduler finish the loop
+			Eventually(func() bool {
+				return scheduler.job.IsRunning()
+			}).Should(BeFalse())
+
+			// Should not have any workers to the list
+			Expect(scheduler.ListWorkers()).To(HaveLen(0))
+			// Should not send any other envelope
+			Consistently(func() []metrics.MetricEnvelope {
+				return metricsEmitter.envelopesReceived
+			}, 2*time.Second).Should(
+				HaveLen(1),
+			)
 		})
 	})
 })
