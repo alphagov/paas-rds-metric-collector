@@ -73,6 +73,11 @@ type sqlMetricsCollector struct {
 
 func (mc *sqlMetricsCollector) Collect() ([]metrics.Metric, error) {
 	var metrics []metrics.Metric
+	err := mc.dbConn.Ping()
+	if err != nil {
+		mc.logger.Error("connecting to db", err)
+		return metrics, err
+	}
 	for _, q := range mc.queries {
 		newMetrics, err := queryToMetrics(mc.dbConn, q)
 		if err != nil {
@@ -82,6 +87,10 @@ func (mc *sqlMetricsCollector) Collect() ([]metrics.Metric, error) {
 		metrics = append(metrics, newMetrics...)
 	}
 	return metrics, nil
+}
+
+func (mc *sqlMetricsCollector) Close() error {
+	return mc.dbConn.Close()
 }
 
 // Helpers

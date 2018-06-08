@@ -12,6 +12,11 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
 )
 
+type collectorWorker struct {
+	collector collector.MetricsCollector
+	job       *scheduler.Job
+}
+
 // Scheduler ...
 type Scheduler struct {
 	brokerinfo             brokerinfo.BrokerInfo
@@ -23,7 +28,7 @@ type Scheduler struct {
 
 	logger lager.Logger
 
-	workers map[string]*scheduler.Job
+	workers map[string]*collectorWorker
 	job     *scheduler.Job
 }
 
@@ -44,7 +49,7 @@ func NewScheduler(
 		instanceRefreshInterval: schedulerConfig.InstanceRefreshInterval,
 		metricCollectorInterval: schedulerConfig.MetricCollectorInterval,
 
-		workers: map[string]*scheduler.Job{},
+		workers: map[string]*collectorWorker{},
 
 		logger: logger,
 	}
@@ -74,6 +79,14 @@ func (w *Scheduler) Start() error {
 		}
 	})
 	return err
+}
+
+// Stop
+func (w *Scheduler) Stop() {
+	w.job.Quit <- true
+	for _, id := range w.ListWorkers() {
+		w.StopWorker(id)
+	}
 }
 
 // StartWorker ...
@@ -117,7 +130,10 @@ func (w *Scheduler) StartWorker(instanceGUID string) {
 		})
 		return
 	}
-	w.workers[instanceGUID] = newJob // Let's not add nil to worker list
+	w.workers[instanceGUID] = &collectorWorker{
+		collector: collector,
+		job:       newJob,
+	}
 }
 
 // StopCollector ...
@@ -127,7 +143,13 @@ func (w *Scheduler) StopWorker(instanceGUID string) {
 	})
 
 	if w.WorkerExists(instanceGUID) {
-		w.workers[instanceGUID].Quit <- true
+		err := w.workers[instanceGUID].collector.Close()
+		if err != nil {
+			w.logger.Error("close_collector", err, lager.Data{
+				"instanceGUID": instanceGUID,
+			})
+		}
+		w.workers[instanceGUID].job.Quit <- true
 	}
 	delete(w.workers, instanceGUID)
 }

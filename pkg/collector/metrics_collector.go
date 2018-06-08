@@ -8,4 +8,5 @@ type MetricsCollectorDriver interface {
 
 type MetricsCollector interface {
 	Collect() ([]metrics.Metric, error)
+	Close() error
 }

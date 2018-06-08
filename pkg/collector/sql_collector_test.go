@@ -157,6 +157,13 @@ var _ = Describe("sql_collector", func() {
 				metrics.Metric{Key: "foo2", Value: 1, Unit: "gauge"},
 			))
 		})
+
+		It("closes the connection and retuns error after", func() {
+			err := collector.Close()
+			Expect(err).ToNot(HaveOccurred())
+			_, err = collector.Collect()
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
 })

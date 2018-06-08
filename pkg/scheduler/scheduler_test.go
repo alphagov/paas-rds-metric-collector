@@ -38,6 +38,11 @@ func (f *fakeMetricsCollector) Collect() ([]metrics.Metric, error) {
 	return args.Get(0).([]metrics.Metric), args.Error(1)
 }
 
+func (f *fakeMetricsCollector) Close() error {
+	args := f.Called()
+	return args.Error(0)
+}
+
 type fakeMetricsEmitter struct {
 	envelopesReceived []metrics.MetricEnvelope
 }
@@ -326,6 +331,11 @@ var _ = Describe("collector scheduler", func() {
 		})
 
 		It("should stop workers when one instance disappears", func() {
+			metricsCollector.On(
+				"Close", mock.Anything,
+			).Return(
+				nil,
+			)
 			// First loop returns 2 instances
 			brokerInfo.On(
 				"ListInstanceGUIDs", mock.Anything,
@@ -369,6 +379,36 @@ var _ = Describe("collector scheduler", func() {
 			)
 		})
 
-	})
+		It("should stop the scheduler, workers and close collectors", func() {
+			brokerInfo.On(
+				"ListInstanceGUIDs", mock.Anything,
+			).Return(
+				[]string{"instance-guid1", "instance-guid2"}, nil,
+			)
 
+			scheduler.Start()
+			Eventually(func() []string {
+				return scheduler.ListWorkers()
+			}, 1*time.Second).Should(
+				HaveLen(2),
+			)
+
+			scheduler.Stop()
+
+			Eventually(func() []string {
+				return scheduler.ListWorkers()
+			}, 1*time.Second).Should(
+				HaveLen(0),
+			)
+			metricsCollector.AssertNumberOfCalls(GinkgoT(), "Close", 2)
+
+			Consistently(func() bool {
+				brokerInfo.AssertNumberOfCalls(GinkgoT(), "ListInstanceGUIDs", 1)
+				metricsCollectorDriver.AssertNumberOfCalls(GinkgoT(), "NewCollector", 2)
+				metricsCollector.AssertNumberOfCalls(GinkgoT(), "Collect", 2)
+				return true
+			}).Should(BeTrue())
+
+		})
+	})
 })
