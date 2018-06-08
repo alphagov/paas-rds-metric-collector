@@ -53,6 +53,7 @@ func stopOnSignal(metricsScheduler *scheduler.Scheduler) {
 	signal.Notify(signalChan, os.Interrupt, os.Kill)
 	<-signalChan
 	metricsScheduler.Stop()
+	os.Exit(1)
 }
 
 var logger = lager.NewLogger("rds-metric-collector")

@@ -14,9 +14,9 @@
 	},
 	"loggregator_emitter": {
 		"url": "localhost:3458",
-		"ca_cert": "../../pkg/emitter/fixtures/CA.crt",
-		"client_cert": "../../pkg/emitter/fixtures/client.crt",
-		"client_key": "../../pkg/emitter/fixtures/client.key"
+		"ca_cert": "./fixtures/CA.crt",
+		"client_cert": "./fixtures/client.crt",
+		"client_key": "./fixtures/client.key"
 	}
 }
 

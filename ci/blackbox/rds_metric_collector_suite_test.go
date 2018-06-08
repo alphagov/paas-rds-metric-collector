@@ -44,7 +44,7 @@ func TestSuite(t *testing.T) {
 		Expect(err).ShouldNot(HaveOccurred())
 
 		// Update config
-		rdsBrokerConfig, err = rdsconfig.LoadConfig("./rdsconfig.json")
+		rdsBrokerConfig, err = rdsconfig.LoadConfig("../../fixtures/broker_config.json")
 		Expect(err).ToNot(HaveOccurred())
 		err = rdsBrokerConfig.Validate()
 		Expect(err).ToNot(HaveOccurred())
@@ -72,9 +72,9 @@ func TestSuite(t *testing.T) {
 
 		// Start a fake server for loggregator
 		fakeLoggregator, err = helpers.NewFakeLoggregatorIngressServer(
-			"../../pkg/emitter/fixtures/server.crt",
-			"../../pkg/emitter/fixtures/server.key",
-			"../../pkg/emitter/fixtures/CA.crt")
+			"../../fixtures/server.crt",
+			"../../fixtures/server.key",
+			"../../fixtures/CA.crt")
 		Expect(err).ShouldNot(HaveOccurred())
 		err = fakeLoggregator.Start()
 		Expect(err).ShouldNot(HaveOccurred())
@@ -84,10 +84,13 @@ func TestSuite(t *testing.T) {
 		Expect(err).ShouldNot(HaveOccurred())
 
 		// Update config
-		rdsMetricCollectorConfig, err = collectorconfig.LoadConfig("./collectorconfig.json")
+		rdsMetricCollectorConfig, err = collectorconfig.LoadConfig("../../fixtures/collector_config.json")
 		Expect(err).ToNot(HaveOccurred())
 		rdsMetricCollectorConfig.RDSBrokerInfo.BrokerName = rdsBrokerConfig.RDSConfig.BrokerName
 		rdsMetricCollectorConfig.LoggregatorEmitter.MetronURL = fakeLoggregator.Addr
+		rdsMetricCollectorConfig.LoggregatorEmitter.CACertPath = "../../fixtures/CA.crt"
+		rdsMetricCollectorConfig.LoggregatorEmitter.CertPath = "../../fixtures/client.crt"
+		rdsMetricCollectorConfig.LoggregatorEmitter.KeyPath = "../../fixtures/client.key"
 
 		// Start the services
 		rdsBrokerSession, brokerAPIClient, rdsClient = startNewBroker(rdsBrokerConfig)

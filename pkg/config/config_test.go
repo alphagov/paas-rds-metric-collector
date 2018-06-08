@@ -21,11 +21,11 @@ var _ = Describe("Config", func() {
 
 	Describe("LoadConfig", func() {
 		It("loads a valid config file", func() {
-			_, err := LoadConfig("./fixtures/valid.json")
+			_, err := LoadConfig("../../fixtures/collector_config.json")
 			Expect(err).ToNot(HaveOccurred())
 		})
 		It("fails loading a invalid config file", func() {
-			_, err := LoadConfig("./fixtures/invalid.json")
+			_, err := LoadConfig("../../fixtures/invalid_collector_config.json")
 			Expect(err).To(HaveOccurred())
 		})
 	})
@@ -33,7 +33,7 @@ var _ = Describe("Config", func() {
 	Describe("Validate", func() {
 		BeforeEach(func() {
 			var err error
-			config, err = LoadConfig("./fixtures/valid.json")
+			config, err = LoadConfig("../../fixtures/collector_config.json")
 			Expect(err).ToNot(HaveOccurred())
 		})
 
