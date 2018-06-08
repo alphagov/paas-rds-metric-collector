@@ -45,12 +45,13 @@ func startNewBroker(rdsBrokerConfig *rdsconfig.Config) (*gexec.Session, *BrokerA
 		gbytes.Say(fmt.Sprintf(`{"port":"%d"}`, rdsBrokerPort)),
 	))
 
+	Consistently(rdsBrokerSession, 3*time.Second).ShouldNot(gexec.Exit())
+
 	rdsBrokerUrl := fmt.Sprintf("http://localhost:%d", rdsBrokerPort)
 
 	brokerAPIClient := NewBrokerAPIClient(rdsBrokerUrl, rdsBrokerConfig.Username, rdsBrokerConfig.Password)
 	brokerAPIClient.AcceptsIncomplete = true
 	rdsClient, err := NewRDSClient(rdsBrokerConfig.RDSConfig.Region, rdsBrokerConfig.RDSConfig.DBPrefix)
-
 	Expect(err).ToNot(HaveOccurred())
 
 	return rdsBrokerSession, brokerAPIClient, rdsClient
@@ -77,6 +78,8 @@ func startNewCollector(rdsMetricCollectorConfig *collectorconfig.Config) *gexec.
 	Eventually(rdsMetricsCollectorSession, 10*time.Second).Should(And(
 		gbytes.Say("rds-metric-collector.start"),
 	))
+
+	Consistently(rdsMetricsCollectorSession, 3*time.Second).ShouldNot(gexec.Exit())
 
 	return rdsMetricsCollectorSession
 }
