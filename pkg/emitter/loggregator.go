@@ -17,6 +17,13 @@ func NewLoggregatorEmitter(
 	emitterConfig config.LoggregatorEmitterConfig,
 	logger lager.Logger,
 ) (*LoggregatorEmitter, error) {
+	logger.Debug("new_loggregator_emitter", lager.Data{
+		"ca_cert":     emitterConfig.CACertPath,
+		"client_cert": emitterConfig.CertPath,
+		"client_key":  emitterConfig.KeyPath,
+		"url":         emitterConfig.MetronURL,
+	})
+
 	tlsConfig, err := loggregator.NewIngressTLSConfig(
 		emitterConfig.CACertPath,
 		emitterConfig.CertPath,
@@ -44,6 +51,9 @@ func NewLoggregatorEmitter(
 }
 
 func (e *LoggregatorEmitter) Emit(me metrics.MetricEnvelope) {
+	e.logger.Debug("emit", lager.Data{
+		"envelope": me,
+	})
 	e.loggregatorIngressClient.EmitGauge(
 		loggregator.WithGaugeValue(me.Metric.Key, me.Metric.Value, me.Metric.Unit),
 		loggregator.WithGaugeSourceInfo(me.InstanceGUID, "0"),
