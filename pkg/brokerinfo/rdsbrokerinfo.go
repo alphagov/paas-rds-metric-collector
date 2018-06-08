@@ -7,6 +7,8 @@ import (
 	"code.cloudfoundry.org/lager"
 	"github.com/alphagov/paas-rds-broker/awsrds"
 	"github.com/alphagov/paas-rds-broker/utils"
+
+	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 )
 
 type RDSBrokerInfo struct {
@@ -18,16 +20,14 @@ type RDSBrokerInfo struct {
 }
 
 func NewRDSBrokerInfo(
-	brokerName string,
-	dbPrefix string,
-	masterPasswordSeed string,
+	brokerInfoConfig config.RDSBrokerInfoConfig,
 	dbInstance awsrds.DBInstance,
 	logger lager.Logger,
 ) *RDSBrokerInfo {
 	return &RDSBrokerInfo{
-		brokerName:         brokerName,
-		dbPrefix:           dbPrefix,
-		masterPasswordSeed: masterPasswordSeed,
+		brokerName:         brokerInfoConfig.BrokerName,
+		dbPrefix:           brokerInfoConfig.DBPrefix,
+		masterPasswordSeed: brokerInfoConfig.MasterPasswordSeed,
 		dbInstance:         dbInstance,
 		logger:             logger,
 	}

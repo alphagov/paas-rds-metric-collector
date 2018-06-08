@@ -6,6 +6,7 @@ import (
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/collector"
+	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
@@ -28,6 +29,7 @@ type Scheduler struct {
 
 // NewScheduler ...
 func NewScheduler(
+	schedulerConfig config.SchedulerConfig,
 	brokerInfo brokerinfo.BrokerInfo,
 	metricsEmitter emitter.MetricsEmitter,
 	metricsCollectorDriver collector.MetricsCollectorDriver,
@@ -39,8 +41,8 @@ func NewScheduler(
 		metricsEmitter:         metricsEmitter,
 		metricsCollectorDriver: metricsCollectorDriver,
 
-		instanceRefreshInterval: 120,
-		metricCollectorInterval: 60,
+		instanceRefreshInterval: schedulerConfig.InstanceRefreshInterval,
+		metricCollectorInterval: schedulerConfig.MetricCollectorInterval,
 
 		workers: map[string]*scheduler.Job{},
 

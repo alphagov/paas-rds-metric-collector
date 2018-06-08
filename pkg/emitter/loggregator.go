@@ -4,6 +4,7 @@ import (
 	"code.cloudfoundry.org/go-loggregator"
 	"code.cloudfoundry.org/lager"
 
+	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 )
 
@@ -13,13 +14,14 @@ type LoggregatorEmitter struct {
 }
 
 func NewLoggregatorEmitter(
-	metronURL string,
-	caCertPath string,
-	certPath string,
-	keyPath string,
+	emitterConfig config.LoggregatorEmitterConfig,
 	logger lager.Logger,
 ) (*LoggregatorEmitter, error) {
-	tlsConfig, err := loggregator.NewIngressTLSConfig(caCertPath, certPath, keyPath)
+	tlsConfig, err := loggregator.NewIngressTLSConfig(
+		emitterConfig.CACertPath,
+		emitterConfig.CertPath,
+		emitterConfig.KeyPath,
+	)
 	if err != nil {
 		logger.Error("creating loggregator TLS config", err)
 		return nil, err
@@ -27,11 +29,11 @@ func NewLoggregatorEmitter(
 
 	client, err := loggregator.NewIngressClient(
 		tlsConfig,
-		loggregator.WithAddr(metronURL),
+		loggregator.WithAddr(emitterConfig.MetronURL),
 		loggregator.WithTag("origin", "rds-metrics-collector"),
 	)
 	if err != nil {
-		logger.Error("Could not create loggregator client", err, lager.Data{"metron_url": metronURL})
+		logger.Error("Could not create loggregator client", err, lager.Data{"metron_url": emitterConfig.MetronURL})
 		return nil, err
 	}
 

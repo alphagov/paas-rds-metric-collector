@@ -7,6 +7,7 @@ import (
 	rdsfake "github.com/alphagov/paas-rds-broker/awsrds/fakes"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
+	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -21,7 +22,14 @@ var _ = Describe("RDSBrokerInfo", func() {
 	BeforeEach(func() {
 		fakeDBInstance = &rdsfake.FakeDBInstance{}
 		brokerInfo = brokerinfo.NewRDSBrokerInfo(
-			"broker_name", "dbprefix", "12345", fakeDBInstance, logger)
+			config.RDSBrokerInfoConfig{
+				BrokerName:         "broker_name",
+				DBPrefix:           "dbprefix",
+				MasterPasswordSeed: "12345",
+			},
+			fakeDBInstance,
+			logger,
+		)
 	})
 
 	Context("ListInstanceGUIDs()", func() {

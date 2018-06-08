@@ -1,6 +1,7 @@
 package emitter_test
 
 import (
+	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/helpers"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
@@ -12,6 +13,7 @@ import (
 var _ = Describe("IngressClient", func() {
 	var (
 		server             *helpers.FakeLoggregatorIngressServer
+		emitterConfig      config.LoggregatorEmitterConfig
 		loggregatorEmitter *emitter.LoggregatorEmitter
 	)
 
@@ -27,11 +29,14 @@ var _ = Describe("IngressClient", func() {
 		err = server.Start()
 		Expect(err).NotTo(HaveOccurred())
 
+		emitterConfig = config.LoggregatorEmitterConfig{
+			MetronURL:  server.Addr,
+			CACertPath: "./fixtures/CA.crt",
+			CertPath:   "./fixtures/client.crt",
+			KeyPath:    "./fixtures/client.key",
+		}
 		loggregatorEmitter, err = emitter.NewLoggregatorEmitter(
-			server.addr,
-			"./fixtures/CA.crt",
-			"./fixtures/client.crt",
-			"./fixtures/client.key",
+			emitterConfig,
 			logger,
 		)
 		Expect(err).NotTo(HaveOccurred())
@@ -43,69 +48,46 @@ var _ = Describe("IngressClient", func() {
 
 	// FIXME: OR should it??? Fails coverage
 	It("should not fail if the loggregator servers is down", func() {
-		_, err := emitter.NewLoggregatorEmitter(
-			"bananas://localhost:123",
-			"./fixtures/CA.crt",
-			"./fixtures/client.crt",
-			"./fixtures/client.key",
-			logger,
-		)
+		emitterConfig.MetronURL = "bananas://localhost:123"
+		_, err := emitter.NewLoggregatorEmitter(emitterConfig, logger)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
 	It("should fail if any of the cert files is missing", func() {
 		var err error
-		_, err = emitter.NewLoggregatorEmitter(
-			"localhost:123",
-			"missing",
-			"./fixtures/client.crt",
-			"./fixtures/client.key",
-			logger,
-		)
+
+		newEmitterConfig := emitterConfig
+		newEmitterConfig.CACertPath = "missing"
+		_, err = emitter.NewLoggregatorEmitter(newEmitterConfig, logger)
 		Expect(err).To(HaveOccurred())
-		_, err = emitter.NewLoggregatorEmitter(
-			"localhost:123",
-			"./fixtures/CA.crt",
-			"missing",
-			"./fixtures/client.key",
-			logger,
-		)
+
+		newEmitterConfig = emitterConfig
+		newEmitterConfig.CertPath = "missing"
+		_, err = emitter.NewLoggregatorEmitter(newEmitterConfig, logger)
 		Expect(err).To(HaveOccurred())
-		_, err = emitter.NewLoggregatorEmitter(
-			"localhost:123",
-			"./fixtures/CA.crt",
-			"./fixtures/client.crt",
-			"missing",
-			logger,
-		)
+
+		newEmitterConfig = emitterConfig
+		newEmitterConfig.KeyPath = "missing"
+		_, err = emitter.NewLoggregatorEmitter(newEmitterConfig, logger)
 		Expect(err).To(HaveOccurred())
 	})
 
 	It("should fail if any of the cert files is invalid", func() {
 		var err error
-		_, err = emitter.NewLoggregatorEmitter(
-			"localhost:123",
-			"./fixtures/invalid-cert.data",
-			"./fixtures/client.crt",
-			"./fixtures/client.key",
-			logger,
-		)
+
+		newEmitterConfig := emitterConfig
+		newEmitterConfig.CACertPath = "./fixtures/invalid-cert.data"
+		_, err = emitter.NewLoggregatorEmitter(newEmitterConfig, logger)
 		Expect(err).To(HaveOccurred())
-		_, err = emitter.NewLoggregatorEmitter(
-			"localhost:123",
-			"./fixtures/CA.crt",
-			"./fixtures/invalid-cert.data",
-			"./fixtures/client.key",
-			logger,
-		)
+
+		newEmitterConfig = emitterConfig
+		newEmitterConfig.CertPath = "./fixtures/invalid-cert.data"
+		_, err = emitter.NewLoggregatorEmitter(newEmitterConfig, logger)
 		Expect(err).To(HaveOccurred())
-		_, err = emitter.NewLoggregatorEmitter(
-			"localhost:123",
-			"./fixtures/CA.crt",
-			"./fixtures/client.crt",
-			"./fixtures/invalid-cert.data",
-			logger,
-		)
+
+		newEmitterConfig = emitterConfig
+		newEmitterConfig.KeyPath = "./fixtures/invalid-cert.data"
+		_, err = emitter.NewLoggregatorEmitter(newEmitterConfig, logger)
 		Expect(err).To(HaveOccurred())
 	})
 

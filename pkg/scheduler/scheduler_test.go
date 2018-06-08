@@ -6,6 +6,7 @@ import (
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo/fakebrokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/collector"
+	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/mock"
@@ -55,21 +56,21 @@ var _ = Describe("collector scheduler", func() {
 	)
 
 	BeforeEach(func() {
-		var err error
 		brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
 		metricsEmitter = &fakeMetricsEmitter{}
 		metricsCollectorDriver = &fakeMetricsCollectorDriver{}
 		metricsCollector = &fakeMetricsCollector{}
 
 		scheduler = NewScheduler(
+			config.SchedulerConfig{
+				InstanceRefreshInterval: 1,
+				MetricCollectorInterval: 1,
+			},
 			brokerInfo,
 			metricsEmitter,
 			metricsCollectorDriver,
 			logger,
 		)
-
-		scheduler.instanceRefreshInterval = 1
-		scheduler.metricCollectorInterval = 1
 	})
 
 	It("should not start any worker and return error if fails starting the scheduler", func() {
