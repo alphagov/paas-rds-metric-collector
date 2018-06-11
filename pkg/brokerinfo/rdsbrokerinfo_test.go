@@ -37,6 +37,7 @@ var _ = Describe("RDSBrokerInfo", func() {
 			fakeDBInstance.DescribeByTagDBInstanceDetails = []*awsrds.DBInstanceDetails{
 				&awsrds.DBInstanceDetails{
 					Identifier:     "dbprefix-instance-id-1",
+					Engine:         "postgres",
 					Address:        "endpoint-address-1.example.com",
 					Port:           5432,
 					DBName:         "dbprefix-db",
@@ -44,8 +45,17 @@ var _ = Describe("RDSBrokerInfo", func() {
 				},
 				&awsrds.DBInstanceDetails{
 					Identifier:     "dbprefix-instance-id-2",
+					Engine:         "postgres",
 					Address:        "endpoint-address-2.example.com",
 					Port:           5432,
+					DBName:         "dbprefix-db",
+					MasterUsername: "master-username",
+				},
+				&awsrds.DBInstanceDetails{
+					Identifier:     "dbprefix-instance-id-3",
+					Engine:         "mysql",
+					Address:        "endpoint-address-3.example.com",
+					Port:           3306,
 					DBName:         "dbprefix-db",
 					MasterUsername: "master-username",
 				},
