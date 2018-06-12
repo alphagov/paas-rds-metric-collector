@@ -41,13 +41,6 @@ func init() {
 	flag.StringVar(&configFilePath, "config", "", "Location of the config file")
 }
 
-func buildDBInstance(region string, logger lager.Logger) awsrds.DBInstance {
-	awsConfig := aws.NewConfig().WithRegion(region)
-	awsSession := session.New(awsConfig)
-	rdssvc := rds.New(awsSession)
-	return awsrds.NewRDSDBInstance(region, "aws", rdssvc, logger)
-}
-
 func stopOnSignal(metricsScheduler *scheduler.Scheduler) {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, os.Kill)
@@ -78,7 +71,10 @@ func main() {
 	}
 	initLogger(cfg.LogLevel)
 
-	dbInstance := buildDBInstance(cfg.AWS.Region, logger)
+	awsConfig := aws.NewConfig().WithRegion(cfg.AWS.Region)
+	awsSession := session.New(awsConfig)
+	rdssvc := rds.New(awsSession)
+	dbInstance := awsrds.NewRDSDBInstance(cfg.AWS.Region, "aws", rdssvc, logger)
 
 	rdsBrokerInfo := brokerinfo.NewRDSBrokerInfo(
 		cfg.RDSBrokerInfo,
@@ -100,12 +96,20 @@ func main() {
 		logger.Session("postgres_metrics_collector"),
 	)
 
+	cloudWatchMetricsCollectorDriver := collector.NewCloudWatchCollectorDriver(
+		awsSession,
+		rdsBrokerInfo,
+		logger.Session("cloudwatch_metrics_collector"),
+	)
+
 	scheduler := scheduler.NewScheduler(
 		cfg.Scheduler,
 		rdsBrokerInfo,
 		loggregatorEmitter,
 		logger.Session("scheduler"),
 	)
+	scheduler.WithDriver(postgresMetricsCollectorDriver)
+	scheduler.WithDriver(cloudWatchMetricsCollectorDriver)
 
 	go stopOnSignal(scheduler)
 
