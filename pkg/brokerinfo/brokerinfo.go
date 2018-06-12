@@ -4,4 +4,5 @@ package brokerinfo
 type BrokerInfo interface {
 	ListInstanceGUIDs() ([]string, error)
 	ConnectionString(instanceGUID string) (string, error)
+	GetInstanceName(instanceGUID string) string
 }
