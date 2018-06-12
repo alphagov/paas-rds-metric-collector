@@ -26,7 +26,8 @@ import (
 )
 
 var (
-	configFilePath string
+	configFilePath   string
+	useStdoutEmitter bool
 
 	logLevels = map[string]lager.LogLevel{
 		"DEBUG": lager.DEBUG,
@@ -38,6 +39,7 @@ var (
 
 func init() {
 	flag.StringVar(&configFilePath, "config", "", "Location of the config file")
+	flag.BoolVar(&useStdoutEmitter, "stdoutEmitter", false, "Print metrics to stdout rather than send to loggregator")
 }
 
 func stopOnSignal(metricsScheduler *scheduler.Scheduler) {
@@ -81,13 +83,18 @@ func main() {
 		logger.Session("brokerinfo", lager.Data{"broker_name": cfg.RDSBrokerInfo.BrokerName}),
 	)
 
-	loggregatorEmitter, err := emitter.NewLoggregatorEmitter(
-		cfg.LoggregatorEmitter,
-		logger.Session("loggregator_emitter", lager.Data{"url": cfg.LoggregatorEmitter.MetronURL}),
-	)
-	if err != nil {
-		logger.Error("connecting to loggregator", err)
-		os.Exit(1)
+	var metricsEmitter emitter.MetricsEmitter
+	if useStdoutEmitter {
+		metricsEmitter = &emitter.StdOutEmitter{}
+	} else {
+		metricsEmitter, err = emitter.NewLoggregatorEmitter(
+			cfg.LoggregatorEmitter,
+			logger.Session("loggregator_emitter", lager.Data{"url": cfg.LoggregatorEmitter.MetronURL}),
+		)
+		if err != nil {
+			logger.Error("connecting to loggregator", err)
+			os.Exit(1)
+		}
 	}
 
 	postgresMetricsCollectorDriver := collector.NewPostgresMetricsCollectorDriver(
@@ -104,7 +111,7 @@ func main() {
 	scheduler := scheduler.NewScheduler(
 		cfg.Scheduler,
 		rdsBrokerInfo,
-		loggregatorEmitter,
+		metricsEmitter,
 		logger.Session("scheduler"),
 	)
 	scheduler.WithDriver(postgresMetricsCollectorDriver)
