@@ -27,6 +27,10 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		metricsCollectorDriver = NewPostgresMetricsCollectorDriver(brokerInfo, logger)
 	})
 
+	It("returns the right metricsCollectorDriver name", func() {
+		Expect(metricsCollectorDriver.GetName()).To(Equal("postgres"))
+	})
+
 	It("can collect the number of connections", func() {
 		var err error
 		brokerInfo.On(

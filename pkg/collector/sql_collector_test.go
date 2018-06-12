@@ -55,6 +55,7 @@ var _ = Describe("sql_collector", func() {
 			queries:    testQueries,
 			driver:     "postgres", // valid driver for testing
 			brokerInfo: brokerInfo,
+			name:       "sql",
 			logger:     logger,
 		}
 	})
@@ -125,6 +126,10 @@ var _ = Describe("sql_collector", func() {
 
 			_, err := metricsCollectorDriver.NewCollector("instance-guid1")
 			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("shall return the name", func() {
+			Expect(metricsCollectorDriver.GetName()).To(Equal("sql"))
 		})
 	})
 

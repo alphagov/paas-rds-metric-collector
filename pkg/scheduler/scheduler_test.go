@@ -29,6 +29,11 @@ func (f *fakeMetricsCollectorDriver) NewCollector(instanceGUID string) (collecto
 	}
 }
 
+func (f *fakeMetricsCollectorDriver) GetName() string {
+	args := f.Called()
+	return args.String(0)
+}
+
 type fakeMetricsCollector struct {
 	mock.Mock
 }
@@ -64,6 +69,7 @@ var _ = Describe("collector scheduler", func() {
 		brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
 		metricsEmitter = &fakeMetricsEmitter{}
 		metricsCollectorDriver = &fakeMetricsCollectorDriver{}
+		metricsCollectorDriver.On("GetName").Return("fake")
 		metricsCollector = &fakeMetricsCollector{}
 
 		scheduler = NewScheduler(
@@ -73,9 +79,9 @@ var _ = Describe("collector scheduler", func() {
 			},
 			brokerInfo,
 			metricsEmitter,
-			metricsCollectorDriver,
 			logger,
 		)
+		scheduler.WithDriver(metricsCollectorDriver)
 	})
 
 	It("should not start any worker and return error if fails starting the scheduler", func() {
@@ -85,7 +91,7 @@ var _ = Describe("collector scheduler", func() {
 		Expect(err).To(HaveOccurred())
 
 		Consistently(func() []string {
-			return scheduler.ListWorkers()
+			return scheduler.ListIntanceGUIDs()
 		}, 1*time.Second).Should(
 			HaveLen(0),
 		)
@@ -101,7 +107,7 @@ var _ = Describe("collector scheduler", func() {
 		scheduler.Start()
 
 		Consistently(func() []string {
-			return scheduler.ListWorkers()
+			return scheduler.ListIntanceGUIDs()
 		}, 1*time.Second).Should(
 			HaveLen(0),
 		)
@@ -138,7 +144,7 @@ var _ = Describe("collector scheduler", func() {
 		scheduler.Start()
 
 		Consistently(func() []string {
-			return scheduler.ListWorkers()
+			return scheduler.ListIntanceGUIDs()
 		}, 1*time.Second).Should(
 			HaveLen(0),
 		)
@@ -175,7 +181,7 @@ var _ = Describe("collector scheduler", func() {
 
 	})
 
-	Context("with working collector", func() {
+	Context("with working collector driver", func() {
 
 		var metricsCollectorDriverNewCollectorCall *mock.Call
 
@@ -211,7 +217,7 @@ var _ = Describe("collector scheduler", func() {
 			scheduler.Start()
 
 			Eventually(func() []string {
-				return scheduler.ListWorkers()
+				return scheduler.ListIntanceGUIDs()
 			}, 1*time.Second).Should(
 				HaveLen(0),
 			)
@@ -227,7 +233,7 @@ var _ = Describe("collector scheduler", func() {
 			scheduler.Start()
 
 			Eventually(func() []string {
-				return scheduler.ListWorkers()
+				return scheduler.ListIntanceGUIDs()
 			}, 1*time.Second).Should(
 				HaveLen(1),
 			)
@@ -253,7 +259,7 @@ var _ = Describe("collector scheduler", func() {
 			scheduler.Start()
 
 			Eventually(func() []string {
-				return scheduler.ListWorkers()
+				return scheduler.ListIntanceGUIDs()
 			}, 1*time.Second).Should(
 				HaveLen(2),
 			)
@@ -290,7 +296,7 @@ var _ = Describe("collector scheduler", func() {
 			scheduler.Start()
 
 			Eventually(func() []string {
-				return scheduler.ListWorkers()
+				return scheduler.ListIntanceGUIDs()
 			}, 1*time.Second).Should(
 				HaveLen(1),
 			)
@@ -305,7 +311,7 @@ var _ = Describe("collector scheduler", func() {
 			metricsEmitter.envelopesReceived = metricsEmitter.envelopesReceived[:0]
 
 			Eventually(func() []string {
-				return scheduler.ListWorkers()
+				return scheduler.ListIntanceGUIDs()
 			}, 2*time.Second).Should(
 				HaveLen(2),
 			)
@@ -356,13 +362,13 @@ var _ = Describe("collector scheduler", func() {
 			scheduler.Start()
 
 			Eventually(func() []string {
-				return scheduler.ListWorkers()
+				return scheduler.ListIntanceGUIDs()
 			}, 2*time.Second).Should(
 				HaveLen(2),
 			)
 
 			Eventually(func() []string {
-				return scheduler.ListWorkers()
+				return scheduler.ListIntanceGUIDs()
 			}, 2*time.Second).Should(
 				HaveLen(1),
 			)
@@ -391,7 +397,7 @@ var _ = Describe("collector scheduler", func() {
 
 			scheduler.Start()
 			Eventually(func() []string {
-				return scheduler.ListWorkers()
+				return scheduler.ListIntanceGUIDs()
 			}, 1*time.Second).Should(
 				HaveLen(2),
 			)
@@ -399,7 +405,7 @@ var _ = Describe("collector scheduler", func() {
 			scheduler.Stop()
 
 			Eventually(func() []string {
-				return scheduler.ListWorkers()
+				return scheduler.ListIntanceGUIDs()
 			}, 1*time.Second).Should(
 				HaveLen(0),
 			)
@@ -446,7 +452,7 @@ var _ = Describe("collector scheduler", func() {
 			}).Should(BeFalse())
 
 			// Should not have any workers to the list
-			Expect(scheduler.ListWorkers()).To(HaveLen(0))
+			Expect(scheduler.ListIntanceGUIDs()).To(HaveLen(0))
 			// Should not send any other envelope
 			Consistently(func() []metrics.MetricEnvelope {
 				return metricsEmitter.envelopesReceived
@@ -454,5 +460,204 @@ var _ = Describe("collector scheduler", func() {
 				HaveLen(1),
 			)
 		})
+
+		Context("with two collector drivers", func() {
+			var (
+				metricsCollectorDriver2 *fakeMetricsCollectorDriver
+				metricsCollector2       *fakeMetricsCollector
+			)
+
+			BeforeEach(func() {
+				metricsCollectorDriver2 = &fakeMetricsCollectorDriver{}
+				metricsCollectorDriver2.On("GetName").Return("fake2")
+				metricsCollector2 = &fakeMetricsCollector{}
+
+				scheduler.WithDriver(metricsCollectorDriver2)
+
+			})
+
+			It("should start one worker successfully when one driver works but other not", func() {
+				brokerInfo.On(
+					"ListInstanceGUIDs", mock.Anything,
+				).Return(
+					[]string{"instance-guid1"}, nil,
+				)
+				metricsCollectorDriver2.On(
+					"NewCollector", mock.Anything,
+				).Return(
+					nil, fmt.Errorf("Failed creating collector"),
+				)
+
+				scheduler.Start()
+
+				Eventually(func() []string {
+					return scheduler.ListIntanceGUIDs()
+				}, 1*time.Second).Should(
+					HaveLen(1),
+				)
+				Eventually(func() []metrics.MetricEnvelope {
+					return metricsEmitter.envelopesReceived
+				}, 2*time.Second).Should(
+					ContainElement(
+						metrics.MetricEnvelope{
+							InstanceGUID: "instance-guid1",
+							Metric:       metrics.Metric{Key: "foo", Value: 1.0, Unit: "b"},
+						},
+					),
+				)
+			})
+
+			It("Retries to create new collectors if one driver fails creating it once", func() {
+				brokerInfo.On(
+					"ListInstanceGUIDs", mock.Anything,
+				).Return(
+					[]string{"instance-guid1"}, nil,
+				)
+
+				metricsCollectorDriver2.On(
+					"NewCollector", mock.Anything,
+				).Return(
+					nil, fmt.Errorf("Failed creating collector"),
+				).Once()
+
+				metricsCollectorDriver2.On(
+					"NewCollector", mock.Anything,
+				).Return(
+					metricsCollector2, nil,
+				)
+				metricsCollector2.On(
+					"Collect",
+				).Return(
+					[]metrics.Metric{
+						metrics.Metric{Key: "bar", Value: 3, Unit: "s"},
+					},
+					nil,
+				)
+				metricsCollector2.On(
+					"Close", mock.Anything,
+				).Return(
+					nil,
+				)
+
+				scheduler.Start()
+
+				Eventually(func() []string {
+					return scheduler.ListIntanceGUIDs()
+				}, 1*time.Second).Should(
+					HaveLen(1),
+				)
+				Eventually(func() []metrics.MetricEnvelope {
+					return metricsEmitter.envelopesReceived
+				}, 3*time.Second).Should(
+					And(
+						ContainElement(
+							metrics.MetricEnvelope{
+								InstanceGUID: "instance-guid1",
+								Metric:       metrics.Metric{Key: "foo", Value: 1.0, Unit: "b"},
+							},
+						),
+						ContainElement(
+							metrics.MetricEnvelope{
+								InstanceGUID: "instance-guid1",
+								Metric:       metrics.Metric{Key: "bar", Value: 3.0, Unit: "s"},
+							},
+						),
+					),
+				)
+			})
+
+			It("should stop workers when one instance disappears", func() {
+				metricsCollectorDriver2.On(
+					"NewCollector", mock.Anything,
+				).Return(
+					metricsCollector2, nil,
+				)
+
+				metricsCollector2.On(
+					"Collect",
+				).Return(
+					[]metrics.Metric{
+						metrics.Metric{Key: "bar", Value: 3, Unit: "s"},
+					},
+					nil,
+				)
+				metricsCollector2.On(
+					"Close", mock.Anything,
+				).Return(
+					nil,
+				)
+
+				// First loop returns 2 instances
+				brokerInfo.On(
+					"ListInstanceGUIDs", mock.Anything,
+				).Return(
+					[]string{"instance-guid1", "instance-guid2"}, nil,
+				).Once()
+
+				// After return only one instance
+				brokerInfo.On(
+					"ListInstanceGUIDs", mock.Anything,
+				).Return(
+					[]string{"instance-guid1"}, nil,
+				)
+
+				scheduler.Start()
+
+				Eventually(func() []string {
+					return scheduler.ListIntanceGUIDs()
+				}, 3*time.Second).Should(
+					HaveLen(2),
+				)
+
+				Eventually(func() []metrics.MetricEnvelope {
+					return metricsEmitter.envelopesReceived
+				}, 1*time.Second).Should(
+					And(
+						ContainElement(
+							metrics.MetricEnvelope{
+								InstanceGUID: "instance-guid2",
+								Metric:       metrics.Metric{Key: "foo", Value: 1.0, Unit: "b"},
+							},
+						),
+						ContainElement(
+							metrics.MetricEnvelope{
+								InstanceGUID: "instance-guid2",
+								Metric:       metrics.Metric{Key: "bar", Value: 3.0, Unit: "s"},
+							},
+						),
+					),
+				)
+
+				Eventually(func() []string {
+					return scheduler.ListIntanceGUIDs()
+				}, 2*time.Second).Should(
+					HaveLen(1),
+				)
+
+				// Clear received envelopes
+				metricsEmitter.envelopesReceived = metricsEmitter.envelopesReceived[:0]
+
+				Consistently(func() []metrics.MetricEnvelope {
+					return metricsEmitter.envelopesReceived
+				}, 2*time.Second).ShouldNot(
+					Or(
+						ContainElement(
+							metrics.MetricEnvelope{
+								InstanceGUID: "instance-guid2",
+								Metric:       metrics.Metric{Key: "foo", Value: 1.0, Unit: "b"},
+							},
+						),
+						ContainElement(
+							metrics.MetricEnvelope{
+								InstanceGUID: "instance-guid2",
+								Metric:       metrics.Metric{Key: "bar", Value: 3.0, Unit: "s"},
+							},
+						),
+					),
+				)
+			})
+
+		})
 	})
+
 })

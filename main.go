@@ -104,7 +104,6 @@ func main() {
 		cfg.Scheduler,
 		rdsBrokerInfo,
 		loggregatorEmitter,
-		postgresMetricsCollectorDriver,
 		logger.Session("scheduler"),
 	)
 
