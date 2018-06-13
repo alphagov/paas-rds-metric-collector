@@ -37,7 +37,7 @@ type Scheduler struct {
 	metricsCollectorDrivers map[string]collector.MetricsCollectorDriver
 	workers                 map[workerID]*collectorWorker
 	job                     *scheduler.Job
-	mux                     sync.Mutex
+	workersStarting         sync.WaitGroup
 }
 
 // NewScheduler ...
@@ -75,8 +75,10 @@ func (w *Scheduler) WithDriver(drivers ...collector.MetricsCollectorDriver) *Sch
 func (w *Scheduler) Start() error {
 	var err error
 	w.job, err = scheduler.Every(w.instanceRefreshInterval).Seconds().Run(func() {
-		w.mux.Lock()
-		defer w.mux.Unlock()
+		w.workersStarting.Add(1)
+		defer w.workersStarting.Add(-1)
+
+		w.logger.Debug("refresh_instances")
 
 		serviceInstances, err := w.brokerinfo.ListInstanceGUIDs()
 		if err != nil {
@@ -84,11 +86,12 @@ func (w *Scheduler) Start() error {
 			return
 		}
 
+		w.logger.Debug("refresh_instances", lager.Data{"instances": serviceInstances})
 		for _, instanceGUID := range serviceInstances {
 			for driverName := range w.metricsCollectorDrivers {
 				id := workerID{Driver: driverName, InstanceGUID: instanceGUID}
 				if !w.WorkerExists(id) {
-					w.StartWorker(id)
+					go w.StartWorker(id)
 				}
 			}
 		}
@@ -97,7 +100,7 @@ func (w *Scheduler) Start() error {
 			if !utils.SliceContainsString(serviceInstances, instanceGUID) {
 				for driverName := range w.metricsCollectorDrivers {
 					id := workerID{Driver: driverName, InstanceGUID: instanceGUID}
-					w.StopWorker(id)
+					go w.StopWorker(id)
 				}
 			}
 		}
@@ -107,9 +110,8 @@ func (w *Scheduler) Start() error {
 
 // Stop ...
 func (w *Scheduler) Stop() {
-	w.mux.Lock()
-	defer w.mux.Unlock()
 	w.job.Quit <- true
+	w.workersStarting.Wait()
 	for id := range w.workers {
 		w.StopWorker(id)
 	}
@@ -117,6 +119,9 @@ func (w *Scheduler) Stop() {
 
 // StartWorker ...
 func (w *Scheduler) StartWorker(id workerID) {
+	w.workersStarting.Add(1)
+	defer w.workersStarting.Add(-1)
+
 	w.logger.Info("start_worker", lager.Data{
 		"driver":       id.Driver,
 		"instanceGUID": id.InstanceGUID,
