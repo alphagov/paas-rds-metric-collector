@@ -1,7 +1,28 @@
+dist: trusty
+sudo: false
+
 language: go
+
 go:
-  - 1.9.x
-  - master
+  - "1.10"
+
 services:
   - postgresql
 
+addons:
+  postgresql: "9.5"
+
+env:
+  global:
+  - PGVERSION=9.5
+
+
+install:
+  - go get -t ./...
+  - go get github.com/onsi/ginkgo/ginkgo
+
+before_script:
+  - psql -c 'create database mydb;' -U postgres
+
+script:
+  - make test

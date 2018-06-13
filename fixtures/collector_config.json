@@ -1,0 +1,22 @@
+{
+	"log_level": "DEBUG",
+	"aws": {
+		"region": "eu-west-1"
+	},
+	"rds_broker": {
+		"broker_name": "mybroker",
+		"db_prefix": "build-test",
+		"master_password_seed": "something-secret"
+	},
+	"scheduler": {
+		"instance_refresh_interval": 30,
+		"metrics_collector_interval": 5
+	},
+	"loggregator_emitter": {
+		"url": "localhost:3458",
+		"ca_cert": "./fixtures/CA.crt",
+		"client_cert": "./fixtures/client.crt",
+		"client_key": "./fixtures/client.key"
+	}
+}
+

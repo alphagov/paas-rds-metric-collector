@@ -1,0 +1,70 @@
+{
+  "log_level": "DEBUG",
+  "password": "password",
+  "cron_schedule": "0 0 * * *",
+  "keep_snapshots_for_days": 35,
+  "rds_config": {
+    "allow_user_bind_parameters": true,
+    "allow_user_provision_parameters": true,
+    "allow_user_update_parameters": true,
+    "broker_name": "rdsbroker-integration-test",
+    "catalog": {
+      "services": [
+        {
+          "description": "AWS RDS PostgreSQL service",
+          "id": "postgres",
+          "name": "postgres",
+          "plan_updateable": true,
+          "plans": [
+            {
+              "description": "Micro plan",
+              "free": false,
+              "id": "micro",
+              "name": "micro",
+              "rds_properties": {
+                "allocated_storage": 10,
+                "db_instance_class": "db.t2.micro",
+                "db_subnet_group_name": "POPULATED_BY_TEST_SUITE",
+                "engine": "postgres",
+                "engine_version": "9.5",
+                "vpc_security_group_ids": [
+                  "POPULATED_BY_TEST_SUITE"
+                ],
+                "postgres_extensions": [
+                  "uuid-ossp",
+                  "postgis"
+                ]
+              }
+            },
+            {
+              "description": "Micro plan without final snapshot",
+              "free": false,
+              "id": "micro-without-snapshot",
+              "name": "micro-without-snapshot",
+              "rds_properties": {
+                "allocated_storage": 10,
+                "db_instance_class": "db.t2.micro",
+                "db_subnet_group_name": "POPULATED_BY_TEST_SUITE",
+                "engine": "postgres",
+                "engine_version": "9.5",
+                "skip_final_snapshot": true,
+                "vpc_security_group_ids": [
+                  "POPULATED_BY_TEST_SUITE"
+                ],
+                "postgres_extensions": [
+                  "uuid-ossp",
+                  "postgis"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "db_prefix": "build-test",
+    "master_password_seed": "something-secret",
+    "region": "eu-west-1"
+  },
+  "state_encryption_key": "key",
+  "username": "username"
+}

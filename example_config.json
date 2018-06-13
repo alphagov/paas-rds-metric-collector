@@ -1,0 +1,22 @@
+{
+	"log_level": "INFO",
+	"aws": {
+		"region": "eu-west-1"
+	},
+	"rds_broker": {
+		"broker_name": "mybroker",
+		"db_prefix": "rdsbroker",
+		"master_password_seed": "abc123"
+	},
+	"scheduler": {
+		"instance_refresh_interval": 120,
+		"metrics_collector_interval": 60
+	},
+	"loggregator_emitter": {
+		"url": "localhost:3458",
+		"ca_cert": "/var/vcap/jobs/metron_agent/config/certs/loggregator_ca.crt",
+		"client_cert": "/var/vcap/jobs/metron_agent/config/certs/metron_agent.crt",
+		"client_key": "/var/vcap/jobs/metron_agent/config/certs/metron_agent.key"
+	}
+}
+
