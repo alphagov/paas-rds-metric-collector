@@ -306,7 +306,7 @@ var _ = Describe("collector scheduler", func() {
 
 			Eventually(func() []string {
 				return scheduler.ListWorkers()
-			}, 1*time.Second).Should(
+			}, 2*time.Second).Should(
 				HaveLen(2),
 			)
 
