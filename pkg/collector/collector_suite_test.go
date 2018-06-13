@@ -11,17 +11,17 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var postgresTestDatabaseConnectionUrl string
+var postgresTestDatabaseConnectionURL string
 var logger lager.Logger
 
 var _ = BeforeSuite(func() {
 	logger = lager.NewLogger("tests")
 	logger.RegisterSink(lager.NewWriterSink(GinkgoWriter, lager.INFO))
 
-	postgresTestDatabaseConnectionUrl = os.Getenv("TEST_DATABASE_URL")
-	if postgresTestDatabaseConnectionUrl == "" {
-		postgresTestDatabaseConnectionUrl = "postgresql://postgres@localhost:5432?sslmode=disable"
-		fmt.Fprintf(GinkgoWriter, "$TEST_DATABASE_URL not defined, using default: %s\n", postgresTestDatabaseConnectionUrl)
+	postgresTestDatabaseConnectionURL = os.Getenv("TEST_DATABASE_URL")
+	if postgresTestDatabaseConnectionURL == "" {
+		postgresTestDatabaseConnectionURL = "postgresql://postgres@localhost:5432?sslmode=disable"
+		fmt.Fprintf(GinkgoWriter, "$TEST_DATABASE_URL not defined, using default: %s\n", postgresTestDatabaseConnectionURL)
 	}
 })
 
