@@ -2,6 +2,7 @@ package collector
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/stretchr/testify/mock"
@@ -87,6 +88,26 @@ var _ = Describe("cloudwatch_collector", func() {
 			Expect(data).NotTo(BeNil())
 			Expect(data).To(HaveLen(3))
 			Expect(data[1].Unit).To(Equal("second"))
+		})
+		It("should preserve the timestamp", func() {
+			metricTime := time.Now().Add(-1 * time.Hour)
+
+			fakeClient.GetMetricStatisticsReturns(&cloudwatch.GetMetricStatisticsOutput{
+				Label: aws.String("test"),
+				Datapoints: []*cloudwatch.Datapoint{
+					&cloudwatch.Datapoint{
+						Timestamp: aws.Time(metricTime),
+						Average:   aws.Float64(1),
+						Unit:      aws.String("Second"),
+					},
+				},
+			}, nil)
+
+			data, err := collector.Collect()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(data).NotTo(BeNil())
+			Expect(data).To(HaveLen(1))
+			Expect(data[0].Timestamp).To(Equal(metricTime.UnixNano()))
 		})
 	})
 })

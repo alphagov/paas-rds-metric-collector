@@ -89,9 +89,10 @@ func (cw *CloudWatchCollector) Collect() ([]metrics.Metric, error) {
 		})
 		for _, d := range data.Datapoints {
 			m = append(m, metrics.Metric{
-				Key:   label,
-				Value: *d.Average,
-				Unit:  strings.ToLower(*d.Unit),
+				Key:       label,
+				Timestamp: aws.TimeValue(d.Timestamp).UnixNano(),
+				Value:     aws.Float64Value(d.Average),
+				Unit:      strings.ToLower(*d.Unit),
 			})
 		}
 	}
