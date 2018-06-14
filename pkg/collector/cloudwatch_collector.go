@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"sort"
 	"strings"
 	"time"
 
@@ -71,8 +72,8 @@ func (cw *CloudWatchCollector) Collect() ([]metrics.Metric, error) {
 			MetricName: aws.String(metricName),
 			Namespace:  aws.String("AWS/RDS"),
 			Period:     aws.Int64(60),
-			StartTime:  aws.Time(time.Now().Add(-2 * time.Minute)),
-			EndTime:    aws.Time(time.Now().Add(-1 * time.Minute)),
+			StartTime:  aws.Time(time.Now().Add(-10 * time.Minute)),
+			EndTime:    aws.Time(time.Now()),
 			Statistics: []*string{aws.String("Average")},
 		}
 
@@ -87,7 +88,16 @@ func (cw *CloudWatchCollector) Collect() ([]metrics.Metric, error) {
 		cw.logger.Debug("GetMetricStatistics", lager.Data{
 			"GetMetricStatisticsOutput": *data,
 		})
-		for _, d := range data.Datapoints {
+
+		if len(data.Datapoints) > 0 {
+			// Get latest datapoint for this metric type
+			sort.Slice(data.Datapoints, func(i, j int) bool {
+				a := aws.TimeValue(data.Datapoints[i].Timestamp).UnixNano()
+				b := aws.TimeValue(data.Datapoints[j].Timestamp).UnixNano()
+				return a < b
+			})
+			d := data.Datapoints[len(data.Datapoints)-1]
+
 			m = append(m, metrics.Metric{
 				Key:       label,
 				Timestamp: aws.TimeValue(d.Timestamp).UnixNano(),
