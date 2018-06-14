@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -23,6 +24,7 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/scheduler"
+	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
 )
 
 var (
@@ -45,8 +47,18 @@ func init() {
 func stopOnSignal(metricsScheduler *scheduler.Scheduler) {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, os.Kill)
-	<-signalChan
-	metricsScheduler.Stop()
+	receivedSignal := <-signalChan
+	log.Printf("Received signal: %v. Stopping...\n", receivedSignal)
+
+	// Stop if another signal is sent
+	go func() {
+		receivedSignal = <-signalChan
+		log.Printf("Received another signal: %v. Dying...\n", receivedSignal)
+		os.Exit(1)
+	}()
+	if utils.WithTimeout(30*time.Second, func() { metricsScheduler.Stop() }) {
+		log.Printf("Timeout stopping. Exitting\n")
+	}
 	os.Exit(1)
 }
 
