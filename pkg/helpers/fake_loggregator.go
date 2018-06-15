@@ -5,6 +5,7 @@ package helpers
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
@@ -57,15 +58,19 @@ func (t *FakeLoggregatorIngressServer) Sender(srv loggregator_v2.Ingress_SenderS
 }
 
 func (t *FakeLoggregatorIngressServer) BatchSender(srv loggregator_v2.Ingress_BatchSenderServer) error {
+	fmt.Println("Start")
+
 	envBatch, err := srv.Recv()
 	if err != nil {
 		return err
 	}
 
 	for _, e := range envBatch.Batch {
+		fmt.Println("received:", e)
 		t.ReceivedEnvelopes <- e
 	}
 
+	fmt.Println("After context")
 	return nil
 }
 

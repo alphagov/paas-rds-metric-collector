@@ -437,7 +437,9 @@ func (c *IngressClient) startSender() {
 
 			batch = append(batch, env)
 
+			fmt.Println("add envelope", env)
 			if len(batch) >= int(c.batchMaxSize) {
+				fmt.Println("maxbatch", batch)
 				c.flush(batch, false)
 				batch = nil
 				if !t.Stop() {
@@ -446,6 +448,7 @@ func (c *IngressClient) startSender() {
 				t.Reset(c.batchFlushInterval)
 			}
 		case <-t.C:
+			fmt.Println("timer", batch)
 			if len(batch) > 0 {
 				c.flush(batch, false)
 				batch = nil
@@ -475,6 +478,7 @@ func (c *IngressClient) emit(batch []*loggregator_v2.Envelope, close bool) error
 		}
 	}
 
+	fmt.Println("flush: ", batch)
 	err := c.sender.Send(&loggregator_v2.EnvelopeBatch{Batch: batch})
 	if err != nil {
 		c.sender = nil
