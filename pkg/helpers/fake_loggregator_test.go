@@ -40,6 +40,7 @@ var _ = Describe("IngressClient", func() {
 			tlsConfig,
 			loggregator.WithAddr(server.Addr),
 			loggregator.WithTag("origin", "rds-metrics-collector"),
+			// loggregator.WithBatchMaxSize(1),
 		)
 		Expect(err).NotTo(HaveOccurred())
 	})
@@ -54,30 +55,40 @@ var _ = Describe("IngressClient", func() {
 		)
 
 		Eventually(
-			server.Receivers,
+			server.ReceivedEnvelopes,
 			5*time.Second,
 		).Should(Receive())
 	})
 
-	PIt("should receive more than one envelope", func() {
+	FIt("should receive three metrics envelope", func() {
 		client.EmitGauge(
 			loggregator.WithGaugeValue("test", 1, "s"),
 		)
 
 		Eventually(
-			server.Receivers,
+			server.ReceivedEnvelopes,
 			5*time.Second,
 		).Should(Receive())
-
-		time.Sleep(200 * time.Millisecond)
 
 		client.EmitGauge(
 			loggregator.WithGaugeValue("test", 2, "s"),
 		)
+		time.Sleep(200 * time.Millisecond)
 
 		Eventually(
-			server.Receivers,
+			server.ReceivedEnvelopes,
 			5*time.Second,
 		).Should(Receive())
+
+		client.EmitGauge(
+			loggregator.WithGaugeValue("test", 3, "s"),
+		)
+		time.Sleep(200 * time.Millisecond)
+
+		Eventually(
+			server.ReceivedEnvelopes,
+			5*time.Second,
+		).Should(Receive())
+
 	})
 })
