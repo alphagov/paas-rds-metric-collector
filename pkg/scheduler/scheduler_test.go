@@ -24,9 +24,9 @@ func (f *fakeMetricsCollectorDriver) NewCollector(instanceGUID string) (collecto
 	arg0 := args.Get(0)
 	if arg0 != nil {
 		return arg0.(collector.MetricsCollector), args.Error(1)
-	} else {
-		return nil, args.Error(1)
 	}
+
+	return nil, args.Error(1)
 }
 
 func (f *fakeMetricsCollectorDriver) GetName() string {
@@ -420,7 +420,6 @@ var _ = Describe("collector scheduler", func() {
 		})
 
 		It("should stop the scheduler without any race condition", func() {
-
 			brokerInfo.On(
 				"ListInstanceGUIDs", mock.Anything,
 			).Return(
@@ -431,11 +430,6 @@ var _ = Describe("collector scheduler", func() {
 
 			scheduler.Start()
 
-			// Wait for scheduler job to start running
-			Eventually(func() bool {
-				return scheduler.job.IsRunning()
-			}).Should(BeTrue())
-
 			// Wait for the collector to collect metrics at least once
 			Eventually(func() []metrics.MetricEnvelope {
 				return metricsEmitter.envelopesReceived
@@ -445,11 +439,6 @@ var _ = Describe("collector scheduler", func() {
 
 			// Stop the scheduler
 			scheduler.Stop()
-
-			// Wait for scheduler finish the loop
-			Eventually(func() bool {
-				return scheduler.job.IsRunning()
-			}).Should(BeFalse())
 
 			// Should not have any workers to the list
 			Expect(scheduler.ListIntanceGUIDs()).To(HaveLen(0))
@@ -657,7 +646,49 @@ var _ = Describe("collector scheduler", func() {
 				)
 			})
 
+			It("should immediately start all drivers although one may be slow in creating a new collector", func() {
+				metricsCollectorDriver2.On(
+					"NewCollector", mock.Anything,
+				).Return(
+					metricsCollector2, nil,
+				)
+
+				metricsCollector2.On(
+					"Collect",
+				).Return(
+					[]metrics.Metric{
+						metrics.Metric{Key: "bar", Value: 3, Unit: "s"},
+					},
+					nil,
+				)
+				metricsCollector2.On(
+					"Close", mock.Anything,
+				).Return(
+					nil,
+				)
+
+				brokerInfo.On(
+					"ListInstanceGUIDs", mock.Anything,
+				).Return(
+					[]string{"instance-guid1"}, nil,
+				)
+
+				metricsCollectorDriverNewCollectorCall.After(700 * time.Millisecond)
+
+				scheduler.Start()
+
+				// Wait for the collector to collect metrics at least once
+				Eventually(func() []metrics.MetricEnvelope {
+					return metricsEmitter.envelopesReceived
+				}, 500*time.Millisecond).Should(
+					ContainElement(
+						metrics.MetricEnvelope{
+							InstanceGUID: "instance-guid1",
+							Metric:       metrics.Metric{Key: "bar", Value: 3.0, Unit: "s"},
+						},
+					),
+				)
+			})
 		})
 	})
-
 })
