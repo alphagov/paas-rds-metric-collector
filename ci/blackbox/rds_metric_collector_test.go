@@ -1,6 +1,7 @@
 package integration_rds_metric_collector_test
 
 import (
+	"fmt"
 	"time"
 
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
@@ -35,20 +36,30 @@ var _ = Describe("RDS Metrics Collector", func() {
 			Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gbytes.Say("scheduler.start_worker"))
 			Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gbytes.Say("loggregator_emitter.emit"))
 
-			By("receiving a metric in the fake loggregator server")
-			var recv loggregator_v2.Ingress_BatchSenderServer
-			Eventually(fakeLoggregator.Receivers, 30*time.Second).Should(Receive(&recv))
-			envBatch, err := recv.Recv()
-			Expect(err).ToNot(HaveOccurred())
+			By("receiving several seconds of metrics in the fake loggregator server")
 
-			envelopes := envBatch.Batch
+			envelopes := []*loggregator_v2.Envelope{}
+
+			timer := time.NewTimer(60 * time.Second)
+			defer timer.Stop()
+		loop:
+			for {
+				select {
+				case e := <-fakeLoggregator.ReceivedEnvelopes:
+					fmt.Fprintf(GinkgoWriter, "Received envelope: %v\n", e)
+					envelopes = append(envelopes, e)
+				case <-timer.C:
+					break loop
+				}
+			}
+
+			By("checking we received the expected metrics")
 			connectionEnvelopes := filterEnvelopesBySourceAndMetric(envelopes, instanceID, "connections")
 			Expect(connectionEnvelopes).ToNot(BeEmpty())
-
-			Expect(envelopes[0].GetGauge()).NotTo(BeNil())
-			Expect(envelopes[0].GetGauge().GetMetrics()).NotTo(BeNil())
-			Expect(envelopes[0].GetGauge().GetMetrics()).To(HaveKey("connections"))
-			Expect(envelopes[0].GetGauge().GetMetrics()["connections"].Value).To(BeNumerically(">=", 1))
+			Expect(connectionEnvelopes[0].GetGauge()).NotTo(BeNil())
+			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()).NotTo(BeNil())
+			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()).To(HaveKey("connections"))
+			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()["connections"].Value).To(BeNumerically(">=", 1))
 
 			By("deprovision the instance")
 			deprovisionInstance(instanceID, serviceID, planID)
@@ -58,10 +69,10 @@ var _ = Describe("RDS Metrics Collector", func() {
 
 			By("not receiving more metrics in the fake loggregator server")
 			// Flush the channel
-			for len(fakeLoggregator.Receivers) > 0 {
-				<-fakeLoggregator.Receivers
+			for len(fakeLoggregator.ReceivedEnvelopes) > 0 {
+				<-fakeLoggregator.ReceivedEnvelopes
 			}
-			Consistently(fakeLoggregator.Receivers).ShouldNot(Receive())
+			Consistently(fakeLoggregator.ReceivedEnvelopes, 30*time.Second).ShouldNot(Receive())
 		})
 	})
 })
