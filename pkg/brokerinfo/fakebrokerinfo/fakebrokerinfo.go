@@ -15,3 +15,8 @@ func (b *FakeBrokerInfo) ListInstanceGUIDs() ([]string, error) {
 	args := b.Called()
 	return args.Get(0).([]string), args.Error(1)
 }
+
+func (b *FakeBrokerInfo) GetInstanceName(instanceGUID string) string {
+	args := b.Called()
+	return args.String(0)
+}

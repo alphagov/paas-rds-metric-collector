@@ -70,6 +70,10 @@ func (r *RDSBrokerInfo) ConnectionString(instanceGUID string) (string, error) {
 
 }
 
+func (r *RDSBrokerInfo) GetInstanceName(instanceGUID string) string {
+	return r.dbInstanceIdentifier(instanceGUID)
+}
+
 // FIXME: Following code has been copied from
 // https://github.com/alphagov/paas-rds-broker/blob/eee2df8257264e9afdbe9bc1b942174882e5d0d5/rdsbroker/broker.go#L666-L669
 // We shall refactor paas-rds-broker to extract this to a module that can be imported
