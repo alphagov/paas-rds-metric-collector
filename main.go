@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"runtime"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -111,8 +110,6 @@ func main() {
 	scheduler.WithDriver(postgresMetricsCollectorDriver)
 	scheduler.WithDriver(cloudWatchMetricsCollectorDriver)
 
-	go stopOnSignal(scheduler)
-
 	err = scheduler.Start()
 	if err != nil {
 		logger.Error("starting scheduler", err)
@@ -121,5 +118,5 @@ func main() {
 
 	logger.Info("start")
 
-	runtime.Goexit()
+	stopOnSignal(scheduler)
 }
