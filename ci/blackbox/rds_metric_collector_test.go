@@ -35,7 +35,7 @@ var _ = Describe("RDS Metrics Collector", func() {
 			By("checking that collector discovers the instance and emits metrics")
 			Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gbytes.Say("scheduler.start_worker"))
 			Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gbytes.Say("loggregator_emitter.emit"))
-			Eventually(rdsMetricsCollectorSession, 120*time.Second).Should(gbytes.Say("cloudwatch_metrics_collector.retrieved_metric"))
+			Eventually(rdsMetricsCollectorSession, 240*time.Second).Should(gbytes.Say("cloudwatch_metrics_collector.retrieved_metric"))
 
 			By("receiving several seconds of metrics in the fake loggregator server")
 
