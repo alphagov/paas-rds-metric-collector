@@ -65,20 +65,24 @@ var _ = Describe("cloudwatch_collector", func() {
 		})
 
 		It("should Collect metrics successfully", func() {
+			now := time.Now()
 			fakeClient.GetMetricStatisticsReturns(&cloudwatch.GetMetricStatisticsOutput{
 				Label: aws.String("test"),
 				Datapoints: []*cloudwatch.Datapoint{
 					&cloudwatch.Datapoint{
-						Average: aws.Float64(1),
-						Unit:    aws.String("Second"),
+						Timestamp: aws.Time(now.Add(-3 * time.Second)),
+						Average:   aws.Float64(1),
+						Unit:      aws.String("Second"),
 					},
 					&cloudwatch.Datapoint{
-						Average: aws.Float64(2),
-						Unit:    aws.String("Second"),
+						Timestamp: aws.Time(now.Add(-2 * time.Second)),
+						Average:   aws.Float64(2),
+						Unit:      aws.String("Second"),
 					},
 					&cloudwatch.Datapoint{
-						Average: aws.Float64(3),
-						Unit:    aws.String("Second"),
+						Timestamp: aws.Time(now.Add(-1 * time.Second)),
+						Average:   aws.Float64(3),
+						Unit:      aws.String("Second"),
 					},
 				},
 			}, nil)
@@ -86,8 +90,9 @@ var _ = Describe("cloudwatch_collector", func() {
 			data, err := collector.Collect()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(data).NotTo(BeNil())
-			Expect(data).To(HaveLen(3))
-			Expect(data[1].Unit).To(Equal("second"))
+			Expect(data).To(HaveLen(1))
+			Expect(data[0].Unit).To(Equal("second"))
+			Expect(data[0].Value).To(Equal(3.0))
 		})
 		It("should preserve the timestamp", func() {
 			metricTime := time.Now().Add(-1 * time.Hour)
@@ -108,6 +113,15 @@ var _ = Describe("cloudwatch_collector", func() {
 			Expect(data).NotTo(BeNil())
 			Expect(data).To(HaveLen(1))
 			Expect(data[0].Timestamp).To(Equal(metricTime.UnixNano()))
+		})
+		It("should not fail if there are no datapoints", func() {
+			fakeClient.GetMetricStatisticsReturns(&cloudwatch.GetMetricStatisticsOutput{
+				Label:      aws.String("test"),
+				Datapoints: []*cloudwatch.Datapoint{},
+			}, nil)
+
+			_, err := collector.Collect()
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 })
