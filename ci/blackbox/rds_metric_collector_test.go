@@ -35,6 +35,7 @@ var _ = Describe("RDS Metrics Collector", func() {
 			By("checking that collector discovers the instance and emits metrics")
 			Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gbytes.Say("scheduler.start_worker"))
 			Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gbytes.Say("loggregator_emitter.emit"))
+			Eventually(rdsMetricsCollectorSession, 120*time.Second).Should(gbytes.Say("cloudwatch_metrics_collector.retrieved_metric"))
 
 			By("receiving several seconds of metrics in the fake loggregator server")
 
@@ -60,6 +61,13 @@ var _ = Describe("RDS Metrics Collector", func() {
 			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()).NotTo(BeNil())
 			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()).To(HaveKey("connections"))
 			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()["connections"].Value).To(BeNumerically(">=", 1))
+
+			cpuEnvelopes := filterEnvelopesBySourceAndMetric(envelopes, instanceID, "cpu")
+			Expect(cpuEnvelopes).ToNot(BeEmpty())
+			Expect(cpuEnvelopes[0].GetGauge()).NotTo(BeNil())
+			Expect(cpuEnvelopes[0].GetGauge().GetMetrics()).NotTo(BeNil())
+			Expect(cpuEnvelopes[0].GetGauge().GetMetrics()).To(HaveKey("cpu"))
+			Expect(cpuEnvelopes[0].GetGauge().GetMetrics()["cpu"].Value).To(BeNumerically(">=", 0))
 
 			By("deprovision the instance")
 			deprovisionInstance(instanceID, serviceID, planID)

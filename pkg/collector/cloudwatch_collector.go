@@ -90,6 +90,10 @@ func (cw *CloudWatchCollector) Collect() ([]metrics.Metric, error) {
 		})
 
 		if len(data.Datapoints) > 0 {
+			cw.logger.Debug("retrieved_metric", lager.Data{
+				"metric_name": metricName,
+			})
+
 			// Get latest datapoint for this metric type
 			sort.Slice(data.Datapoints, func(i, j int) bool {
 				a := aws.TimeValue(data.Datapoints[i].Timestamp).UnixNano()
@@ -104,6 +108,8 @@ func (cw *CloudWatchCollector) Collect() ([]metrics.Metric, error) {
 				Value:     aws.Float64Value(d.Average),
 				Unit:      strings.ToLower(*d.Unit),
 			})
+		} else {
+			cw.logger.Debug("no_metrics_retrieved")
 		}
 	}
 
