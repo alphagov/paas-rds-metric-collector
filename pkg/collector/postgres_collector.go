@@ -3,6 +3,7 @@ package collector
 import (
 	"code.cloudfoundry.org/lager"
 
+	// Used in the SQL driver.
 	_ "github.com/lib/pq"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
@@ -20,6 +21,7 @@ var postgresMetricQueries = []MetricQuery{
 	},
 }
 
+// NewPostgresMetricsCollectorDriver ...
 func NewPostgresMetricsCollectorDriver(brokerInfo brokerinfo.BrokerInfo, logger lager.Logger) MetricsCollectorDriver {
 	return &sqlMetricsCollectorDriver{
 		logger:     logger,

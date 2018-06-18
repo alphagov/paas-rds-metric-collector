@@ -121,7 +121,7 @@ var _ = Describe("sql_collector", func() {
 			brokerInfo.On(
 				"ConnectionString", mock.Anything,
 			).Return(
-				postgresTestDatabaseConnectionUrl, nil,
+				postgresTestDatabaseConnectionURL, nil,
 			)
 
 			_, err := metricsCollectorDriver.NewCollector("instance-guid1")
@@ -145,7 +145,7 @@ var _ = Describe("sql_collector", func() {
 			brokerInfo.On(
 				"ConnectionString", mock.Anything,
 			).Return(
-				postgresTestDatabaseConnectionUrl, nil,
+				postgresTestDatabaseConnectionURL, nil,
 			)
 
 			collector, err = metricsCollectorDriver.NewCollector("instance-guid1")
@@ -178,7 +178,7 @@ var _ = Describe("helpers", func() {
 
 	BeforeEach(func() {
 		var err error
-		dbConn, err = sql.Open("postgres", postgresTestDatabaseConnectionUrl)
+		dbConn, err = sql.Open("postgres", postgresTestDatabaseConnectionURL)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
