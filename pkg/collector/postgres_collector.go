@@ -26,5 +26,6 @@ func NewPostgresMetricsCollectorDriver(brokerInfo brokerinfo.BrokerInfo, logger 
 		queries:    postgresMetricQueries,
 		driver:     "postgres",
 		brokerInfo: brokerInfo,
+		name:       "postgres",
 	}
 }

@@ -27,6 +27,7 @@ type sqlMetricsCollectorDriver struct {
 	brokerInfo brokerinfo.BrokerInfo
 	queries    []MetricQuery
 	driver     string
+	name       string
 	logger     lager.Logger
 }
 
@@ -63,6 +64,10 @@ func (d *sqlMetricsCollectorDriver) NewCollector(instanceGUID string) (MetricsCo
 	}
 
 	return sqlMetricsCollector, nil
+}
+
+func (d *sqlMetricsCollectorDriver) GetName() string {
+	return d.name
 }
 
 type sqlMetricsCollector struct {
