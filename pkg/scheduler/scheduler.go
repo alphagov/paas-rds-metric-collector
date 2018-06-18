@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"sync"
+	"time"
 
 	"code.cloudfoundry.org/lager"
 	"github.com/carlescere/scheduler"
@@ -35,9 +36,13 @@ type Scheduler struct {
 	logger lager.Logger
 
 	metricsCollectorDrivers map[string]collector.MetricsCollectorDriver
-	workers                 map[workerID]*collectorWorker
-	job                     *scheduler.Job
-	workersStarting         sync.WaitGroup
+
+	workers     map[workerID]*collectorWorker
+	workersLock sync.Mutex
+
+	job             *scheduler.Job
+	workersStarting sync.WaitGroup
+	workersStopping sync.WaitGroup
 }
 
 // NewScheduler ...
@@ -71,12 +76,24 @@ func (w *Scheduler) WithDriver(drivers ...collector.MetricsCollectorDriver) *Sch
 	return w
 }
 
+func (w *Scheduler) addWorker(id workerID, worker *collectorWorker) {
+	w.workersLock.Lock()
+	defer w.workersLock.Unlock()
+	w.workers[id] = worker
+}
+
+func (w *Scheduler) deleteWorker(id workerID) {
+	w.workersLock.Lock()
+	defer w.workersLock.Unlock()
+	delete(w.workers, id)
+}
+
 // Start ...
 func (w *Scheduler) Start() error {
 	var err error
 	w.job, err = scheduler.Every(w.instanceRefreshInterval).Seconds().Run(func() {
 		w.workersStarting.Add(1)
-		defer w.workersStarting.Add(-1)
+		defer w.workersStarting.Done()
 
 		w.logger.Debug("refresh_instances")
 
@@ -91,7 +108,7 @@ func (w *Scheduler) Start() error {
 			for driverName := range w.metricsCollectorDrivers {
 				id := workerID{Driver: driverName, InstanceGUID: instanceGUID}
 				if !w.WorkerExists(id) {
-					go w.StartWorker(id)
+					w.startWorker(id)
 				}
 			}
 		}
@@ -100,7 +117,7 @@ func (w *Scheduler) Start() error {
 			if !utils.SliceContainsString(serviceInstances, instanceGUID) {
 				for driverName := range w.metricsCollectorDrivers {
 					id := workerID{Driver: driverName, InstanceGUID: instanceGUID}
-					go w.StopWorker(id)
+					w.stopWorker(id)
 				}
 			}
 		}
@@ -113,84 +130,98 @@ func (w *Scheduler) Stop() {
 	w.job.Quit <- true
 	w.workersStarting.Wait()
 	for id := range w.workers {
-		w.StopWorker(id)
+		w.stopWorker(id)
 	}
+	w.workersStopping.Wait()
 }
 
-// StartWorker ...
-func (w *Scheduler) StartWorker(id workerID) {
+func (w *Scheduler) startWorker(id workerID) {
 	w.workersStarting.Add(1)
-	defer w.workersStarting.Add(-1)
+	go func() {
+		defer w.workersStarting.Done()
 
-	w.logger.Info("start_worker", lager.Data{
-		"driver":       id.Driver,
-		"instanceGUID": id.InstanceGUID,
-	})
-
-	collector, err := w.metricsCollectorDrivers[id.Driver].NewCollector(id.InstanceGUID)
-	if err != nil {
-		w.logger.Error("starting worker collector", err, lager.Data{
+		w.logger.Info("start_worker", lager.Data{
 			"driver":       id.Driver,
 			"instanceGUID": id.InstanceGUID,
 		})
-		return
-	}
 
-	newJob, err := scheduler.Every(w.metricCollectorInterval).Seconds().Run(func() {
-		w.logger.Debug("collecting metrics", lager.Data{
-			"driver":       id.Driver,
-			"instanceGUID": id.InstanceGUID,
-		})
-		collectedMetrics, err := collector.Collect()
+		collector, err := w.metricsCollectorDrivers[id.Driver].NewCollector(id.InstanceGUID)
 		if err != nil {
-			w.logger.Error("querying metrics", err, lager.Data{
+			w.logger.Error("starting worker collector", err, lager.Data{
 				"driver":       id.Driver,
 				"instanceGUID": id.InstanceGUID,
 			})
 			return
 		}
-		w.logger.Debug("collected metrics", lager.Data{
-			"driver":       id.Driver,
-			"instanceGUID": id.InstanceGUID,
-			"metrics":      collectedMetrics,
-		})
-		for _, metric := range collectedMetrics {
-			w.metricsEmitter.Emit(
-				metrics.MetricEnvelope{InstanceGUID: id.InstanceGUID, Metric: metric},
-			)
-		}
-	})
-	if err != nil {
-		w.logger.Error("cannot schedule the worker", err, lager.Data{
-			"driver":       id.Driver,
-			"instanceGUID": id.InstanceGUID,
-		})
-		return
-	}
-	w.workers[id] = &collectorWorker{
-		collector: collector,
-		job:       newJob,
-	}
-}
 
-// StopWorker ...
-func (w *Scheduler) StopWorker(id workerID) {
-	w.logger.Info("stop_worker", lager.Data{
-		"driver":       id.Driver,
-		"instanceGUID": id.InstanceGUID,
-	})
-
-	if w.WorkerExists(id) {
-		err := w.workers[id].collector.Close()
-		if err != nil {
-			w.logger.Error("close_collector", err, lager.Data{
+		newJob, err := scheduler.Every(w.metricCollectorInterval).Seconds().Run(func() {
+			w.logger.Debug("collecting metrics", lager.Data{
 				"driver":       id.Driver,
 				"instanceGUID": id.InstanceGUID,
 			})
+			collectedMetrics, err := collector.Collect()
+			if err != nil {
+				w.logger.Error("querying metrics", err, lager.Data{
+					"driver":       id.Driver,
+					"instanceGUID": id.InstanceGUID,
+				})
+				return
+			}
+			w.logger.Debug("collected metrics", lager.Data{
+				"driver":       id.Driver,
+				"instanceGUID": id.InstanceGUID,
+				"metrics":      collectedMetrics,
+			})
+			for _, metric := range collectedMetrics {
+				w.metricsEmitter.Emit(
+					metrics.MetricEnvelope{InstanceGUID: id.InstanceGUID, Metric: metric},
+				)
+			}
+		})
+		if err != nil {
+			w.logger.Error("cannot schedule the worker", err, lager.Data{
+				"driver":       id.Driver,
+				"instanceGUID": id.InstanceGUID,
+			})
+			return
 		}
-		w.workers[id].job.Quit <- true
-	}
-	delete(w.workers, id)
+		w.addWorker(id, &collectorWorker{
+			collector: collector,
+			job:       newJob,
+		})
+	}()
+}
+
+func (w *Scheduler) stopWorker(id workerID) {
+	w.workersStopping.Add(1)
+	go func() {
+		defer w.workersStopping.Done()
+
+		w.logger.Info("stop_worker", lager.Data{
+			"driver":       id.Driver,
+			"instanceGUID": id.InstanceGUID,
+		})
+
+		if w.WorkerExists(id) {
+			err := w.workers[id].collector.Close()
+			if err != nil {
+				w.logger.Error("close_collector", err, lager.Data{
+					"driver":       id.Driver,
+					"instanceGUID": id.InstanceGUID,
+				})
+			}
+			if w.workers[id].job != nil {
+				w.workers[id].job.Quit <- true
+				for {
+					if !w.workers[id].job.IsRunning() {
+						break
+					}
+					time.Sleep(10 * time.Millisecond)
+				}
+			}
+		}
+		w.deleteWorker(id)
+	}()
 }
 
 // WorkerExists ...
