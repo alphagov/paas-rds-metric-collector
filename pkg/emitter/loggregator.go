@@ -81,5 +81,6 @@ func (e *LoggregatorEmitter) Emit(me metrics.MetricEnvelope) {
 		loggregator.WithGaugeValue(me.Metric.Key, me.Metric.Value, me.Metric.Unit),
 		loggregator.WithGaugeSourceInfo(me.InstanceGUID, "0"),
 		WithTimestamp(timestamp),
+		loggregator.WithEnvelopeTags(me.Metric.Tags),
 	)
 }

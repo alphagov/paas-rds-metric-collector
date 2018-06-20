@@ -6,6 +6,7 @@ type Metric struct {
 	Timestamp int64
 	Value     float64
 	Unit      string
+	Tags      map[string]string
 }
 
 // MetricEnvelope ...
