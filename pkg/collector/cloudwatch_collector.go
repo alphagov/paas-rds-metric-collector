@@ -128,6 +128,9 @@ func (cw *CloudWatchCollector) Collect() ([]metrics.Metric, error) {
 				Timestamp: aws.TimeValue(d.Timestamp).UnixNano(),
 				Value:     aws.Float64Value(d.Average),
 				Unit:      strings.ToLower(*d.Unit),
+				Tags: map[string]string{
+					"source": "cloudwatch",
+				},
 			})
 		} else {
 			cw.logger.Debug("no_metrics_retrieved")

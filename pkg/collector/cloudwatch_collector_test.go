@@ -93,6 +93,7 @@ var _ = Describe("cloudwatch_collector", func() {
 			Expect(data).NotTo(BeEmpty())
 			Expect(data[0].Unit).To(Equal("second"))
 			Expect(data[0].Value).To(Equal(3.0))
+			Expect(data[0].Tags).To(HaveKeyWithValue("source", "cloudwatch"))
 		})
 		It("should preserve the timestamp", func() {
 			metricTime := time.Now().Add(-1 * time.Hour)

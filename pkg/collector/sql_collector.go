@@ -152,6 +152,9 @@ func queryToMetrics(db *sql.DB, mq MetricQuery) ([]metrics.Metric, error) {
 				Key:   m.Key,
 				Unit:  m.Unit,
 				Value: v,
+				Tags: map[string]string{
+					"source": "sql",
+				},
 			})
 		}
 	}

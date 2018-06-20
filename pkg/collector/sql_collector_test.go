@@ -155,11 +155,12 @@ var _ = Describe("sql_collector", func() {
 		It("can collect all metrics from multiple queries", func() {
 			collectedMetrics, err := collector.Collect()
 			Expect(err).NotTo(HaveOccurred())
+			expectedTags := map[string]string{"source": "sql"}
 			Expect(collectedMetrics).To(ConsistOf(
-				metrics.Metric{Key: "foo", Value: 1, Unit: "b"},
-				metrics.Metric{Key: "bar", Value: 2, Unit: "s"},
-				metrics.Metric{Key: "baz", Value: 3, Unit: "conn"},
-				metrics.Metric{Key: "foo2", Value: 1, Unit: "gauge"},
+				metrics.Metric{Key: "foo", Value: 1, Unit: "b", Tags: expectedTags},
+				metrics.Metric{Key: "bar", Value: 2, Unit: "s", Tags: expectedTags},
+				metrics.Metric{Key: "baz", Value: 3, Unit: "conn", Tags: expectedTags},
+				metrics.Metric{Key: "foo2", Value: 1, Unit: "gauge", Tags: expectedTags},
 			))
 		})
 
@@ -252,10 +253,11 @@ var _ = Describe("helpers", func() {
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(len(rowMetrics)).To(Equal(3))
+			expectedTags := map[string]string{"source": "sql"}
 			Expect(rowMetrics).To(Equal([]metrics.Metric{
-				{Key: "foo", Value: 1, Unit: "b"},
-				{Key: "bar", Value: 2, Unit: "s"},
-				{Key: "baz", Value: 3, Unit: "conn"},
+				{Key: "foo", Value: 1, Unit: "b", Tags: expectedTags},
+				{Key: "bar", Value: 2, Unit: "s", Tags: expectedTags},
+				{Key: "baz", Value: 3, Unit: "conn", Tags: expectedTags},
 			}))
 		})
 	})
