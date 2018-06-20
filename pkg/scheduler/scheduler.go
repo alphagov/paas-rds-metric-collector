@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"sync"
+	"time"
 
 	"code.cloudfoundry.org/lager"
 	"github.com/carlescere/scheduler"
@@ -14,6 +15,11 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
 )
 
+type workerID struct {
+	Driver       string
+	InstanceGUID string
+}
+
 type collectorWorker struct {
 	collector collector.MetricsCollector
 	job       *scheduler.Job
@@ -21,18 +27,22 @@ type collectorWorker struct {
 
 // Scheduler ...
 type Scheduler struct {
-	brokerinfo             brokerinfo.BrokerInfo
-	metricsEmitter         emitter.MetricsEmitter
-	metricsCollectorDriver collector.MetricsCollectorDriver
+	brokerinfo     brokerinfo.BrokerInfo
+	metricsEmitter emitter.MetricsEmitter
 
 	instanceRefreshInterval int
 	metricCollectorInterval int
 
 	logger lager.Logger
 
-	workers map[string]*collectorWorker
-	job     *scheduler.Job
-	mux     sync.Mutex
+	metricsCollectorDrivers map[string]collector.MetricsCollectorDriver
+
+	workers     map[workerID]*collectorWorker
+	workersLock sync.Mutex
+
+	job             *scheduler.Job
+	workersStarting sync.WaitGroup
+	workersStopping sync.WaitGroup
 }
 
 // NewScheduler ...
@@ -40,30 +50,52 @@ func NewScheduler(
 	schedulerConfig config.SchedulerConfig,
 	brokerInfo brokerinfo.BrokerInfo,
 	metricsEmitter emitter.MetricsEmitter,
-	metricsCollectorDriver collector.MetricsCollectorDriver,
 	logger lager.Logger,
 ) *Scheduler {
 
 	return &Scheduler{
-		brokerinfo:             brokerInfo,
-		metricsEmitter:         metricsEmitter,
-		metricsCollectorDriver: metricsCollectorDriver,
+		brokerinfo:     brokerInfo,
+		metricsEmitter: metricsEmitter,
 
 		instanceRefreshInterval: schedulerConfig.InstanceRefreshInterval,
 		metricCollectorInterval: schedulerConfig.MetricCollectorInterval,
 
-		workers: map[string]*collectorWorker{},
+		metricsCollectorDrivers: map[string]collector.MetricsCollectorDriver{},
+		workers:                 map[workerID]*collectorWorker{},
 
 		logger: logger,
 	}
+}
+
+// WithDriver ...
+func (w *Scheduler) WithDriver(drivers ...collector.MetricsCollectorDriver) *Scheduler {
+	for _, driver := range drivers {
+		w.metricsCollectorDrivers[driver.GetName()] = driver
+	}
+
+	return w
+}
+
+func (w *Scheduler) addWorker(id workerID, worker *collectorWorker) {
+	w.workersLock.Lock()
+	defer w.workersLock.Unlock()
+	w.workers[id] = worker
+}
+
+func (w *Scheduler) deleteWorker(id workerID) {
+	w.workersLock.Lock()
+	defer w.workersLock.Unlock()
+	delete(w.workers, id)
 }
 
 // Start ...
 func (w *Scheduler) Start() error {
 	var err error
 	w.job, err = scheduler.Every(w.instanceRefreshInterval).Seconds().Run(func() {
-		w.mux.Lock()
-		defer w.mux.Unlock()
+		w.workersStarting.Add(1)
+		defer w.workersStarting.Done()
+
+		w.logger.Debug("refresh_instances")
 
 		serviceInstances, err := w.brokerinfo.ListInstanceGUIDs()
 		if err != nil {
@@ -71,109 +103,143 @@ func (w *Scheduler) Start() error {
 			return
 		}
 
+		w.logger.Debug("refresh_instances", lager.Data{"instances": serviceInstances})
 		for _, instanceGUID := range serviceInstances {
-			if w.WorkerExists(instanceGUID) {
-				continue
+			for driverName := range w.metricsCollectorDrivers {
+				id := workerID{Driver: driverName, InstanceGUID: instanceGUID}
+				if !w.WorkerExists(id) {
+					w.startWorker(id)
+				}
 			}
-			w.StartWorker(instanceGUID)
 		}
 
-		for _, instanceGUID := range w.ListWorkers() {
+		for _, instanceGUID := range w.ListIntanceGUIDs() {
 			if !utils.SliceContainsString(serviceInstances, instanceGUID) {
-				w.StopWorker(instanceGUID)
+				for driverName := range w.metricsCollectorDrivers {
+					id := workerID{Driver: driverName, InstanceGUID: instanceGUID}
+					w.stopWorker(id)
+				}
 			}
 		}
 	})
 	return err
 }
 
-// Stop
+// Stop ...
 func (w *Scheduler) Stop() {
-	w.mux.Lock()
-	defer w.mux.Unlock()
 	w.job.Quit <- true
-	for _, id := range w.ListWorkers() {
-		w.StopWorker(id)
+	w.workersStarting.Wait()
+	for id := range w.workers {
+		w.stopWorker(id)
 	}
+	w.workersStopping.Wait()
 }
 
-// StartWorker ...
-func (w *Scheduler) StartWorker(instanceGUID string) {
-	w.logger.Info("start_worker", lager.Data{
-		"guid": instanceGUID,
-	})
+func (w *Scheduler) startWorker(id workerID) {
+	w.workersStarting.Add(1)
+	go func() {
+		defer w.workersStarting.Done()
 
-	collector, err := w.metricsCollectorDriver.NewCollector(instanceGUID)
-	if err != nil {
-		w.logger.Error("starting worker collector", err, lager.Data{
-			"guid": instanceGUID,
+		w.logger.Info("start_worker", lager.Data{
+			"driver":       id.Driver,
+			"instanceGUID": id.InstanceGUID,
 		})
-		return
-	}
 
-	newJob, err := scheduler.Every(w.metricCollectorInterval).Seconds().Run(func() {
-		w.logger.Debug("collecting metrics", lager.Data{
-			"guid": instanceGUID,
-		})
-		collectedMetrics, err := collector.Collect()
+		collector, err := w.metricsCollectorDrivers[id.Driver].NewCollector(id.InstanceGUID)
 		if err != nil {
-			w.logger.Error("querying metrics", err, lager.Data{
-				"instanceGUID": instanceGUID,
+			w.logger.Error("starting worker collector", err, lager.Data{
+				"driver":       id.Driver,
+				"instanceGUID": id.InstanceGUID,
 			})
 			return
 		}
-		w.logger.Debug("collected metrics", lager.Data{
-			"guid":    instanceGUID,
-			"metrics": collectedMetrics,
+
+		newJob, err := scheduler.Every(w.metricCollectorInterval).Seconds().Run(func() {
+			w.logger.Debug("collecting metrics", lager.Data{
+				"driver":       id.Driver,
+				"instanceGUID": id.InstanceGUID,
+			})
+			collectedMetrics, err := collector.Collect()
+			if err != nil {
+				w.logger.Error("querying metrics", err, lager.Data{
+					"driver":       id.Driver,
+					"instanceGUID": id.InstanceGUID,
+				})
+				return
+			}
+			w.logger.Debug("collected metrics", lager.Data{
+				"driver":       id.Driver,
+				"instanceGUID": id.InstanceGUID,
+				"metrics":      collectedMetrics,
+			})
+			for _, metric := range collectedMetrics {
+				w.metricsEmitter.Emit(
+					metrics.MetricEnvelope{InstanceGUID: id.InstanceGUID, Metric: metric},
+				)
+			}
 		})
-		for _, metric := range collectedMetrics {
-			w.metricsEmitter.Emit(
-				metrics.MetricEnvelope{InstanceGUID: instanceGUID, Metric: metric},
-			)
+		if err != nil {
+			w.logger.Error("cannot schedule the worker", err, lager.Data{
+				"driver":       id.Driver,
+				"instanceGUID": id.InstanceGUID,
+			})
+			return
 		}
-	})
-	if err != nil {
-		w.logger.Error("cannot schedule the worker", err, lager.Data{
-			"instanceGUID": instanceGUID,
+		w.addWorker(id, &collectorWorker{
+			collector: collector,
+			job:       newJob,
 		})
-		return
-	}
-	w.workers[instanceGUID] = &collectorWorker{
-		collector: collector,
-		job:       newJob,
-	}
+	}()
 }
 
-// StopCollector ...
-func (w *Scheduler) StopWorker(instanceGUID string) {
-	w.logger.Info("stop_worker", lager.Data{
-		"guid": instanceGUID,
-	})
+func (w *Scheduler) stopWorker(id workerID) {
+	w.workersStopping.Add(1)
+	go func() {
+		defer w.workersStopping.Done()
 
-	if w.WorkerExists(instanceGUID) {
-		err := w.workers[instanceGUID].collector.Close()
-		if err != nil {
-			w.logger.Error("close_collector", err, lager.Data{
-				"instanceGUID": instanceGUID,
-			})
+		w.logger.Info("stop_worker", lager.Data{
+			"driver":       id.Driver,
+			"instanceGUID": id.InstanceGUID,
+		})
+
+		if w.WorkerExists(id) {
+			err := w.workers[id].collector.Close()
+			if err != nil {
+				w.logger.Error("close_collector", err, lager.Data{
+					"driver":       id.Driver,
+					"instanceGUID": id.InstanceGUID,
+				})
+			}
+			if w.workers[id].job != nil {
+				w.workers[id].job.Quit <- true
+				for {
+					if !w.workers[id].job.IsRunning() {
+						break
+					}
+					time.Sleep(10 * time.Millisecond)
+				}
+			}
 		}
-		w.workers[instanceGUID].job.Quit <- true
-	}
-	delete(w.workers, instanceGUID)
+		w.deleteWorker(id)
+	}()
 }
 
 // WorkerExists ...
-func (w *Scheduler) WorkerExists(instanceGUID string) bool {
-	_, ok := w.workers[instanceGUID]
+func (w *Scheduler) WorkerExists(id workerID) bool {
+	_, ok := w.workers[id]
 	return ok
 }
 
-// ListWorkers ...
-func (w *Scheduler) ListWorkers() []string {
-	keys := make([]string, 0, len(w.workers))
+// ListIntanceGUIDs ...
+func (w *Scheduler) ListIntanceGUIDs() []string {
+	instanceGUIDMap := map[string]bool{}
 	for k := range w.workers {
-		keys = append(keys, k)
+		instanceGUIDMap[k.InstanceGUID] = true
+	}
+	instanceGUIDs := []string{}
+	for k := range instanceGUIDMap {
+		instanceGUIDs = append(instanceGUIDs, k)
 	}
 
-	return keys
+	return instanceGUIDs
 }

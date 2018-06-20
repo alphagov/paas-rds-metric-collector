@@ -8,7 +8,7 @@ unit:
 	ginkgo -r --skipPackage=ci --nodes=8
 
 integration:
-	ginkgo -r ci/blackbox
+	ginkgo -v -r ci/blackbox
 
 start_postgres_docker:
 	docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD= -d postgres:9.5

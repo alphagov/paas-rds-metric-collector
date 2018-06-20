@@ -1,12 +1,29 @@
 package emitter
 
 import (
+	"fmt"
+	"time"
+
 	"code.cloudfoundry.org/go-loggregator"
+	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 	"code.cloudfoundry.org/lager"
+	"github.com/golang/protobuf/proto"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 )
+
+// WithTimestamp overrides an envelope timestamp
+func WithTimestamp(timestamp int64) loggregator.EmitGaugeOption {
+	return func(m proto.Message) {
+		switch e := m.(type) {
+		case *loggregator_v2.Envelope:
+			e.Timestamp = timestamp
+		default:
+			panic(fmt.Sprintf("unsupported Message type: %T", m))
+		}
+	}
+}
 
 type LoggregatorEmitter struct {
 	loggregatorIngressClient *loggregator.IngressClient
@@ -54,8 +71,15 @@ func (e *LoggregatorEmitter) Emit(me metrics.MetricEnvelope) {
 	e.logger.Debug("emit", lager.Data{
 		"envelope": me,
 	})
+	var timestamp int64
+	if me.Metric.Timestamp != 0 {
+		timestamp = me.Metric.Timestamp
+	} else {
+		timestamp = time.Now().UnixNano()
+	}
 	e.loggregatorIngressClient.EmitGauge(
 		loggregator.WithGaugeValue(me.Metric.Key, me.Metric.Value, me.Metric.Unit),
 		loggregator.WithGaugeSourceInfo(me.InstanceGUID, "0"),
+		WithTimestamp(timestamp),
 	)
 }

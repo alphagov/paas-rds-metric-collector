@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"runtime"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -24,10 +24,12 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/scheduler"
+	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
 )
 
 var (
-	configFilePath string
+	configFilePath   string
+	useStdoutEmitter bool
 
 	logLevels = map[string]lager.LogLevel{
 		"DEBUG": lager.DEBUG,
@@ -39,20 +41,24 @@ var (
 
 func init() {
 	flag.StringVar(&configFilePath, "config", "", "Location of the config file")
-}
-
-func buildDBInstance(region string, logger lager.Logger) awsrds.DBInstance {
-	awsConfig := aws.NewConfig().WithRegion(region)
-	awsSession := session.New(awsConfig)
-	rdssvc := rds.New(awsSession)
-	return awsrds.NewRDSDBInstance(region, "aws", rdssvc, logger)
+	flag.BoolVar(&useStdoutEmitter, "stdoutEmitter", false, "Print metrics to stdout rather than send to loggregator")
 }
 
 func stopOnSignal(metricsScheduler *scheduler.Scheduler) {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, os.Kill)
-	<-signalChan
-	metricsScheduler.Stop()
+	receivedSignal := <-signalChan
+	log.Printf("Received signal: %v. Stopping...\n", receivedSignal)
+
+	// Stop if another signal is sent
+	go func() {
+		receivedSignal = <-signalChan
+		log.Printf("Received another signal: %v. Dying...\n", receivedSignal)
+		os.Exit(1)
+	}()
+	if utils.WithTimeout(30*time.Second, func() { metricsScheduler.Stop() }) {
+		log.Printf("Timeout stopping. Exitting\n")
+	}
 	os.Exit(1)
 }
 
@@ -78,7 +84,10 @@ func main() {
 	}
 	initLogger(cfg.LogLevel)
 
-	dbInstance := buildDBInstance(cfg.AWS.Region, logger)
+	awsConfig := aws.NewConfig().WithRegion(cfg.AWS.Region)
+	awsSession := session.New(awsConfig)
+	rdssvc := rds.New(awsSession)
+	dbInstance := awsrds.NewRDSDBInstance(cfg.AWS.Region, "aws", rdssvc, logger)
 
 	rdsBrokerInfo := brokerinfo.NewRDSBrokerInfo(
 		cfg.RDSBrokerInfo,
@@ -86,13 +95,18 @@ func main() {
 		logger.Session("brokerinfo", lager.Data{"broker_name": cfg.RDSBrokerInfo.BrokerName}),
 	)
 
-	loggregatorEmitter, err := emitter.NewLoggregatorEmitter(
-		cfg.LoggregatorEmitter,
-		logger.Session("loggregator_emitter", lager.Data{"url": cfg.LoggregatorEmitter.MetronURL}),
-	)
-	if err != nil {
-		logger.Error("connecting to loggregator", err)
-		os.Exit(1)
+	var metricsEmitter emitter.MetricsEmitter
+	if useStdoutEmitter {
+		metricsEmitter = &emitter.StdOutEmitter{}
+	} else {
+		metricsEmitter, err = emitter.NewLoggregatorEmitter(
+			cfg.LoggregatorEmitter,
+			logger.Session("loggregator_emitter", lager.Data{"url": cfg.LoggregatorEmitter.MetronURL}),
+		)
+		if err != nil {
+			logger.Error("connecting to loggregator", err)
+			os.Exit(1)
+		}
 	}
 
 	postgresMetricsCollectorDriver := collector.NewPostgresMetricsCollectorDriver(
@@ -100,15 +114,20 @@ func main() {
 		logger.Session("postgres_metrics_collector"),
 	)
 
+	cloudWatchMetricsCollectorDriver := collector.NewCloudWatchCollectorDriver(
+		awsSession,
+		rdsBrokerInfo,
+		logger.Session("cloudwatch_metrics_collector"),
+	)
+
 	scheduler := scheduler.NewScheduler(
 		cfg.Scheduler,
 		rdsBrokerInfo,
-		loggregatorEmitter,
-		postgresMetricsCollectorDriver,
+		metricsEmitter,
 		logger.Session("scheduler"),
 	)
-
-	go stopOnSignal(scheduler)
+	scheduler.WithDriver(postgresMetricsCollectorDriver)
+	scheduler.WithDriver(cloudWatchMetricsCollectorDriver)
 
 	err = scheduler.Start()
 	if err != nil {
@@ -118,5 +137,5 @@ func main() {
 
 	logger.Info("start")
 
-	runtime.Goexit()
+	stopOnSignal(scheduler)
 }

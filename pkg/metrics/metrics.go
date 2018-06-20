@@ -2,9 +2,10 @@ package metrics
 
 // Metric ...
 type Metric struct {
-	Key   string
-	Value float64
-	Unit  string
+	Key       string
+	Timestamp int64
+	Value     float64
+	Unit      string
 }
 
 // MetricEnvelope ...

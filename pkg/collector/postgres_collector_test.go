@@ -27,12 +27,16 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		metricsCollectorDriver = NewPostgresMetricsCollectorDriver(brokerInfo, logger)
 	})
 
+	It("returns the right metricsCollectorDriver name", func() {
+		Expect(metricsCollectorDriver.GetName()).To(Equal("postgres"))
+	})
+
 	It("can collect the number of connections", func() {
 		var err error
 		brokerInfo.On(
 			"ConnectionString", mock.Anything,
 		).Return(
-			postgresTestDatabaseConnectionUrl, nil,
+			postgresTestDatabaseConnectionURL, nil,
 		)
 
 		By("Creating a new collector")
@@ -51,7 +55,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		initialConnections := metric.Value
 
 		By("Creating multiple new connections")
-		closeDBConns := openMultipleDBConns(20, "postgres", postgresTestDatabaseConnectionUrl)
+		closeDBConns := openMultipleDBConns(20, "postgres", postgresTestDatabaseConnectionURL)
 		defer closeDBConns()
 
 		Eventually(func() float64 {
