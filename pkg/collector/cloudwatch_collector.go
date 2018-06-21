@@ -17,7 +17,21 @@ import (
 )
 
 var metricNamesToLabels = map[string]string{
-	"CPUUtilization": "cpu",
+	"CPUUtilization":            "cpu",
+	"CPUCreditUsage":            "cpu_credit_usage",
+	"CPUCreditBalance":          "cpu_credit_balance",
+	"FreeableMemory":            "freeable_memory",
+	"FreeStorageSpace":          "free_storage_space",
+	"SwapUsage":                 "swap_usage",
+	"NetworkReceiveThroughput":  "network_receive_rate",
+	"NetworkTransmitThroughput": "network_transmit_rate",
+	"DiskQueueDepth":            "disk_queue_depth",
+	"ReadIOPS":                  "read_iops",
+	"ReadLatency":               "read_latency",
+	"ReadThroughput":            "read_rate",
+	"WriteIOPS":                 "write_iops",
+	"WriteLatency":              "write_latency",
+	"WriteThroughput":           "write_rate",
 }
 
 // NewCloudWatchCollectorDriver ...

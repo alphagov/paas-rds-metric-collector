@@ -90,7 +90,7 @@ var _ = Describe("cloudwatch_collector", func() {
 			data, err := collector.Collect()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(data).NotTo(BeNil())
-			Expect(data).To(HaveLen(1))
+			Expect(data).NotTo(BeEmpty())
 			Expect(data[0].Unit).To(Equal("second"))
 			Expect(data[0].Value).To(Equal(3.0))
 		})
@@ -111,7 +111,7 @@ var _ = Describe("cloudwatch_collector", func() {
 			data, err := collector.Collect()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(data).NotTo(BeNil())
-			Expect(data).To(HaveLen(1))
+			Expect(data).NotTo(BeEmpty())
 			Expect(data[0].Timestamp).To(Equal(metricTime.UnixNano()))
 		})
 		It("should not fail if there are no datapoints", func() {
