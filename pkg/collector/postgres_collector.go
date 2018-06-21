@@ -55,6 +55,24 @@ var postgresMetricQueries = []MetricQuery{
 	MetricQuery{
 		Query: `
 			SELECT
+				pg_table_size(C.oid) as table_size,
+				relname as table_name,
+				current_database() as dbname
+			FROM pg_class C LEFT JOIN pg_namespace N
+			ON (N.oid = C.relnamespace)
+			WHERE nspname NOT IN ('pg_catalog', 'information_schema')
+			AND nspname !~ '^pg_toast' AND relkind IN ('r')
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "table_size",
+				Unit: "byte",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
 				deadlocks,
 				current_database() as dbname
 			FROM pg_stat_database

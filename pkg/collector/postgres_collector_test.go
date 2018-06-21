@@ -177,6 +177,15 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
 	})
 
+	It("can collect the table sizes", func() {
+		metric := getMetricByKey(collectedMetrics, "table_size")
+		Expect(metric).ToNot(BeNil())
+		Expect(metric.Value).To(BeNumerically(">=", 1))
+		Expect(metric.Unit).To(Equal("byte"))
+		Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+		Expect(metric.Tags).To(HaveKeyWithValue("table_name", "films"))
+	})
+
 	Context("deadlocks", func() {
 		It("can collect the database deadlocks", func() {
 			metric := getMetricByKey(collectedMetrics, "deadlocks")
