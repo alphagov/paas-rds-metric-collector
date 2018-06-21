@@ -38,6 +38,21 @@ var postgresMetricQueries = []MetricQuery{
 			},
 		},
 	},
+	MetricQuery{
+		Query: `
+			SELECT
+				deadlocks,
+				current_database() as dbname
+			FROM pg_stat_database
+			WHERE datname = current_database()
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "deadlocks",
+				Unit: "lock",
+			},
+		},
+	},
 }
 
 // NewPostgresMetricsCollectorDriver ...

@@ -1,9 +1,11 @@
 package collector
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"regexp"
+	"sync"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -161,6 +163,59 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		Expect(metric.Value).To(BeNumerically(">=", 1))
 		Expect(metric.Unit).To(Equal("byte"))
 		Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+	})
+
+	Context("deadlocks", func() {
+		It("can collect the database deadlocks", func() {
+			metric := getMetricByKey(collectedMetrics, "deadlocks")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically("==", 0))
+			Expect(metric.Unit).To(Equal("lock"))
+			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+
+			_, err := testDBConn.Exec("CREATE TABLE z AS SELECT i FROM GENERATE_SERIES(1,2) AS i")
+			ctx1, cancel1 := context.WithCancel(context.Background())
+			defer cancel1()
+			ctx2, cancel2 := context.WithCancel(context.Background())
+			defer cancel2()
+
+			tx1, err := testDBConn.BeginTx(ctx1, nil)
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = tx1.Exec("DELETE FROM z WHERE i = 1")
+			Expect(err).NotTo(HaveOccurred())
+
+			tx2, err := testDBConn.BeginTx(ctx2, nil)
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = tx2.Exec("DELETE FROM z WHERE i = 2")
+			Expect(err).NotTo(HaveOccurred())
+
+			wg := sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				defer GinkgoRecover()
+				tx2.Exec("DELETE FROM z WHERE i = 1")
+			}()
+
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				defer GinkgoRecover()
+				tx1.Exec("DELETE FROM z WHERE i = 2")
+			}()
+			wg.Wait()
+
+			collectedMetrics, err := metricsCollector.Collect()
+			Expect(err).NotTo(HaveOccurred())
+
+			metric = getMetricByKey(collectedMetrics, "deadlocks")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically("==", 1))
+			Expect(metric.Unit).To(Equal("lock"))
+			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+		})
 	})
 })
 
