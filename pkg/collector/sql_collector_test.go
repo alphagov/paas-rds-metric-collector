@@ -51,6 +51,12 @@ var testQueries = []MetricQuery{
 			{Key: "foo2", Unit: "gauge"},
 		},
 	},
+	{
+		Query: "SELECT 1 AS foo WHERE 1 = 2",
+		Metrics: []MetricQueryMeta{
+			{Key: "foo", Unit: "gauge"},
+		},
+	},
 }
 
 var _ = Describe("sql_collector", func() {
@@ -324,6 +330,12 @@ var _ = Describe("helpers", func() {
 
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("converting driver.Value type")))
+		})
+
+		It("should not error when query doesn't return any row", func() {
+			_, err := queryToMetrics(dbConn, testQueries[5])
+
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("should succeed to obtain metrics from query", func() {
