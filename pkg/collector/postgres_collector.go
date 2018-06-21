@@ -165,6 +165,20 @@ var postgresMetricQueries = []MetricQuery{
 			},
 		},
 	},
+	MetricQuery{
+		Query: `
+			SELECT
+				EXTRACT(epoch FROM MAX(now() - xact_start))::INT as max_tx_age
+			FROM pg_stat_activity
+      WHERE state IN ('idle in transaction', 'active')
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "max_tx_age",
+				Unit: "s",
+			},
+		},
+	},
 }
 
 // NewPostgresMetricsCollectorDriver ...

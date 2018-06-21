@@ -360,6 +360,22 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		Expect(metric).ToNot(BeNil())
 		Expect(metric.Value).To(BeNumerically(">", initialIdxScanValue))
 	})
+
+	It("can collect the maximum transaction age", func() {
+		ctx1, cancel1 := context.WithCancel(context.Background())
+		defer cancel1()
+		_, err := testDBConn.BeginTx(ctx1, nil)
+		Expect(err).NotTo(HaveOccurred())
+
+		time.Sleep(1 * time.Second)
+
+		collectedMetrics, err = metricsCollector.Collect()
+		metric := getMetricByKey(collectedMetrics, "max_tx_age")
+		Expect(metric).ToNot(BeNil())
+		Expect(metric.Value).To(BeNumerically(">=", 1))
+		Expect(metric.Unit).To(Equal("s"))
+	})
+
 })
 
 func openMultipleDBConns(count int, driver, url string) func() {
