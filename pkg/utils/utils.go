@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"math/rand"
 	"time"
 )
 
@@ -37,4 +38,14 @@ func WithTimeout(timeout time.Duration, payload func()) bool {
 		timeoutHappened = true
 	}
 	return true
+}
+
+func RandomString(n int) string {
+	var letters = []rune("abcdefghijklmnopqrstuvwxyz")
+	rand.Seed(time.Now().UnixNano())
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
 }

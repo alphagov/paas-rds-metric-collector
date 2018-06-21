@@ -11,11 +11,30 @@ import (
 
 var postgresMetricQueries = []MetricQuery{
 	MetricQuery{
-		Query: "SELECT CAST (SUM(numbackends) AS DOUBLE PRECISION) AS connections FROM pg_stat_database",
+		Query: `
+			SELECT
+				SUM(numbackends) AS connections
+			FROM pg_stat_database
+		`,
 		Metrics: []MetricQueryMeta{
 			{
 				Key:  "connections",
 				Unit: "conn",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
+				pg_database_size(pg_database.datname) as dbsize,
+				current_database() as dbname
+			FROM pg_database
+			WHERE datname = current_database()
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "dbsize",
+				Unit: "byte",
 			},
 		},
 	},
