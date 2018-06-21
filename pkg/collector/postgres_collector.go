@@ -73,7 +73,14 @@ var postgresMetricQueries = []MetricQuery{
 	MetricQuery{
 		Query: `
 			SELECT
-				deadlocks,
+				deadlocks as deadlocks,
+				xact_commit as commits,
+				xact_rollback as rollbacks,
+				blks_read as blocks_read,
+				blks_hit as blocks_hit,
+				blk_read_time as read_time,
+				blk_write_time as write_time,
+				temp_bytes as temp_bytes,
 				current_database() as dbname
 			FROM pg_stat_database
 			WHERE datname = current_database()
@@ -82,6 +89,34 @@ var postgresMetricQueries = []MetricQuery{
 			{
 				Key:  "deadlocks",
 				Unit: "lock",
+			},
+			{
+				Key:  "commits",
+				Unit: "tx",
+			},
+			{
+				Key:  "rollbacks",
+				Unit: "tx",
+			},
+			{
+				Key:  "blocks_read",
+				Unit: "block",
+			},
+			{
+				Key:  "blocks_hit",
+				Unit: "block",
+			},
+			{
+				Key:  "read_time",
+				Unit: "ms",
+			},
+			{
+				Key:  "write_time",
+				Unit: "ms",
+			},
+			{
+				Key:  "temp_bytes",
+				Unit: "byte",
 			},
 		},
 	},

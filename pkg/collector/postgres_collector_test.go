@@ -62,7 +62,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 			INSERT INTO
 				films(title, date_prod, kind, len)
 			VALUES
-				('The Shawshank Redemption', '1995-02-17', 'drama', 142)
+				('The Shawshaxxxxxiank Redemption', '1995-02-17', 'drama', 142)
 		`)
 		Expect(err).NotTo(HaveOccurred())
 		_, err = testDBConn.Exec(`
@@ -186,7 +186,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		Expect(metric.Tags).To(HaveKeyWithValue("table_name", "films"))
 	})
 
-	Context("deadlocks", func() {
+	FContext("pg_stat_database", func() {
 		It("can collect the database deadlocks", func() {
 			metric := getMetricByKey(collectedMetrics, "deadlocks")
 			Expect(metric).ToNot(BeNil())
@@ -239,6 +239,50 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 				2*time.Second,
 				500*time.Millisecond,
 			).Should(BeNumerically("==", 1))
+		})
+
+		It("can collect number of commit and rollback transactions", func() {
+			metric := getMetricByKey(collectedMetrics, "commits")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically(">=", 0))
+			Expect(metric.Unit).To(Equal("tx"))
+			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+			metric = getMetricByKey(collectedMetrics, "rollbacks")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically(">=", 0))
+			Expect(metric.Unit).To(Equal("tx"))
+			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+		})
+
+		It("can collect number of blocks read/hit and write/read times", func() {
+			metric := getMetricByKey(collectedMetrics, "blocks_read")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically(">=", 0))
+			Expect(metric.Unit).To(Equal("block"))
+			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+			metric = getMetricByKey(collectedMetrics, "blocks_hit")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically(">=", 0))
+			Expect(metric.Unit).To(Equal("block"))
+			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+			metric = getMetricByKey(collectedMetrics, "read_time")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically(">=", 0))
+			Expect(metric.Unit).To(Equal("ms"))
+			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+			metric = getMetricByKey(collectedMetrics, "write_time")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically(">=", 0))
+			Expect(metric.Unit).To(Equal("ms"))
+			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+		})
+
+		It("can collect the bytes in temporary files", func() {
+			metric := getMetricByKey(collectedMetrics, "temp_bytes")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically(">=", 0))
+			Expect(metric.Unit).To(Equal("byte"))
+			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
 		})
 	})
 
