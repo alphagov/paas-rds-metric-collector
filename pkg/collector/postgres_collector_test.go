@@ -54,6 +54,11 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		`)
 		Expect(err).NotTo(HaveOccurred())
 		_, err = testDBConn.Exec(`
+			CREATE UNIQUE INDEX title_idx ON films (title)
+		`)
+		Expect(err).NotTo(HaveOccurred())
+
+		_, err = testDBConn.Exec(`
 			INSERT INTO
 				films(title, date_prod, kind, len)
 			VALUES
@@ -195,27 +200,75 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				defer GinkgoRecover()
 				tx2.Exec("DELETE FROM z WHERE i = 1")
 			}()
 
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				defer GinkgoRecover()
 				tx1.Exec("DELETE FROM z WHERE i = 2")
 			}()
 			wg.Wait()
 
-			collectedMetrics, err := metricsCollector.Collect()
+			Eventually(func() float64 {
+				collectedMetrics, err := metricsCollector.Collect()
+				Expect(err).NotTo(HaveOccurred())
+
+				metric = getMetricByKey(collectedMetrics, "deadlocks")
+				Expect(metric).ToNot(BeNil())
+				Expect(metric.Unit).To(Equal("lock"))
+				Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+				return metric.Value
+			},
+				2*time.Second,
+				500*time.Millisecond,
+			).Should(BeNumerically("==", 1))
+		})
+	})
+
+	It("can collect the number of sequencial and indexed scans", func() {
+		metric := getMetricByKey(collectedMetrics, "seq_scan")
+		Expect(metric).ToNot(BeNil())
+		Expect(metric.Value).To(BeNumerically("==", 0))
+		Expect(metric.Unit).To(Equal("scan"))
+		Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+		Expect(metric.Tags).To(HaveKeyWithValue("table_name", "films"))
+
+		initialSeqScanValue := metric.Value
+
+		metric = getMetricByKey(collectedMetrics, "idx_scan")
+		Expect(metric).ToNot(BeNil())
+		Expect(metric.Value).To(BeNumerically("==", 0))
+		Expect(metric.Unit).To(Equal("scan"))
+		Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+		Expect(metric.Tags).To(HaveKeyWithValue("table_name", "films"))
+
+		initialIdxScanValue := metric.Value
+
+		dbConn, err := sql.Open("postgres", testDBConnectionString)
+		defer dbConn.Close()
+		_, err = dbConn.Exec("SELECT * from films")
+		Expect(err).NotTo(HaveOccurred())
+		_, err = dbConn.Exec("SELECT * FROM films WHERE title = 'Code Name: K.O.Z.'")
+		Expect(err).NotTo(HaveOccurred())
+		dbConn.Close() // Needed for the stats collector to
+
+		// Wait for the stat collector to write the value down
+		Eventually(func() float64 {
+			collectedMetrics, err = metricsCollector.Collect()
 			Expect(err).NotTo(HaveOccurred())
 
-			metric = getMetricByKey(collectedMetrics, "deadlocks")
+			metric = getMetricByKey(collectedMetrics, "seq_scan")
 			Expect(metric).ToNot(BeNil())
-			Expect(metric.Value).To(BeNumerically("==", 1))
-			Expect(metric.Unit).To(Equal("lock"))
-			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
-		})
+			return metric.Value
+		},
+			2*time.Second,
+			500*time.Millisecond,
+		).Should(BeNumerically(">", initialSeqScanValue))
+
+		metric = getMetricByKey(collectedMetrics, "idx_scan")
+		Expect(metric).ToNot(BeNil())
+		Expect(metric.Value).To(BeNumerically(">", initialIdxScanValue))
 	})
 })
 

@@ -53,6 +53,26 @@ var postgresMetricQueries = []MetricQuery{
 			},
 		},
 	},
+	MetricQuery{
+		Query: `
+			SELECT
+				COALESCE(seq_scan, 0) as seq_scan,
+				COALESCE(idx_scan, 0) as idx_scan,
+				relname as table_name,
+				current_database() as dbname
+			FROM pg_stat_user_tables
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "seq_scan",
+				Unit: "scan",
+			},
+			{
+				Key:  "idx_scan",
+				Unit: "scan",
+			},
+		},
+	},
 }
 
 // NewPostgresMetricsCollectorDriver ...
