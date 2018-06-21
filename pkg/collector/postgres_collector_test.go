@@ -186,14 +186,22 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		Expect(metric.Tags).To(HaveKeyWithValue("table_name", "films"))
 	})
 
-	FContext("pg_stat_database", func() {
-		It("can collect the database deadlocks", func() {
+	Context("pg_stat_database and pg_locks", func() {
+		It("can collect the database locks and deadlocks", func() {
 			metric := getMetricByKey(collectedMetrics, "deadlocks")
 			Expect(metric).ToNot(BeNil())
-			Expect(metric.Value).To(BeNumerically("==", 0))
+			Expect(metric.Value).To(BeNumerically(">=", 0))
 			Expect(metric.Unit).To(Equal("lock"))
 			Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
+			initialDeadLocks := metric.Value
 
+			metric = getMetricByKey(collectedMetrics, "blocked_connections")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically(">=", 0))
+			Expect(metric.Unit).To(Equal("conn"))
+			initialLockedConns := metric.Value
+
+			By("simulating a deadlock")
 			_, err := testDBConn.Exec("CREATE TABLE z AS SELECT i FROM GENERATE_SERIES(1,2) AS i")
 			ctx1, cancel1 := context.WithCancel(context.Background())
 			defer cancel1()
@@ -219,6 +227,20 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 				tx2.Exec("DELETE FROM z WHERE i = 1")
 			}()
 
+			By("detecting the locked connection")
+			Eventually(func() float64 {
+				collectedMetrics, err := metricsCollector.Collect()
+				Expect(err).NotTo(HaveOccurred())
+
+				metric = getMetricByKey(collectedMetrics, "blocked_connections")
+				Expect(metric).ToNot(BeNil())
+				Expect(metric.Unit).To(Equal("conn"))
+				return metric.Value
+			},
+				2*time.Second,
+				500*time.Millisecond,
+			).Should(BeNumerically(">", initialLockedConns))
+
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
@@ -226,6 +248,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 			}()
 			wg.Wait()
 
+			By("increasing the deadlock counter")
 			Eventually(func() float64 {
 				collectedMetrics, err := metricsCollector.Collect()
 				Expect(err).NotTo(HaveOccurred())
@@ -238,7 +261,13 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 			},
 				2*time.Second,
 				500*time.Millisecond,
-			).Should(BeNumerically("==", 1))
+			).Should(BeNumerically(">", initialDeadLocks))
+
+			By("not reporting the blocked connection")
+			metric = getMetricByKey(collectedMetrics, "blocked_connections")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically("==", initialLockedConns))
+			Expect(metric.Unit).To(Equal("conn"))
 		})
 
 		It("can collect number of commit and rollback transactions", func() {

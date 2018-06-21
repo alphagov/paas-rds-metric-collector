@@ -151,6 +151,20 @@ var postgresMetricQueries = []MetricQuery{
 			},
 		},
 	},
+	MetricQuery{
+		Query: `
+			SELECT
+				count(distinct pid) as blocked_connections
+			FROM pg_locks
+			WHERE granted = false
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "blocked_connections",
+				Unit: "conn",
+			},
+		},
+	},
 }
 
 // NewPostgresMetricsCollectorDriver ...
