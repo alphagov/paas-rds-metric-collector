@@ -57,7 +57,6 @@ var postgresMetricQueries = []MetricQuery{
 		Query: `
 			SELECT
 				COALESCE(seq_scan, 0) as seq_scan,
-				COALESCE(idx_scan, 0) as idx_scan,
 				relname as table_name,
 				current_database() as dbname
 			FROM pg_stat_user_tables
@@ -67,6 +66,18 @@ var postgresMetricQueries = []MetricQuery{
 				Key:  "seq_scan",
 				Unit: "scan",
 			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
+				idx_scan,
+				relname as table_name,
+				indexrelname as index_name,
+				current_database() as dbname
+			FROM pg_stat_user_indexes
+		`,
+		Metrics: []MetricQueryMeta{
 			{
 				Key:  "idx_scan",
 				Unit: "scan",

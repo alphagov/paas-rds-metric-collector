@@ -242,6 +242,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		Expect(metric.Unit).To(Equal("scan"))
 		Expect(metric.Tags).To(HaveKeyWithValue("dbname", testDBName))
 		Expect(metric.Tags).To(HaveKeyWithValue("table_name", "films"))
+		Expect(metric.Tags).To(HaveKeyWithValue("index_name", "title_idx"))
 
 		initialIdxScanValue := metric.Value
 
