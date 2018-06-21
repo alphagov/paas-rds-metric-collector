@@ -162,6 +162,13 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		)
 	})
 
+	It("can collect the number of maximum connections", func() {
+		metric := getMetricByKey(collectedMetrics, "max_connections")
+		Expect(metric).ToNot(BeNil())
+		Expect(metric.Value).To(BeNumerically(">=", 10))
+		Expect(metric.Unit).To(Equal("conn"))
+	})
+
 	It("can collect the database size", func() {
 		metric := getMetricByKey(collectedMetrics, "dbsize")
 		Expect(metric).ToNot(BeNil())

@@ -26,6 +26,20 @@ var postgresMetricQueries = []MetricQuery{
 	MetricQuery{
 		Query: `
 			SELECT
+					setting::float as max_connections
+			FROM pg_settings
+			WHERE name = 'max_connections'
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "max_connections",
+				Unit: "conn",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
 				pg_database_size(pg_database.datname) as dbsize,
 				current_database() as dbname
 			FROM pg_database
