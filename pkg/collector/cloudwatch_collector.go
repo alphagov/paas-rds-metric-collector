@@ -32,6 +32,13 @@ var metricNamesToLabels = map[string]string{
 	"WriteIOPS":                 "write_iops",
 	"WriteLatency":              "write_latency",
 	"WriteThroughput":           "write_rate",
+	// More fancy metrics
+	"ReplicaLag":                "replica_lag",
+	"ReplicationSlotDiskUsage":  "replica_slot_disk_usage",
+	"OldestReplicationSlotLag":  "replication_lag",
+	"MaximumUsedTransactionIDs": "max_used_transaction_ids",
+	"TransactionLogsDiskUsage":  "transaction_logs_disk_usage",
+	"TransactionLogsGeneration": "transaction_logs_generation",
 }
 
 // NewCloudWatchCollectorDriver ...
