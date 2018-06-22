@@ -11,11 +11,171 @@ import (
 
 var postgresMetricQueries = []MetricQuery{
 	MetricQuery{
-		Query: "SELECT CAST (SUM(numbackends) AS DOUBLE PRECISION) AS connections FROM pg_stat_database",
+		Query: `
+			SELECT
+				SUM(numbackends) AS connections
+			FROM pg_stat_database
+		`,
 		Metrics: []MetricQueryMeta{
 			{
 				Key:  "connections",
 				Unit: "conn",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
+					setting::float as max_connections
+			FROM pg_settings
+			WHERE name = 'max_connections'
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "max_connections",
+				Unit: "conn",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
+				pg_database_size(pg_database.datname) as dbsize,
+				current_database() as dbname
+			FROM pg_database
+			WHERE datname = current_database()
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "dbsize",
+				Unit: "byte",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
+				pg_table_size(C.oid) as table_size,
+				relname as table_name,
+				current_database() as dbname
+			FROM pg_class C LEFT JOIN pg_namespace N
+			ON (N.oid = C.relnamespace)
+			WHERE nspname NOT IN ('pg_catalog', 'information_schema')
+			AND nspname !~ '^pg_toast' AND relkind IN ('r')
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "table_size",
+				Unit: "byte",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
+				deadlocks as deadlocks,
+				xact_commit as commits,
+				xact_rollback as rollbacks,
+				blks_read as blocks_read,
+				blks_hit as blocks_hit,
+				blk_read_time as read_time,
+				blk_write_time as write_time,
+				temp_bytes as temp_bytes,
+				current_database() as dbname
+			FROM pg_stat_database
+			WHERE datname = current_database()
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "deadlocks",
+				Unit: "lock",
+			},
+			{
+				Key:  "commits",
+				Unit: "tx",
+			},
+			{
+				Key:  "rollbacks",
+				Unit: "tx",
+			},
+			{
+				Key:  "blocks_read",
+				Unit: "block",
+			},
+			{
+				Key:  "blocks_hit",
+				Unit: "block",
+			},
+			{
+				Key:  "read_time",
+				Unit: "ms",
+			},
+			{
+				Key:  "write_time",
+				Unit: "ms",
+			},
+			{
+				Key:  "temp_bytes",
+				Unit: "byte",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
+				COALESCE(seq_scan, 0) as seq_scan,
+				relname as table_name,
+				current_database() as dbname
+			FROM pg_stat_user_tables
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "seq_scan",
+				Unit: "scan",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
+				idx_scan,
+				relname as table_name,
+				indexrelname as index_name,
+				current_database() as dbname
+			FROM pg_stat_user_indexes
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "idx_scan",
+				Unit: "scan",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
+				count(distinct pid) as blocked_connections
+			FROM pg_locks
+			WHERE granted = false
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "blocked_connections",
+				Unit: "conn",
+			},
+		},
+	},
+	MetricQuery{
+		Query: `
+			SELECT
+				EXTRACT(epoch FROM MAX(now() - xact_start))::INT as max_tx_age
+			FROM pg_stat_activity
+      WHERE state IN ('idle in transaction', 'active')
+		`,
+		Metrics: []MetricQueryMeta{
+			{
+				Key:  "max_tx_age",
+				Unit: "s",
 			},
 		},
 	},

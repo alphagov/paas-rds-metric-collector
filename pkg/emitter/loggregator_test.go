@@ -192,6 +192,31 @@ var _ = Describe("IngressClient", func() {
 			BeNumerically(">=", metricTime.Add(-1*time.Minute).UnixNano()),
 			BeNumerically("<", time.Now().Add(-2*time.Minute).UnixNano()),
 		))
+	})
 
+	It("should send tags if the metric has tags", func() {
+		metricTime := time.Now().Add(-1 * time.Hour)
+
+		loggregatorEmitter.Emit(
+			metrics.MetricEnvelope{
+				InstanceGUID: "instance-guid",
+				Metric: metrics.Metric{
+					Key:       "a_key",
+					Timestamp: metricTime.UnixNano(),
+					Value:     1,
+					Unit:      "bytes",
+					Tags: map[string]string{
+						"key1": "val1",
+						"key2": "val2",
+					},
+				},
+			},
+		)
+
+		var envelope *loggregator_v2.Envelope
+		Eventually(server.ReceivedEnvelopes, 1*time.Second).Should(Receive(&envelope))
+
+		Expect(envelope.GetTags()).To(HaveKeyWithValue("key1", "val1"))
+		Expect(envelope.GetTags()).To(HaveKeyWithValue("key2", "val2"))
 	})
 })

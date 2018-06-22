@@ -48,4 +48,14 @@ var _ = Describe("utils", func() {
 			Expect(ret).To(BeTrue())
 		})
 	})
+
+	Context("RandomString", func() {
+		It("Returns random strings", func() {
+			str1 := RandomString(10)
+			str2 := RandomString(10)
+			Expect(str1).ToNot(BeEmpty())
+			Expect(str2).ToNot(BeEmpty())
+			Expect(str1).ToNot(Equal(str2))
+		})
+	})
 })

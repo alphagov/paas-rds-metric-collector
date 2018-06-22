@@ -100,30 +100,49 @@ func (mc *sqlMetricsCollector) Close() error {
 
 // Helpers
 
-// getRowDataAsMap Returns a sql.Rows row as a map of column => float64 value
-func getRowDataAsMap(rows *sql.Rows) (map[string]float64, error) {
-	returnData := make(map[string]float64)
+// getRowDataAsMaps Returns a sql.Rows row and returns two maps with values
+// as map[string]float64 or tags as map[string]string.
+//
+// Values should be returned as the first columns. You must pass the expected number
+// of values in the query.
+//
+func getRowDataAsMaps(numberOfValues int, rows *sql.Rows) (valuesMap map[string]float64, tagsMap map[string]string, err error) {
+	valuesMap = make(map[string]float64)
+	tagsMap = make(map[string]string)
 
 	columnNames, err := rows.Columns()
 	if err != nil {
-		return returnData, err
+		return valuesMap, tagsMap, err
 	}
 
-	var columnData = make([]float64, len(columnNames))
+	if len(columnNames) < numberOfValues {
+		return valuesMap, tagsMap, fmt.Errorf("Expected %d values but the row only has %v columns", numberOfValues, len(columnNames))
+	}
+
+	valuesData := make([]float64, numberOfValues)
+	tagsData := make([]string, len(columnNames)-numberOfValues)
 	var scanArgs = make([]interface{}, len(columnNames))
-	for i := range columnData {
-		scanArgs[i] = &columnData[i]
+	for i := range scanArgs {
+		if i < numberOfValues {
+			scanArgs[i] = &valuesData[i]
+		} else {
+			scanArgs[i] = &tagsData[i-numberOfValues]
+		}
+
 	}
 	err = rows.Scan(scanArgs...)
 	if err != nil {
-		return returnData, err
+		return valuesMap, tagsMap, err
 	}
 
-	for i, value := range columnData {
-		returnData[columnNames[i]] = value
+	for i, v := range valuesData {
+		valuesMap[columnNames[i]] = v
+	}
+	for i, v := range tagsData {
+		tagsMap[columnNames[numberOfValues+i]] = v
 	}
 
-	return returnData, nil
+	return valuesMap, tagsMap, nil
 }
 
 // queryToMetrics Executes the given query and retunrs the result as
@@ -137,10 +156,11 @@ func queryToMetrics(db *sql.DB, mq MetricQuery) ([]metrics.Metric, error) {
 
 	rowMetrics := []metrics.Metric{}
 	for rows.Next() {
-		rowMap, err := getRowDataAsMap(rows)
+		rowMap, tags, err := getRowDataAsMaps(len(mq.Metrics), rows)
 		if err != nil {
 			return nil, err
 		}
+		tags["source"] = "sql"
 
 		for _, m := range mq.Metrics {
 			v, ok := rowMap[m.Key]
@@ -152,6 +172,7 @@ func queryToMetrics(db *sql.DB, mq MetricQuery) ([]metrics.Metric, error) {
 				Key:   m.Key,
 				Unit:  m.Unit,
 				Value: v,
+				Tags:  tags,
 			})
 		}
 	}

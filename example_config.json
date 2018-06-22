@@ -1,10 +1,10 @@
 {
-	"log_level": "INFO",
+	"log_level": "DEBUG",
 	"aws": {
 		"region": "eu-west-1"
 	},
 	"rds_broker": {
-		"broker_name": "mybroker",
+		"broker_name": "hector",
 		"db_prefix": "rdsbroker",
 		"master_password_seed": "abc123"
 	},

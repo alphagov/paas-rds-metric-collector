@@ -17,7 +17,28 @@ import (
 )
 
 var metricNamesToLabels = map[string]string{
-	"CPUUtilization": "cpu",
+	"CPUUtilization":            "cpu",
+	"CPUCreditUsage":            "cpu_credit_usage",
+	"CPUCreditBalance":          "cpu_credit_balance",
+	"FreeableMemory":            "freeable_memory",
+	"FreeStorageSpace":          "free_storage_space",
+	"SwapUsage":                 "swap_usage",
+	"NetworkReceiveThroughput":  "network_receive_rate",
+	"NetworkTransmitThroughput": "network_transmit_rate",
+	"DiskQueueDepth":            "disk_queue_depth",
+	"ReadIOPS":                  "read_iops",
+	"ReadLatency":               "read_latency",
+	"ReadThroughput":            "read_rate",
+	"WriteIOPS":                 "write_iops",
+	"WriteLatency":              "write_latency",
+	"WriteThroughput":           "write_rate",
+	// More fancy metrics
+	"ReplicaLag":                "replica_lag",
+	"ReplicationSlotDiskUsage":  "replica_slot_disk_usage",
+	"OldestReplicationSlotLag":  "replication_lag",
+	"MaximumUsedTransactionIDs": "max_used_transaction_ids",
+	"TransactionLogsDiskUsage":  "transaction_logs_disk_usage",
+	"TransactionLogsGeneration": "transaction_logs_generation",
 }
 
 // NewCloudWatchCollectorDriver ...
@@ -107,6 +128,9 @@ func (cw *CloudWatchCollector) Collect() ([]metrics.Metric, error) {
 				Timestamp: aws.TimeValue(d.Timestamp).UnixNano(),
 				Value:     aws.Float64Value(d.Average),
 				Unit:      strings.ToLower(*d.Unit),
+				Tags: map[string]string{
+					"source": "cloudwatch",
+				},
 			})
 		} else {
 			cw.logger.Debug("no_metrics_retrieved")
