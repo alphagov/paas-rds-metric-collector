@@ -62,12 +62,8 @@ var _ = Describe("RDS Metrics Collector", func() {
 			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()).To(HaveKey("connections"))
 			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()["connections"].Value).To(BeNumerically(">=", 1))
 
-			cpuEnvelopes := filterEnvelopesBySourceAndMetric(envelopes, instanceID, "cpu")
-			Expect(cpuEnvelopes).ToNot(BeEmpty())
-			Expect(cpuEnvelopes[0].GetGauge()).NotTo(BeNil())
-			Expect(cpuEnvelopes[0].GetGauge().GetMetrics()).NotTo(BeNil())
-			Expect(cpuEnvelopes[0].GetGauge().GetMetrics()).To(HaveKey("cpu"))
-			Expect(cpuEnvelopes[0].GetGauge().GetMetrics()["cpu"].Value).To(BeNumerically(">=", 0))
+			cloudwatchEnvelopes := filterEnvelopesBySourceAndTag(envelopes, instanceID, "source", "cloudwatch")
+			Expect(cloudwatchEnvelopes).ToNot(BeEmpty())
 
 			By("deprovision the instance")
 			deprovisionInstance(instanceID, serviceID, planID)
@@ -94,6 +90,23 @@ func filterEnvelopesBySourceAndMetric(
 	for _, e := range envelopes {
 		if e.GetSourceId() == sourceId && e.GetGauge() != nil {
 			if _, ok := e.GetGauge().GetMetrics()[metricKey]; ok {
+				filteredEnvelopes = append(filteredEnvelopes, e)
+			}
+		}
+	}
+	return filteredEnvelopes
+}
+
+func filterEnvelopesBySourceAndTag(
+	envelopes []*loggregator_v2.Envelope,
+	sourceId string,
+	tagKey string,
+	tagValue string,
+) []*loggregator_v2.Envelope {
+	filteredEnvelopes := []*loggregator_v2.Envelope{}
+	for _, e := range envelopes {
+		if e.GetSourceId() == sourceId {
+			if v, ok := e.GetTags()[tagKey]; ok && v == tagValue {
 				filteredEnvelopes = append(filteredEnvelopes, e)
 			}
 		}
