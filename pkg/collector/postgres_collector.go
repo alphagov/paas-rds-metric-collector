@@ -55,24 +55,6 @@ var postgresMetricQueries = []MetricQuery{
 	MetricQuery{
 		Query: `
 			SELECT
-				pg_table_size(C.oid) as table_size,
-				relname as table_name,
-				current_database() as dbname
-			FROM pg_class C LEFT JOIN pg_namespace N
-			ON (N.oid = C.relnamespace)
-			WHERE nspname NOT IN ('pg_catalog', 'information_schema')
-			AND nspname !~ '^pg_toast' AND relkind IN ('r')
-		`,
-		Metrics: []MetricQueryMeta{
-			{
-				Key:  "table_size",
-				Unit: "byte",
-			},
-		},
-	},
-	MetricQuery{
-		Query: `
-			SELECT
 				deadlocks as deadlocks,
 				xact_commit as commits,
 				xact_rollback as rollbacks,
@@ -123,8 +105,8 @@ var postgresMetricQueries = []MetricQuery{
 	MetricQuery{
 		Query: `
 			SELECT
-				COALESCE(seq_scan, 0) as seq_scan,
-				relname as table_name,
+				COALESCE(SUM(seq_scan), 0) as seq_scan,
+				COALESCE(SUM(idx_scan), 0) as idx_scan,
 				current_database() as dbname
 			FROM pg_stat_user_tables
 		`,
@@ -133,18 +115,6 @@ var postgresMetricQueries = []MetricQuery{
 				Key:  "seq_scan",
 				Unit: "scan",
 			},
-		},
-	},
-	MetricQuery{
-		Query: `
-			SELECT
-				idx_scan,
-				relname as table_name,
-				indexrelname as index_name,
-				current_database() as dbname
-			FROM pg_stat_user_indexes
-		`,
-		Metrics: []MetricQueryMeta{
 			{
 				Key:  "idx_scan",
 				Unit: "scan",
