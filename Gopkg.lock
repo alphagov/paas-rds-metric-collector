@@ -32,8 +32,8 @@
     "sqlengine",
     "utils"
   ]
-  revision = "a748af2caac5dbd8730abb44ca21c1e995782665"
-  version = "v0.16.0"
+  revision = "a662af4b57958b02e6988606132dc30452363ec8"
+  version = "v0.18.0"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -330,6 +330,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a750fd82075c214e903706cf3243b16ab0ba7fd182f408b66a869bbe512a1c96"
+  inputs-digest = "e80c7a83b940bd7edd995dfb4d99f3f7bd7812ab39d30eb46f059da83b69c1f1"
   solver-name = "gps-cdcl"
   solver-version = 1
