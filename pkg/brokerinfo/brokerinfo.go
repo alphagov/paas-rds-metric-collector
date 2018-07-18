@@ -2,6 +2,7 @@ package brokerinfo
 
 type InstanceInfo struct {
 	GUID string
+	Type string
 }
 
 // BrokerInfo ...

@@ -35,6 +35,11 @@ func (f *fakeMetricsCollectorDriver) GetName() string {
 	return args.String(0)
 }
 
+func (f *fakeMetricsCollectorDriver) SupportedTypes() []string {
+	args := f.Called()
+	return args.Get(0).([]string)
+}
+
 type fakeMetricsCollector struct {
 	mock.Mock
 }
@@ -71,6 +76,7 @@ var _ = Describe("collector scheduler", func() {
 		metricsEmitter = &fakeMetricsEmitter{}
 		metricsCollectorDriver = &fakeMetricsCollectorDriver{}
 		metricsCollectorDriver.On("GetName").Return("fake")
+		metricsCollectorDriver.On("SupportedTypes").Return([]string{"fake"})
 		metricsCollector = &fakeMetricsCollector{}
 
 		scheduler = NewScheduler(
@@ -134,7 +140,9 @@ var _ = Describe("collector scheduler", func() {
 		brokerInfo.On(
 			"ListInstances", mock.Anything,
 		).Return(
-			[]brokerinfo.InstanceInfo{{GUID: "instance-guid1"}}, nil,
+			[]brokerinfo.InstanceInfo{
+				{GUID: "instance-guid1", Type: "fake"},
+			}, nil,
 		)
 		metricsCollectorDriver.On(
 			"NewCollector", mock.Anything,
@@ -156,7 +164,9 @@ var _ = Describe("collector scheduler", func() {
 		brokerInfo.On(
 			"ListInstances", mock.Anything,
 		).Return(
-			[]brokerinfo.InstanceInfo{{GUID: "instance-guid1"}}, nil,
+			[]brokerinfo.InstanceInfo{
+				{GUID: "instance-guid1", Type: "fake"},
+			}, nil,
 		)
 		metricsCollectorDriver.On(
 			"NewCollector", mock.Anything,
@@ -212,7 +222,9 @@ var _ = Describe("collector scheduler", func() {
 			brokerInfo.On(
 				"ListInstances", mock.Anything,
 			).Return(
-				[]brokerinfo.InstanceInfo{{GUID: "instance-guid1"}}, nil,
+				[]brokerinfo.InstanceInfo{
+					{GUID: "instance-guid1", Type: "fake"},
+				}, nil,
 			)
 
 			scheduler.Start()
@@ -228,7 +240,9 @@ var _ = Describe("collector scheduler", func() {
 			brokerInfo.On(
 				"ListInstances", mock.Anything,
 			).Return(
-				[]brokerinfo.InstanceInfo{{GUID: "instance-guid1"}}, nil,
+				[]brokerinfo.InstanceInfo{
+					{GUID: "instance-guid1", Type: "fake"},
+				}, nil,
 			)
 
 			scheduler.Start()
@@ -255,8 +269,8 @@ var _ = Describe("collector scheduler", func() {
 				"ListInstances", mock.Anything,
 			).Return(
 				[]brokerinfo.InstanceInfo{
-					{GUID: "instance-guid1"},
-					{GUID: "instance-guid2"},
+					{GUID: "instance-guid1", Type: "fake"},
+					{GUID: "instance-guid2", Type: "fake"},
 				}, nil,
 			)
 
@@ -295,7 +309,7 @@ var _ = Describe("collector scheduler", func() {
 				"ListInstances", mock.Anything,
 			).Return(
 				[]brokerinfo.InstanceInfo{
-					{GUID: "instance-guid1"},
+					{GUID: "instance-guid1", Type: "fake"},
 				}, nil,
 			).Once()
 
@@ -311,8 +325,8 @@ var _ = Describe("collector scheduler", func() {
 				"ListInstances", mock.Anything,
 			).Return(
 				[]brokerinfo.InstanceInfo{
-					{GUID: "instance-guid1"},
-					{GUID: "instance-guid2"},
+					{GUID: "instance-guid1", Type: "fake"},
+					{GUID: "instance-guid2", Type: "fake"},
 				}, nil,
 			)
 
@@ -359,8 +373,8 @@ var _ = Describe("collector scheduler", func() {
 				"ListInstances", mock.Anything,
 			).Return(
 				[]brokerinfo.InstanceInfo{
-					{GUID: "instance-guid1"},
-					{GUID: "instance-guid2"},
+					{GUID: "instance-guid1", Type: "fake"},
+					{GUID: "instance-guid2", Type: "fake"},
 				}, nil,
 			).Once()
 
@@ -369,7 +383,7 @@ var _ = Describe("collector scheduler", func() {
 				"ListInstances", mock.Anything,
 			).Return(
 				[]brokerinfo.InstanceInfo{
-					{GUID: "instance-guid1"},
+					{GUID: "instance-guid1", Type: "fake"},
 				}, nil,
 			)
 
@@ -407,8 +421,8 @@ var _ = Describe("collector scheduler", func() {
 				"ListInstances", mock.Anything,
 			).Return(
 				[]brokerinfo.InstanceInfo{
-					{GUID: "instance-guid1"},
-					{GUID: "instance-guid2"},
+					{GUID: "instance-guid1", Type: "fake"},
+					{GUID: "instance-guid2", Type: "fake"},
 				}, nil,
 			)
 
@@ -441,7 +455,7 @@ var _ = Describe("collector scheduler", func() {
 				"ListInstances", mock.Anything,
 			).Return(
 				[]brokerinfo.InstanceInfo{
-					{GUID: "instance-guid1"},
+					{GUID: "instance-guid1", Type: "fake"},
 				}, nil,
 			)
 
@@ -478,6 +492,7 @@ var _ = Describe("collector scheduler", func() {
 			BeforeEach(func() {
 				metricsCollectorDriver2 = &fakeMetricsCollectorDriver{}
 				metricsCollectorDriver2.On("GetName").Return("fake2")
+				metricsCollectorDriver2.On("SupportedTypes").Return([]string{"fake", "fake2"})
 				metricsCollector2 = &fakeMetricsCollector{}
 
 				scheduler.WithDriver(metricsCollectorDriver2)
@@ -489,7 +504,7 @@ var _ = Describe("collector scheduler", func() {
 					"ListInstances", mock.Anything,
 				).Return(
 					[]brokerinfo.InstanceInfo{
-						{GUID: "instance-guid1"},
+						{GUID: "instance-guid1", Type: "fake"},
 					}, nil,
 				)
 				metricsCollectorDriver2.On(
@@ -522,7 +537,7 @@ var _ = Describe("collector scheduler", func() {
 					"ListInstances", mock.Anything,
 				).Return(
 					[]brokerinfo.InstanceInfo{
-						{GUID: "instance-guid1"},
+						{GUID: "instance-guid1", Type: "fake"},
 					}, nil,
 				)
 
@@ -578,6 +593,63 @@ var _ = Describe("collector scheduler", func() {
 				)
 			})
 
+			It("should start only one worker for the supported types", func() {
+				brokerInfo.On(
+					"ListInstances", mock.Anything,
+				).Return(
+					[]brokerinfo.InstanceInfo{
+						{GUID: "instance-guid1", Type: "fake2"},
+					}, nil,
+				)
+				metricsCollectorDriver2.On(
+					"NewCollector", mock.Anything,
+				).Return(
+					metricsCollector2, nil,
+				)
+				metricsCollector2.On(
+					"Collect",
+				).Return(
+					[]metrics.Metric{
+						metrics.Metric{Key: "bar", Value: 3, Unit: "s"},
+					},
+					nil,
+				)
+
+				scheduler.Start()
+
+				Eventually(func() []string {
+					return scheduler.ListIntanceGUIDs()
+				}, 1*time.Second).Should(
+					HaveLen(1),
+				)
+				Consistently(func() []string {
+					return scheduler.ListIntanceGUIDs()
+				}, 2*time.Second).Should(
+					HaveLen(1),
+				)
+				Eventually(func() []metrics.MetricEnvelope {
+					return metricsEmitter.envelopesReceived
+				}, 2*time.Second).Should(
+					ContainElement(
+						metrics.MetricEnvelope{
+							InstanceGUID: "instance-guid1",
+							Metric:       metrics.Metric{Key: "bar", Value: 3.0, Unit: "s"},
+						},
+					),
+				)
+				Consistently(func() []metrics.MetricEnvelope {
+					return metricsEmitter.envelopesReceived
+				}, 2*time.Second).ShouldNot(
+					ContainElement(
+						metrics.MetricEnvelope{
+							InstanceGUID: "instance-guid1",
+							Metric:       metrics.Metric{Key: "foo", Value: 1.0, Unit: "b"},
+						},
+					),
+				)
+
+			})
+
 			It("should stop workers when one instance disappears", func() {
 				metricsCollectorDriver2.On(
 					"NewCollector", mock.Anything,
@@ -604,8 +676,8 @@ var _ = Describe("collector scheduler", func() {
 					"ListInstances", mock.Anything,
 				).Return(
 					[]brokerinfo.InstanceInfo{
-						{GUID: "instance-guid1"},
-						{GUID: "instance-guid2"},
+						{GUID: "instance-guid1", Type: "fake"},
+						{GUID: "instance-guid2", Type: "fake"},
 					}, nil,
 				).Once()
 
@@ -614,7 +686,7 @@ var _ = Describe("collector scheduler", func() {
 					"ListInstances", mock.Anything,
 				).Return(
 					[]brokerinfo.InstanceInfo{
-						{GUID: "instance-guid1"},
+						{GUID: "instance-guid1", Type: "fake"},
 					}, nil,
 				)
 
@@ -699,7 +771,7 @@ var _ = Describe("collector scheduler", func() {
 					"ListInstances", mock.Anything,
 				).Return(
 					[]brokerinfo.InstanceInfo{
-						{GUID: "instance-guid1"},
+						{GUID: "instance-guid1", Type: "fake"},
 					}, nil,
 				)
 

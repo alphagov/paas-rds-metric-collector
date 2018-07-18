@@ -9,6 +9,7 @@ import (
 type MetricsCollectorDriver interface {
 	NewCollector(instanceInfo brokerinfo.InstanceInfo) (MetricsCollector, error)
 	GetName() string
+	SupportedTypes() []string
 }
 
 // MetricsCollector ...

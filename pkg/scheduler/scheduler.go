@@ -12,6 +12,7 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
+	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
 )
 
 type workerID struct {
@@ -104,10 +105,12 @@ func (w *Scheduler) Start() error {
 
 		w.logger.Debug("refresh_instances", lager.Data{"instances": instanceInfos})
 		for _, instanceInfo := range instanceInfos {
-			for driverName := range w.metricsCollectorDrivers {
-				id := workerID{Driver: driverName, InstanceGUID: instanceInfo.GUID}
-				if !w.workerExists(id) {
-					w.startWorker(id, instanceInfo)
+			for driverName, driver := range w.metricsCollectorDrivers {
+				if utils.SliceContainsString(driver.SupportedTypes(), instanceInfo.Type) {
+					id := workerID{Driver: driverName, InstanceGUID: instanceInfo.GUID}
+					if !w.workerExists(id) {
+						w.startWorker(id, instanceInfo)
+					}
 				}
 			}
 		}

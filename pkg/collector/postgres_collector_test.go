@@ -105,7 +105,12 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 			testDBConnectionString, nil,
 		)
 		By("Creating a new collector")
-		metricsCollector, err = metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
+		metricsCollector, err = metricsCollectorDriver.NewCollector(
+			brokerinfo.InstanceInfo{
+				GUID: "instance-guid1",
+				Type: "postgres",
+			},
+		)
 		Expect(err).NotTo(HaveOccurred())
 
 		By("Retrieving initial metrics")

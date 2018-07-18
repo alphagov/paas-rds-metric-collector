@@ -78,8 +78,8 @@ var _ = Describe("RDSBrokerInfo", func() {
 			instanceGUIDs, err := brokerInfo.ListInstances()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(instanceGUIDs).To(ConsistOf(
-				brokerinfo.InstanceInfo{GUID: "instance-id-1"},
-				brokerinfo.InstanceInfo{GUID: "instance-id-2"},
+				brokerinfo.InstanceInfo{GUID: "instance-id-1", Type: "postgres"},
+				brokerinfo.InstanceInfo{GUID: "instance-id-2", Type: "postgres"},
 			))
 		})
 	})
@@ -98,19 +98,27 @@ var _ = Describe("RDSBrokerInfo", func() {
 		It("returns error if it fails retrieving existing instances in AWS", func() {
 			fakeDBInstance.DescribeError = fmt.Errorf("Error calling rds.Describe(...)")
 
-			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id"})
+			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "postgres"})
+			Expect(err).To(HaveOccurred())
+		})
+		It("returns error if we query the wrong instance type", func() {
+			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "foo"})
 			Expect(err).To(HaveOccurred())
 		})
 		It("retrieves information of the right AWS RDS instance", func() {
-			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id"})
+			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "postgres"})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(fakeDBInstance.DescribeCalled).To(BeTrue())
 			Expect(fakeDBInstance.DescribeID).To(Equal("dbprefix-instance-id"))
 		})
 		It("returns the proper connection string", func() {
-			connectionString, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id"})
+			connectionString, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "postgres"})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(connectionString).To(Equal("postgresql://master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@endpoint-address.example.com:5432/dbprefix-db?sslmode=require"))
+		})
+		It("fails if the type is invalid", func() {
+			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "foo"})
+			Expect(err).To(HaveOccurred())
 		})
 	})
 })

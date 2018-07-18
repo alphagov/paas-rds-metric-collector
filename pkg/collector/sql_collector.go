@@ -70,6 +70,10 @@ func (d *sqlMetricsCollectorDriver) GetName() string {
 	return d.name
 }
 
+func (d *sqlMetricsCollectorDriver) SupportedTypes() []string {
+	return []string{d.name}
+}
+
 type sqlMetricsCollector struct {
 	queries []MetricQuery
 	dbConn  *sql.DB

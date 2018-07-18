@@ -46,6 +46,7 @@ func (r *RDSBrokerInfo) ListInstances() ([]InstanceInfo, error) {
 		if dbDetails.Engine == "postgres" {
 			instanceInfo := InstanceInfo{
 				GUID: r.dbInstanceIdentifierToServiceInstanceID(dbDetails.Identifier),
+				Type: "postgres",
 			}
 			serviceInstances = append(serviceInstances, instanceInfo)
 		}
@@ -54,6 +55,9 @@ func (r *RDSBrokerInfo) ListInstances() ([]InstanceInfo, error) {
 }
 
 func (r *RDSBrokerInfo) ConnectionString(instanceInfo InstanceInfo) (string, error) {
+	if instanceInfo.Type != "postgres" {
+		return "", fmt.Errorf("invalid instance type: %s", instanceInfo.Type)
+	}
 	dbInstanceDetails, err := r.dbInstance.Describe(r.dbInstanceIdentifier(instanceInfo.GUID))
 	if err != nil {
 		r.logger.Error("obtaining instances details", err, lager.Data{"brokerName": r.brokerName, "instanceInfo": instanceInfo})

@@ -71,6 +71,10 @@ func (cw *CloudWatchCollectorDriver) GetName() string {
 	return "cloudwatch"
 }
 
+func (cw *CloudWatchCollectorDriver) SupportedTypes() []string {
+	return []string{"postgres"}
+}
+
 // CloudWatchCollector ...
 type CloudWatchCollector struct {
 	client   cloudwatchiface.CloudWatchAPI
