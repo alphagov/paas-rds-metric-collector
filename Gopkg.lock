@@ -19,7 +19,8 @@
 [[projects]]
   name = "code.cloudfoundry.org/lager"
   packages = ["."]
-  revision = "de8e9c6c6e474e5e3668aea1a9817bdb4ceeceb0"
+  revision = "b60e04e119450552243196105bae0d42179ee0ca"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/alphagov/paas-rds-broker"
@@ -32,8 +33,8 @@
     "sqlengine",
     "utils"
   ]
-  revision = "a662af4b57958b02e6988606132dc30452363ec8"
-  version = "v0.18.0"
+  revision = "d59802630127d0c2a957f555dc8c4677536a00ff"
+  version = "v0.19.0"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
