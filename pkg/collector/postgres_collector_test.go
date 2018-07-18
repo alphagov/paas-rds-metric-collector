@@ -14,6 +14,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo/fakebrokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
@@ -104,7 +105,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 			testDBConnectionString, nil,
 		)
 		By("Creating a new collector")
-		metricsCollector, err = metricsCollectorDriver.NewCollector("instance-guid1")
+		metricsCollector, err = metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 		Expect(err).NotTo(HaveOccurred())
 
 		By("Retrieving initial metrics")

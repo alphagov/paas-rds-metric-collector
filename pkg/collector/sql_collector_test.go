@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo/fakebrokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 )
@@ -89,7 +90,7 @@ var _ = Describe("sql_collector", func() {
 				"", fmt.Errorf("failure"),
 			)
 
-			_, err := metricsCollectorDriver.NewCollector("instance-guid1")
+			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).To(HaveOccurred())
 		})
 
@@ -106,7 +107,7 @@ var _ = Describe("sql_collector", func() {
 				"dummy", nil,
 			)
 
-			_, err := metricsCollectorDriver.NewCollector("instance-guid1")
+			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("sql: unknown driver")))
 		})
@@ -123,7 +124,7 @@ var _ = Describe("sql_collector", func() {
 				"postgresql://postgres@localhost:3000?sslmode=disable", nil,
 			)
 
-			_, err := metricsCollectorDriver.NewCollector("instance-guid1")
+			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("connect")))
 		})
@@ -140,7 +141,7 @@ var _ = Describe("sql_collector", func() {
 				postgresTestDatabaseConnectionURL, nil,
 			)
 
-			_, err := metricsCollectorDriver.NewCollector("instance-guid1")
+			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -164,7 +165,7 @@ var _ = Describe("sql_collector", func() {
 				postgresTestDatabaseConnectionURL, nil,
 			)
 
-			collector, err = metricsCollectorDriver.NewCollector("instance-guid1")
+			collector, err = metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).NotTo(HaveOccurred())
 		})
 

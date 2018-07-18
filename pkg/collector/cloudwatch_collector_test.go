@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo/fakebrokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/collector/mocks"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -33,7 +34,7 @@ var _ = Describe("cloudwatch_collector", func() {
 
 		It("should create a NewCollector successfully", func() {
 
-			c, err := metricsCollectorDriver.NewCollector("__TEST_INSTANCE_ID__")
+			c, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "__TEST_INSTANCE_ID__"})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(c).NotTo(BeNil())
 		})

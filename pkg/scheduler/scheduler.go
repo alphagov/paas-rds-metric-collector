@@ -12,7 +12,6 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
-	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
 )
 
 type workerID struct {
@@ -97,28 +96,33 @@ func (w *Scheduler) Start() error {
 
 		w.logger.Debug("refresh_instances")
 
-		serviceInstances, err := w.brokerinfo.ListInstanceGUIDs()
+		instanceInfos, err := w.brokerinfo.ListInstances()
 		if err != nil {
 			w.logger.Error("unable to retreive instance guids", err)
 			return
 		}
 
-		w.logger.Debug("refresh_instances", lager.Data{"instances": serviceInstances})
-		for _, instanceGUID := range serviceInstances {
+		w.logger.Debug("refresh_instances", lager.Data{"instances": instanceInfos})
+		for _, instanceInfo := range instanceInfos {
 			for driverName := range w.metricsCollectorDrivers {
-				id := workerID{Driver: driverName, InstanceGUID: instanceGUID}
-				if !w.WorkerExists(id) {
-					w.startWorker(id)
+				id := workerID{Driver: driverName, InstanceGUID: instanceInfo.GUID}
+				if !w.workerExists(id) {
+					w.startWorker(id, instanceInfo)
 				}
 			}
 		}
 
-		for _, instanceGUID := range w.ListIntanceGUIDs() {
-			if !utils.SliceContainsString(serviceInstances, instanceGUID) {
-				for driverName := range w.metricsCollectorDrivers {
-					id := workerID{Driver: driverName, InstanceGUID: instanceGUID}
-					w.stopWorker(id)
+		// Stop any instance not returned by the brokerInfo which has a worker
+		for workerID, _ := range w.workers {
+			stillExists := false
+			for _, instanceInfo := range instanceInfos {
+				if instanceInfo.GUID == workerID.InstanceGUID {
+					stillExists = true
+					break
 				}
+			}
+			if !stillExists {
+				w.stopWorker(workerID)
 			}
 		}
 	})
@@ -135,7 +139,7 @@ func (w *Scheduler) Stop() {
 	w.workersStopping.Wait()
 }
 
-func (w *Scheduler) startWorker(id workerID) {
+func (w *Scheduler) startWorker(id workerID, instanceInfo brokerinfo.InstanceInfo) {
 	w.workersStarting.Add(1)
 	go func() {
 		defer w.workersStarting.Done()
@@ -145,7 +149,7 @@ func (w *Scheduler) startWorker(id workerID) {
 			"instanceGUID": id.InstanceGUID,
 		})
 
-		collector, err := w.metricsCollectorDrivers[id.Driver].NewCollector(id.InstanceGUID)
+		collector, err := w.metricsCollectorDrivers[id.Driver].NewCollector(instanceInfo)
 		if err != nil {
 			w.logger.Error("starting worker collector", err, lager.Data{
 				"driver":       id.Driver,
@@ -202,7 +206,7 @@ func (w *Scheduler) stopWorker(id workerID) {
 			"instanceGUID": id.InstanceGUID,
 		})
 
-		if w.WorkerExists(id) {
+		if w.workerExists(id) {
 			err := w.workers[id].collector.Close()
 			if err != nil {
 				w.logger.Error("close_collector", err, lager.Data{
@@ -224,8 +228,7 @@ func (w *Scheduler) stopWorker(id workerID) {
 	}()
 }
 
-// WorkerExists ...
-func (w *Scheduler) WorkerExists(id workerID) bool {
+func (w *Scheduler) workerExists(id workerID) bool {
 	_, ok := w.workers[id]
 	return ok
 }

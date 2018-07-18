@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo/fakebrokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/collector"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
@@ -19,8 +20,8 @@ type fakeMetricsCollectorDriver struct {
 	mock.Mock
 }
 
-func (f *fakeMetricsCollectorDriver) NewCollector(instanceGUID string) (collector.MetricsCollector, error) {
-	args := f.Called(instanceGUID)
+func (f *fakeMetricsCollectorDriver) NewCollector(instanceInfo brokerinfo.InstanceInfo) (collector.MetricsCollector, error) {
+	args := f.Called(instanceInfo)
 	arg0 := args.Get(0)
 	if arg0 != nil {
 		return arg0.(collector.MetricsCollector), args.Error(1)
@@ -99,9 +100,9 @@ var _ = Describe("collector scheduler", func() {
 
 	It("should not schedule any worker if brokerinfo.ListInstanceGUIDs() fails", func() {
 		brokerInfo.On(
-			"ListInstanceGUIDs", mock.Anything,
+			"ListInstances", mock.Anything,
 		).Return(
-			[]string{}, fmt.Errorf("Error in ListInstanceGUIDs"),
+			[]brokerinfo.InstanceInfo{}, fmt.Errorf("Error in ListInstanceGUIDs"),
 		)
 
 		scheduler.Start()
@@ -116,9 +117,9 @@ var _ = Describe("collector scheduler", func() {
 
 	It("should check for new instances every 1 second", func() {
 		brokerInfo.On(
-			"ListInstanceGUIDs", mock.Anything,
+			"ListInstances", mock.Anything,
 		).Return(
-			[]string{}, nil,
+			[]brokerinfo.InstanceInfo{}, nil,
 		)
 
 		scheduler.Start()
@@ -131,9 +132,9 @@ var _ = Describe("collector scheduler", func() {
 
 	It("should not add a worker if fails creating a collector ", func() {
 		brokerInfo.On(
-			"ListInstanceGUIDs", mock.Anything,
+			"ListInstances", mock.Anything,
 		).Return(
-			[]string{"instance-guid1"}, nil,
+			[]brokerinfo.InstanceInfo{{GUID: "instance-guid1"}}, nil,
 		)
 		metricsCollectorDriver.On(
 			"NewCollector", mock.Anything,
@@ -153,9 +154,9 @@ var _ = Describe("collector scheduler", func() {
 
 	It("should not send metrics if the collector returns an error", func() {
 		brokerInfo.On(
-			"ListInstanceGUIDs", mock.Anything,
+			"ListInstances", mock.Anything,
 		).Return(
-			[]string{"instance-guid1"}, nil,
+			[]brokerinfo.InstanceInfo{{GUID: "instance-guid1"}}, nil,
 		)
 		metricsCollectorDriver.On(
 			"NewCollector", mock.Anything,
@@ -209,9 +210,9 @@ var _ = Describe("collector scheduler", func() {
 		It("should not add a worker if it fails scheduling the worker job", func() {
 			scheduler.metricCollectorInterval = 0 // Force the `scheduler` library to fail
 			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
+				"ListInstances", mock.Anything,
 			).Return(
-				[]string{"instance-guid1"}, nil,
+				[]brokerinfo.InstanceInfo{{GUID: "instance-guid1"}}, nil,
 			)
 
 			scheduler.Start()
@@ -225,9 +226,9 @@ var _ = Describe("collector scheduler", func() {
 
 		It("should start one worker successfully when one instance exist", func() {
 			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
+				"ListInstances", mock.Anything,
 			).Return(
-				[]string{"instance-guid1"}, nil,
+				[]brokerinfo.InstanceInfo{{GUID: "instance-guid1"}}, nil,
 			)
 
 			scheduler.Start()
@@ -251,9 +252,12 @@ var _ = Describe("collector scheduler", func() {
 
 		It("should start multiple workers successfully when multiple instance exist", func() {
 			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
+				"ListInstances", mock.Anything,
 			).Return(
-				[]string{"instance-guid1", "instance-guid2"}, nil,
+				[]brokerinfo.InstanceInfo{
+					{GUID: "instance-guid1"},
+					{GUID: "instance-guid2"},
+				}, nil,
 			)
 
 			scheduler.Start()
@@ -288,9 +292,11 @@ var _ = Describe("collector scheduler", func() {
 
 		It("should add new workers when a new instance appears", func() {
 			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
+				"ListInstances", mock.Anything,
 			).Return(
-				[]string{"instance-guid1"}, nil,
+				[]brokerinfo.InstanceInfo{
+					{GUID: "instance-guid1"},
+				}, nil,
 			).Once()
 
 			scheduler.Start()
@@ -302,9 +308,12 @@ var _ = Describe("collector scheduler", func() {
 			)
 
 			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
+				"ListInstances", mock.Anything,
 			).Return(
-				[]string{"instance-guid1", "instance-guid2"}, nil,
+				[]brokerinfo.InstanceInfo{
+					{GUID: "instance-guid1"},
+					{GUID: "instance-guid2"},
+				}, nil,
 			)
 
 			// Clear received envelopes
@@ -347,16 +356,21 @@ var _ = Describe("collector scheduler", func() {
 			)
 			// First loop returns 2 instances
 			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
+				"ListInstances", mock.Anything,
 			).Return(
-				[]string{"instance-guid1", "instance-guid2"}, nil,
+				[]brokerinfo.InstanceInfo{
+					{GUID: "instance-guid1"},
+					{GUID: "instance-guid2"},
+				}, nil,
 			).Once()
 
 			// After return only one instance
 			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
+				"ListInstances", mock.Anything,
 			).Return(
-				[]string{"instance-guid1"}, nil,
+				[]brokerinfo.InstanceInfo{
+					{GUID: "instance-guid1"},
+				}, nil,
 			)
 
 			scheduler.Start()
@@ -390,9 +404,12 @@ var _ = Describe("collector scheduler", func() {
 
 		It("should stop the scheduler, workers and close collectors", func() {
 			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
+				"ListInstances", mock.Anything,
 			).Return(
-				[]string{"instance-guid1", "instance-guid2"}, nil,
+				[]brokerinfo.InstanceInfo{
+					{GUID: "instance-guid1"},
+					{GUID: "instance-guid2"},
+				}, nil,
 			)
 
 			scheduler.Start()
@@ -412,7 +429,7 @@ var _ = Describe("collector scheduler", func() {
 			metricsCollector.AssertNumberOfCalls(GinkgoT(), "Close", 2)
 
 			Consistently(func() bool {
-				brokerInfo.AssertNumberOfCalls(GinkgoT(), "ListInstanceGUIDs", 1)
+				brokerInfo.AssertNumberOfCalls(GinkgoT(), "ListInstances", 1)
 				metricsCollectorDriver.AssertNumberOfCalls(GinkgoT(), "NewCollector", 2)
 				metricsCollector.AssertNumberOfCalls(GinkgoT(), "Collect", 2)
 				return true
@@ -421,9 +438,11 @@ var _ = Describe("collector scheduler", func() {
 
 		It("should stop the scheduler without any race condition", func() {
 			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
+				"ListInstances", mock.Anything,
 			).Return(
-				[]string{"instance-guid1"}, nil,
+				[]brokerinfo.InstanceInfo{
+					{GUID: "instance-guid1"},
+				}, nil,
 			)
 
 			metricsCollectorDriverNewCollectorCall.After(700 * time.Millisecond)
@@ -467,9 +486,11 @@ var _ = Describe("collector scheduler", func() {
 
 			It("should start one worker successfully when one driver works but other not", func() {
 				brokerInfo.On(
-					"ListInstanceGUIDs", mock.Anything,
+					"ListInstances", mock.Anything,
 				).Return(
-					[]string{"instance-guid1"}, nil,
+					[]brokerinfo.InstanceInfo{
+						{GUID: "instance-guid1"},
+					}, nil,
 				)
 				metricsCollectorDriver2.On(
 					"NewCollector", mock.Anything,
@@ -498,9 +519,11 @@ var _ = Describe("collector scheduler", func() {
 
 			It("Retries to create new collectors if one driver fails creating it once", func() {
 				brokerInfo.On(
-					"ListInstanceGUIDs", mock.Anything,
+					"ListInstances", mock.Anything,
 				).Return(
-					[]string{"instance-guid1"}, nil,
+					[]brokerinfo.InstanceInfo{
+						{GUID: "instance-guid1"},
+					}, nil,
 				)
 
 				metricsCollectorDriver2.On(
@@ -578,16 +601,21 @@ var _ = Describe("collector scheduler", func() {
 
 				// First loop returns 2 instances
 				brokerInfo.On(
-					"ListInstanceGUIDs", mock.Anything,
+					"ListInstances", mock.Anything,
 				).Return(
-					[]string{"instance-guid1", "instance-guid2"}, nil,
+					[]brokerinfo.InstanceInfo{
+						{GUID: "instance-guid1"},
+						{GUID: "instance-guid2"},
+					}, nil,
 				).Once()
 
 				// After return only one instance
 				brokerInfo.On(
-					"ListInstanceGUIDs", mock.Anything,
+					"ListInstances", mock.Anything,
 				).Return(
-					[]string{"instance-guid1"}, nil,
+					[]brokerinfo.InstanceInfo{
+						{GUID: "instance-guid1"},
+					}, nil,
 				)
 
 				scheduler.Start()
@@ -668,9 +696,11 @@ var _ = Describe("collector scheduler", func() {
 				)
 
 				brokerInfo.On(
-					"ListInstanceGUIDs", mock.Anything,
+					"ListInstances", mock.Anything,
 				).Return(
-					[]string{"instance-guid1"}, nil,
+					[]brokerinfo.InstanceInfo{
+						{GUID: "instance-guid1"},
+					}, nil,
 				)
 
 				metricsCollectorDriverNewCollectorCall.After(700 * time.Millisecond)

@@ -32,11 +32,11 @@ type sqlMetricsCollectorDriver struct {
 }
 
 // NewCollector ...
-func (d *sqlMetricsCollectorDriver) NewCollector(instanceGUID string) (MetricsCollector, error) {
-	url, err := d.brokerInfo.ConnectionString(instanceGUID)
+func (d *sqlMetricsCollectorDriver) NewCollector(instanceInfo brokerinfo.InstanceInfo) (MetricsCollector, error) {
+	url, err := d.brokerInfo.ConnectionString(instanceInfo)
 	if err != nil {
 		d.logger.Error("cannot compose connection string", err, lager.Data{
-			"instanceGUID": instanceGUID,
+			"instanceInfo": instanceInfo,
 		})
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (d *sqlMetricsCollectorDriver) NewCollector(instanceGUID string) (MetricsCo
 	dbConn, err := sql.Open(d.driver, url)
 	if err != nil {
 		d.logger.Error("cannot connect to the database", err, lager.Data{
-			"instanceGUID": instanceGUID,
+			"instanceInfo": instanceInfo,
 		})
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (d *sqlMetricsCollectorDriver) NewCollector(instanceGUID string) (MetricsCo
 	err = dbConn.Ping()
 	if err != nil {
 		d.logger.Error("cannot ping the database", err, lager.Data{
-			"instanceGUID": instanceGUID,
+			"instanceInfo": instanceInfo,
 		})
 		return nil, err
 	}

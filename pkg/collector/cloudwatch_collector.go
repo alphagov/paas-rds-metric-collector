@@ -58,10 +58,10 @@ type CloudWatchCollectorDriver struct {
 }
 
 // NewCollector ...
-func (cw *CloudWatchCollectorDriver) NewCollector(instanceID string) (MetricsCollector, error) {
+func (cw *CloudWatchCollectorDriver) NewCollector(instanceInfo brokerinfo.InstanceInfo) (MetricsCollector, error) {
 	return &CloudWatchCollector{
 		client:   cloudwatch.New(cw.session),
-		instance: cw.brokerInfo.GetInstanceName(instanceID),
+		instance: cw.brokerInfo.GetInstanceName(instanceInfo),
 		logger:   cw.logger,
 	}, nil
 }

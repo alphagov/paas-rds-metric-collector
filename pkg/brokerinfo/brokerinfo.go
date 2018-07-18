@@ -1,8 +1,12 @@
 package brokerinfo
 
+type InstanceInfo struct {
+	GUID string
+}
+
 // BrokerInfo ...
 type BrokerInfo interface {
-	ListInstanceGUIDs() ([]string, error)
-	ConnectionString(instanceGUID string) (string, error)
-	GetInstanceName(instanceGUID string) string
+	ListInstances() ([]InstanceInfo, error)
+	ConnectionString(instanceInfo InstanceInfo) (string, error)
+	GetInstanceName(instanceInfo InstanceInfo) string
 }
