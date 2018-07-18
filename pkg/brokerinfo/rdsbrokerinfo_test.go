@@ -80,6 +80,7 @@ var _ = Describe("RDSBrokerInfo", func() {
 			Expect(instanceGUIDs).To(ConsistOf(
 				brokerinfo.InstanceInfo{GUID: "instance-id-1", Type: "postgres"},
 				brokerinfo.InstanceInfo{GUID: "instance-id-2", Type: "postgres"},
+				brokerinfo.InstanceInfo{GUID: "instance-id-3", Type: "mysql"},
 			))
 		})
 	})

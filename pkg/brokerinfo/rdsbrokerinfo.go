@@ -43,13 +43,14 @@ func (r *RDSBrokerInfo) ListInstances() ([]InstanceInfo, error) {
 	}
 
 	for _, dbDetails := range dbInstanceDetailsList {
-		if dbDetails.Engine == "postgres" {
-			instanceInfo := InstanceInfo{
-				GUID: r.dbInstanceIdentifierToServiceInstanceID(dbDetails.Identifier),
-				Type: "postgres",
-			}
-			serviceInstances = append(serviceInstances, instanceInfo)
+		if dbDetails.Engine != "postgres" && dbDetails.Engine != "mysql" {
+			continue
 		}
+		instanceInfo := InstanceInfo{
+			GUID: r.dbInstanceIdentifierToServiceInstanceID(dbDetails.Identifier),
+			Type: dbDetails.Engine,
+		}
+		serviceInstances = append(serviceInstances, instanceInfo)
 	}
 	return serviceInstances, nil
 }

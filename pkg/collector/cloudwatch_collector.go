@@ -72,7 +72,7 @@ func (cw *CloudWatchCollectorDriver) GetName() string {
 }
 
 func (cw *CloudWatchCollectorDriver) SupportedTypes() []string {
-	return []string{"postgres"}
+	return []string{"postgres", "mysql"}
 }
 
 // CloudWatchCollector ...
