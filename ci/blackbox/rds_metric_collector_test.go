@@ -13,70 +13,76 @@ import (
 
 var _ = Describe("RDS Metrics Collector", func() {
 	Describe("Instance Provision/get metrics/Deprovision", func() {
-		const planID = "micro-without-snapshot"
-		const serviceID = "postgres"
 
-		var (
-			instanceID string
-		)
+		TestProvisionGetMetricsDeprovision := func(serviceID string) {
+			var (
+				instanceID string
+				planID     string
+			)
 
-		BeforeEach(func() {
-			instanceID = uuid.NewV4().String()
-		})
+			BeforeEach(func() {
+				instanceID = uuid.NewV4().String()
+				planID = fmt.Sprintf("%s-micro-without-snapshot", serviceID)
+			})
 
-		AfterEach(func() {
-			deprovisionInstance(instanceID, serviceID, planID)
-		})
+			AfterEach(func() {
+				deprovisionInstance(instanceID, serviceID, planID)
+			})
 
-		It("Should send metrics for the created instances", func() {
-			By("creating a postgresql instance")
-			provisionInstance(instanceID, serviceID, planID)
+			It("Should send metrics for the created instances", func() {
+				By(fmt.Sprintf("creating a %s instance", serviceID))
+				provisionInstance(instanceID, serviceID, planID)
 
-			By("checking that collector discovers the instance and emits metrics")
-			Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gbytes.Say("scheduler.start_worker"))
-			Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gbytes.Say("loggregator_emitter.emit"))
-			Eventually(rdsMetricsCollectorSession, 240*time.Second).Should(gbytes.Say("cloudwatch_metrics_collector.retrieved_metric"))
+				By("checking that collector discovers the instance and emits metrics")
+				Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gbytes.Say("scheduler.start_worker"))
+				Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gbytes.Say("loggregator_emitter.emit"))
+				Eventually(rdsMetricsCollectorSession, 240*time.Second).Should(gbytes.Say("cloudwatch_metrics_collector.retrieved_metric"))
 
-			By("receiving several seconds of metrics in the fake loggregator server")
+				By("receiving several seconds of metrics in the fake loggregator server")
 
-			envelopes := []*loggregator_v2.Envelope{}
+				envelopes := []*loggregator_v2.Envelope{}
 
-			timer := time.NewTimer(60 * time.Second)
-			defer timer.Stop()
-		loop:
-			for {
-				select {
-				case e := <-fakeLoggregator.ReceivedEnvelopes:
-					fmt.Fprintf(GinkgoWriter, "Received envelope: %v\n", e)
-					envelopes = append(envelopes, e)
-				case <-timer.C:
-					break loop
+				timer := time.NewTimer(60 * time.Second)
+				defer timer.Stop()
+			loop:
+				for {
+					select {
+					case e := <-fakeLoggregator.ReceivedEnvelopes:
+						fmt.Fprintf(GinkgoWriter, "Received envelope: %v\n", e)
+						envelopes = append(envelopes, e)
+					case <-timer.C:
+						break loop
+					}
 				}
-			}
 
-			By("checking we received the expected metrics")
-			connectionEnvelopes := filterEnvelopesBySourceAndMetric(envelopes, instanceID, "connections")
-			Expect(connectionEnvelopes).ToNot(BeEmpty())
-			Expect(connectionEnvelopes[0].GetGauge()).NotTo(BeNil())
-			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()).NotTo(BeNil())
-			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()).To(HaveKey("connections"))
-			Expect(connectionEnvelopes[0].GetGauge().GetMetrics()["connections"].Value).To(BeNumerically(">=", 1))
+				By("checking we received the expected metrics")
+				cloudwatchEnvelopes := filterEnvelopesBySourceAndTag(envelopes, instanceID, "source", "sql")
+				Expect(cloudwatchEnvelopes).ToNot(BeEmpty())
 
-			cloudwatchEnvelopes := filterEnvelopesBySourceAndTag(envelopes, instanceID, "source", "cloudwatch")
-			Expect(cloudwatchEnvelopes).ToNot(BeEmpty())
+				cloudwatchEnvelopes = filterEnvelopesBySourceAndTag(envelopes, instanceID, "source", "cloudwatch")
+				Expect(cloudwatchEnvelopes).ToNot(BeEmpty())
 
-			By("deprovision the instance")
-			deprovisionInstance(instanceID, serviceID, planID)
+				By("deprovision the instance")
+				deprovisionInstance(instanceID, serviceID, planID)
 
-			By("checking that collector stops collecting metrics from the instance")
-			Eventually(rdsMetricsCollectorSession, 60*time.Second).Should(gbytes.Say("scheduler.stop_worker"))
+				By("checking that collector stops collecting metrics from the instance")
+				Eventually(rdsMetricsCollectorSession, 60*time.Second).Should(gbytes.Say("scheduler.stop_worker"))
 
-			By("not receiving more metrics in the fake loggregator server")
-			// Flush the channel
-			for len(fakeLoggregator.ReceivedEnvelopes) > 0 {
-				<-fakeLoggregator.ReceivedEnvelopes
-			}
-			Consistently(fakeLoggregator.ReceivedEnvelopes, 30*time.Second).ShouldNot(Receive())
+				By("not receiving more metrics in the fake loggregator server")
+				// Flush the channel
+				for len(fakeLoggregator.ReceivedEnvelopes) > 0 {
+					<-fakeLoggregator.ReceivedEnvelopes
+				}
+				Consistently(fakeLoggregator.ReceivedEnvelopes, 30*time.Second).ShouldNot(Receive())
+			})
+		}
+
+		Describe("Postgres", func() {
+			TestProvisionGetMetricsDeprovision("postgres")
+		})
+
+		Describe("MySQL", func() {
+			TestProvisionGetMetricsDeprovision("mysql")
 		})
 	})
 })
