@@ -106,6 +106,7 @@ func NewScheduler(
 func (w *Scheduler) WithDriver(drivers ...collector.MetricsCollectorDriver) *Scheduler {
 	for _, driver := range drivers {
 		w.metricsCollectorDrivers[driver.GetName()] = driver
+		w.logger.Debug("registered_driver", lager.Data{"name": driver.GetName()})
 	}
 
 	return w
