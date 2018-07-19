@@ -81,6 +81,63 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		Expect(metricsCollectorDriver.GetName()).To(Equal("mysql"))
 	})
 
+	It("can collect the number of connection_errors", func() {
+		metric := getMetricByKey(collectedMetrics, "connection_errors")
+		Expect(metric).ToNot(BeNil())
+		Expect(metric.Value).To(BeNumerically(">=", 0))
+		Expect(metric.Unit).To(Equal("err"))
+	})
+
+	It("can collect connection-related metrics", func() {
+		metrics := []string{
+			"threads_running",
+			"threads_connected",
+			"threads_created",
+			"max_connections",
+			"queries",
+			"questions",
+			"aborted_connects",
+			"aborted_clients",
+		}
+		for _, v := range metrics {
+			By(fmt.Sprintf("Checking %s", v))
+			metric := getMetricByKey(collectedMetrics, v)
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically(">=", 0))
+			Expect(metric.Unit).To(Equal("conn"))
+		}
+	})
+
+	It("can collect InnoDB metrics", func() {
+		metrics := []string{
+			"innodb_row_lock_time",
+			"innodb_row_lock_waits",
+			"innodb_num_open_files",
+			"innodb_log_waits",
+			"innodb_buffer_pool_bytes_data",
+			"innodb_buffer_pool_bytes_dirty",
+			"innodb_buffer_pool_pages_data",
+			"innodb_buffer_pool_pages_dirty",
+			"innodb_buffer_pool_pages_flushed",
+			"innodb_buffer_pool_pages_free",
+			"innodb_buffer_pool_pages_misc",
+			"innodb_buffer_pool_pages_total",
+			"innodb_buffer_pool_read_ahead",
+			"innodb_buffer_pool_read_ahead_evicted",
+			"innodb_buffer_pool_read_ahead_rnd",
+			"innodb_buffer_pool_read_requests",
+			"innodb_buffer_pool_reads",
+			"innodb_buffer_pool_wait_free",
+			"innodb_buffer_pool_write_requests",
+		}
+		for _, v := range metrics {
+			By(fmt.Sprintf("Checking %s", v))
+			metric := getMetricByKey(collectedMetrics, v)
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Value).To(BeNumerically(">=", 0))
+		}
+	})
+
 	It("can collect the number of threads connected and threads running", func() {
 		var err error
 
