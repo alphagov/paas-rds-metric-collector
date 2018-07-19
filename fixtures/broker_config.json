@@ -1,5 +1,5 @@
 {
-  "log_level": "DEBUG",
+  "log_level": "INFO",
   "password": "password",
   "cron_schedule": "0 0 * * *",
   "keep_snapshots_for_days": 35,

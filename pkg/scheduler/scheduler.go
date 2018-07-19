@@ -185,6 +185,11 @@ func (w *Scheduler) startWorker(id workerID, instanceInfo brokerinfo.InstanceInf
 			return
 		}
 
+		w.logger.Info("started_worker", lager.Data{
+			"driver":       id.Driver,
+			"instanceGUID": id.InstanceGUID,
+		})
+
 		newJob, err := scheduler.Every(w.metricCollectorInterval).Seconds().Run(func() {
 			w.logger.Debug("collecting metrics", lager.Data{
 				"driver":       id.Driver,
