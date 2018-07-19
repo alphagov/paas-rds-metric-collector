@@ -112,10 +112,17 @@ var _ = Describe("RDSBrokerInfo", func() {
 			Expect(fakeDBInstance.DescribeCalled).To(BeTrue())
 			Expect(fakeDBInstance.DescribeID).To(Equal("dbprefix-instance-id"))
 		})
-		It("returns the proper connection string", func() {
+		It("returns the proper connection string for postgres", func() {
+			fakeDBInstance.DescribeDBInstanceDetails.Engine = "postgres"
 			connectionString, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "postgres"})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(connectionString).To(Equal("postgresql://master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@endpoint-address.example.com:5432/dbprefix-db?sslmode=require"))
+		})
+		It("returns the proper connection string for mysql", func() {
+			fakeDBInstance.DescribeDBInstanceDetails.Engine = "mysql"
+			connectionString, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "mysql"})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(connectionString).To(Equal("master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@tcp(endpoint-address.example.com:5432)/dbprefix-db?tls=true"))
 		})
 		It("fails if the type is invalid", func() {
 			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "foo"})

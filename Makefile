@@ -1,6 +1,7 @@
-.PHONY: test unit integration start_postgres_docker stop_postgres_docker
+.PHONY: test unit integration start_docker_dbs stop_docker_dbs
 
-TEST_DATABASE_URL ?= postgres://postgres:@localhost:5432/?sslmode=disable
+TEST_POSTGRES_URL ?= postgres://postgres:@localhost:5432/?sslmode=disable
+TETS_MYSQL_URL ?= root:@tcp(localhost:3306)/mysql?tls=false
 
 test: unit
 
@@ -10,9 +11,15 @@ unit:
 integration:
 	ginkgo -v -r ci/blackbox
 
-start_postgres_docker:
+start_docker_dbs:
 	docker run --rm -p 5432:5432 --name postgres -e POSTGRES_PASSWORD= -d postgres:9.5
+	docker run -p 3306:3306 --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql:5.7
+	until docker exec mysql mysqladmin ping --silent; do \
+		printf "."; sleep 1;                             \
+	done
 
-stop_postgres_docker:
+stop_docker_dbs:
 	docker stop postgres
 	docker rm postgres
+	docker stop mysql
+	docker rm mysql

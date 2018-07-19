@@ -114,6 +114,11 @@ func main() {
 		logger.Session("postgres_metrics_collector"),
 	)
 
+	mysqlMetricsCollectorDriver := collector.NewMysqlMetricsCollectorDriver(
+		rdsBrokerInfo,
+		logger.Session("mysql_metrics_collector"),
+	)
+
 	cloudWatchMetricsCollectorDriver := collector.NewCloudWatchCollectorDriver(
 		awsSession,
 		rdsBrokerInfo,
@@ -127,6 +132,7 @@ func main() {
 		logger.Session("scheduler"),
 	)
 	scheduler.WithDriver(postgresMetricsCollectorDriver)
+	scheduler.WithDriver(mysqlMetricsCollectorDriver)
 	scheduler.WithDriver(cloudWatchMetricsCollectorDriver)
 
 	err = scheduler.Start()

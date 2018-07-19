@@ -56,7 +56,7 @@ func (r *RDSBrokerInfo) ListInstances() ([]InstanceInfo, error) {
 }
 
 func (r *RDSBrokerInfo) ConnectionString(instanceInfo InstanceInfo) (string, error) {
-	if instanceInfo.Type != "postgres" {
+	if instanceInfo.Type != "postgres" && instanceInfo.Type != "mysql" {
 		return "", fmt.Errorf("invalid instance type: %s", instanceInfo.Type)
 	}
 	dbInstanceDetails, err := r.dbInstance.Describe(r.dbInstanceIdentifier(instanceInfo.GUID))
@@ -71,7 +71,14 @@ func (r *RDSBrokerInfo) ConnectionString(instanceInfo InstanceInfo) (string, err
 	masterPassword := r.generateMasterPassword(instanceInfo.GUID)
 	dbName := dbInstanceDetails.DBName
 
-	ConnectionString := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=require", masterUsername, masterPassword, dbAddress, dbPort, dbName)
+	var ConnectionString string
+
+	switch instanceInfo.Type {
+	case "postgres":
+		ConnectionString = fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=require", masterUsername, masterPassword, dbAddress, dbPort, dbName)
+	case "mysql":
+		ConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?tls=true", masterUsername, masterPassword, dbAddress, dbPort, dbName)
+	}
 
 	return ConnectionString, nil
 
