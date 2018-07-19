@@ -14,11 +14,18 @@ var mysqlMetricQueries = []metricQuery{
 		Query: `
 			SELECT *
 			FROM performance_schema.global_status
-			WHERE variable_name = 'Threads_connected';
+			WHERE variable_name IN (
+				 'Threads_connected'
+				,'Threads_running'
+			);
 		`,
 		Metrics: []metricQueryMeta{
 			{
 				Key:  "threads_connected",
+				Unit: "conn",
+			},
+			{
+				Key:  "threads_running",
 				Unit: "conn",
 			},
 		},

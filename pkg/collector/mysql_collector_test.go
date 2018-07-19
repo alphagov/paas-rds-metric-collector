@@ -81,7 +81,7 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		Expect(metricsCollectorDriver.GetName()).To(Equal("mysql"))
 	})
 
-	It("can collect the number of threads connected", func() {
+	It("can collect the number of threads connected and threads running", func() {
 		var err error
 
 		By("Checking initial number of threads connected")
@@ -95,7 +95,8 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		By("Creating multiple new threads_connected")
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		openMultipleDBConns(ctx, 20, "mysql", mysqlTestDatabaseConnectionURL)
+		err, execQueryFunc := openMultipleDBConns(ctx, 20, "mysql", mysqlTestDatabaseConnectionURL)
+		Expect(err).NotTo(HaveOccurred())
 
 		Eventually(func() float64 {
 			collectedMetrics, err = metricsCollector.Collect()
@@ -108,7 +109,21 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 			BeNumerically(">=", 20),
 		)
 
-		By("Closing again the threads_connected")
+		By("Having multiple queries active")
+		execQueryFunc("select sleep(1);")
+
+		Eventually(func() float64 {
+			collectedMetrics, err = metricsCollector.Collect()
+			Expect(err).NotTo(HaveOccurred())
+			metric = getMetricByKey(collectedMetrics, "threads_running")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Unit).To(Equal("conn"))
+			return metric.Value
+		}, 2*time.Second).Should(
+			BeNumerically(">=", 20),
+		)
+
+		By("Closing again the connections")
 		cancel()
 
 		Eventually(func() float64 {

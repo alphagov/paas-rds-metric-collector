@@ -14,7 +14,7 @@ import (
 
 // openMultipleDBConns opens as many connections as specified by
 // count using the given driver and url.
-func openMultipleDBConns(ctx context.Context, count int, driver, url string) {
+func openMultipleDBConns(ctx context.Context, count int, driver, url string) (err error, execQuery func(string)) {
 	var dbConns []*sql.DB
 
 	go func() {
@@ -26,13 +26,24 @@ func openMultipleDBConns(ctx context.Context, count int, driver, url string) {
 		}
 	}()
 
+	execQuery = func(q string) {
+		for _, c := range dbConns {
+			go c.ExecContext(ctx, q)
+		}
+	}
+
 	for i := 0; i < count; i++ {
 		dbConn, err := sql.Open(driver, url)
-		Expect(err).ToNot(HaveOccurred())
+		if err != nil {
+			break
+		}
 		err = dbConn.Ping()
-		Expect(err).ToNot(HaveOccurred())
+		if err != nil {
+			break
+		}
 		dbConns = append(dbConns, dbConn)
 	}
+	return err, execQuery
 }
 
 func getMetricByKey(collectedMetrics []metrics.Metric, key string) *metrics.Metric {
