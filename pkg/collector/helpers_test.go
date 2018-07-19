@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"regexp"
@@ -11,18 +12,17 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 )
 
-func openMultipleDBConns(count int, driver, url string) func() {
+// openMultipleDBConns opens as many connections as specified by
+// count using the given driver and url.
+func openMultipleDBConns(ctx context.Context, count int, driver, url string) {
 	var dbConns []*sql.DB
-	success := false
 
-	closeDBConns := func() {
-		for _, c := range dbConns {
-			c.Close()
-		}
-	}
-	defer func() {
-		if success != true {
-			closeDBConns()
+	go func() {
+		select {
+		case <-ctx.Done():
+			for _, c := range dbConns {
+				c.Close()
+			}
 		}
 	}()
 
@@ -33,8 +33,6 @@ func openMultipleDBConns(count int, driver, url string) func() {
 		Expect(err).ToNot(HaveOccurred())
 		dbConns = append(dbConns, dbConn)
 	}
-	success = true
-	return closeDBConns
 }
 
 func getMetricByKey(collectedMetrics []metrics.Metric, key string) *metrics.Metric {

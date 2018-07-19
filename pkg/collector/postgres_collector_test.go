@@ -138,8 +138,9 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		initialConnections := metric.Value
 
 		By("Creating multiple new connections")
-		closeDBConns := openMultipleDBConns(20, "postgres", postgresTestDatabaseConnectionURL)
-		defer closeDBConns()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		openMultipleDBConns(ctx, 20, "postgres", postgresTestDatabaseConnectionURL)
 
 		Eventually(func() float64 {
 			collectedMetrics, err = metricsCollector.Collect()
@@ -153,7 +154,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		)
 
 		By("Closing again the connections")
-		closeDBConns()
+		cancel()
 
 		Eventually(func() float64 {
 			collectedMetrics, err = metricsCollector.Collect()

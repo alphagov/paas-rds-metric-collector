@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -92,8 +93,9 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		initialConnections := metric.Value
 
 		By("Creating multiple new threads_connected")
-		closeDBConns := openMultipleDBConns(20, "mysql", mysqlTestDatabaseConnectionURL)
-		defer closeDBConns()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		openMultipleDBConns(ctx, 20, "mysql", mysqlTestDatabaseConnectionURL)
 
 		Eventually(func() float64 {
 			collectedMetrics, err = metricsCollector.Collect()
@@ -107,7 +109,7 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		)
 
 		By("Closing again the threads_connected")
-		closeDBConns()
+		cancel()
 
 		Eventually(func() float64 {
 			collectedMetrics, err = metricsCollector.Collect()
