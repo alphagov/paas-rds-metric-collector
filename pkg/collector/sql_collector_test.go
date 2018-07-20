@@ -15,8 +15,8 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 )
 
-var testQueries = []MetricQuery{
-	{
+var testQueries = []metricQuery{
+	&columnMetricQuery{
 		Query: `
 			SELECT
 				1::integer as foo,
@@ -25,36 +25,36 @@ var testQueries = []MetricQuery{
 				'val1' as tag1,
 				'val2' as tag2
 		`,
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{Key: "foo", Unit: "b"},
 			{Key: "bar", Unit: "s"},
 			{Key: "baz", Unit: "conn"},
 		},
 	},
-	{
+	&columnMetricQuery{
 		Query: "SELECT 1::integer as foo2",
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{Key: "foo2", Unit: "gauge"},
 		},
 	},
-	{
+	&columnMetricQuery{
 		Query: "SELECT 1::integer as foo",
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{Key: "powah", Unit: "gauge"},
 		},
 	},
-	{
+	&columnMetricQuery{
 		Query: "SELECT * FROM hell",
 	},
-	{
+	&columnMetricQuery{
 		Query: "SELECT 'Hello World' as foo2",
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{Key: "foo2", Unit: "gauge"},
 		},
 	},
-	{
+	&columnMetricQuery{
 		Query: "SELECT 1 AS foo WHERE 1 = 2",
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{Key: "foo", Unit: "gauge"},
 		},
 	},
@@ -311,36 +311,36 @@ var _ = Describe("helpers", func() {
 
 	})
 
-	Context("queryToMetrics()", func() {
+	Context("columnMetricQuery.getMetrics()", func() {
 		It("should error when query is missing a required key", func() {
-			_, err := queryToMetrics(dbConn, testQueries[2])
+			_, err := testQueries[2].getMetrics(dbConn)
 
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("unable to find key")))
 		})
 
 		It("should error when query has syntax error", func() {
-			_, err := queryToMetrics(dbConn, testQueries[3])
+			_, err := testQueries[3].getMetrics(dbConn)
 
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("unable to execute query")))
 		})
 
 		It("should error when query doesn't record float", func() {
-			_, err := queryToMetrics(dbConn, testQueries[4])
+			_, err := testQueries[4].getMetrics(dbConn)
 
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("converting driver.Value type")))
 		})
 
 		It("should not error when query doesn't return any row", func() {
-			_, err := queryToMetrics(dbConn, testQueries[5])
+			_, err := testQueries[5].getMetrics(dbConn)
 
 			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("should succeed to obtain metrics from query", func() {
-			rowMetrics, err := queryToMetrics(dbConn, testQueries[0])
+			rowMetrics, err := testQueries[0].getMetrics(dbConn)
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(len(rowMetrics)).To(Equal(3))
