@@ -3,6 +3,7 @@ package collector
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"code.cloudfoundry.org/lager"
 
@@ -153,6 +154,85 @@ func (q *columnMetricQuery) getMetrics(db *sql.DB) ([]metrics.Metric, error) {
 	}
 
 	return rowMetrics, nil
+}
+
+// The query retuns one metric per row in the format:
+//
+// mysql> SHOW STATUS WHERE variable_name = 'Threads_connected';
+// +-------------------+-------+
+// | Variable_name     | Value |
+// +-------------------+-------+
+// | Threads_connected | 1     |
+// +-------------------+-------+
+// 1 row in set (0.09 sec)
+//
+type rowMetricQuery struct {
+	Query   string
+	Metrics []metricQueryMeta
+}
+
+// queryToMetrics Executes the given query and retunrs the result as
+// a list of Metric[]
+func (q *rowMetricQuery) getMetrics(db *sql.DB) (resultMetrics []metrics.Metric, err error) {
+	rows, err := db.Query(q.Query)
+	if err != nil {
+		return nil, fmt.Errorf("unable to execute query: %s", err)
+	}
+	defer rows.Close()
+
+	acumMetrics := map[string]metrics.Metric{}
+	for rows.Next() {
+		columnNames, err := rows.Columns()
+		if err != nil {
+			return resultMetrics, err
+		}
+		if len(columnNames) < 2 {
+			return resultMetrics, fmt.Errorf("query '%s' must return at least 2 columns", q.Query)
+		}
+
+		var metricKey string
+		var metricValue float64
+		scanArgs := []interface{}{
+			&metricKey, &metricValue,
+		}
+
+		tagsData := make([]string, len(columnNames)-2)
+		for i := range tagsData {
+			scanArgs = append(scanArgs, &tagsData[i])
+		}
+
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			return resultMetrics, err
+		}
+
+		tags := make(map[string]string, len(tagsData)+1)
+		for i, v := range tagsData {
+			tags[columnNames[i+2]] = v
+		}
+		tags["source"] = "sql"
+
+		acumMetrics[strings.ToLower(metricKey)] = metrics.Metric{
+			Value: metricValue,
+			Tags:  tags,
+		}
+	}
+
+	for _, m := range q.Metrics {
+		v, ok := acumMetrics[m.Key]
+		if !ok {
+			return resultMetrics, fmt.Errorf("unable to find key '%s' in the query '%s'", m.Key, q.Query)
+		}
+
+		resultMetrics = append(resultMetrics, metrics.Metric{
+			Key:   m.Key,
+			Unit:  m.Unit,
+			Value: v.Value,
+			Tags:  v.Tags,
+		})
+	}
+
+	return resultMetrics, nil
 }
 
 // Helpers
