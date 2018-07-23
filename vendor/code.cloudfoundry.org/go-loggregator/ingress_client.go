@@ -19,6 +19,12 @@ import (
 // IngressOption is the type of a configurable client option.
 type IngressOption func(*IngressClient)
 
+func WithDialOptions(opts ...grpc.DialOption) IngressOption {
+	return func(c *IngressClient) {
+		c.dialOpts = append(c.dialOpts, opts...)
+	}
+}
+
 // WithTag allows for the configuration of arbitrary string value
 // metadata which will be included in all data sent to Loggregator
 func WithTag(name, value string) IngressOption {
@@ -73,6 +79,14 @@ func WithLogger(l Logger) IngressOption {
 	}
 }
 
+// WithContext configures the context that manages the lifecycle for the gRPC
+// connection. It defaults to a context.Background().
+func WithContext(ctx context.Context) IngressOption {
+	return func(c *IngressClient) {
+		c.ctx = ctx
+	}
+}
+
 // IngressClient represents an emitter into loggregator. It should be created with the
 // NewIngressClient constructor.
 type IngressClient struct {
@@ -86,9 +100,14 @@ type IngressClient struct {
 	batchFlushInterval time.Duration
 	addr               string
 
+	dialOpts []grpc.DialOption
+
 	logger Logger
 
 	closeErrors chan error
+
+	ctx    context.Context
+	cancel func()
 }
 
 // NewIngressClient creates a v2 loggregator client. Its TLS configuration
@@ -102,15 +121,20 @@ func NewIngressClient(tlsConfig *tls.Config, opts ...IngressOption) (*IngressCli
 		addr:               "localhost:3458",
 		logger:             log.New(ioutil.Discard, "", 0),
 		closeErrors:        make(chan error),
+		ctx:                context.Background(),
 	}
 
 	for _, o := range opts {
 		o(c)
 	}
 
+	c.ctx, c.cancel = context.WithCancel(c.ctx)
+
+	c.dialOpts = append(c.dialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+
 	conn, err := grpc.Dial(
 		c.addr,
-		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
+		c.dialOpts...,
 	)
 	if err != nil {
 		return nil, err
@@ -419,6 +443,8 @@ func (c *IngressClient) CloseSend() error {
 }
 
 func (c *IngressClient) startSender() {
+	defer c.cancel()
+
 	t := time.NewTimer(c.batchFlushInterval)
 
 	var batch []*loggregator_v2.Envelope
@@ -427,7 +453,7 @@ func (c *IngressClient) startSender() {
 		case env, ok := <-c.envelopes:
 			if !ok {
 				if len(batch) > 0 {
-					c.closeErrors <- c.flush(batch, true)
+					c.closeErrors <- c.flush(batch)
 				}
 
 				c.closeErrors <- nil
@@ -438,7 +464,7 @@ func (c *IngressClient) startSender() {
 			batch = append(batch, env)
 
 			if len(batch) >= int(c.batchMaxSize) {
-				c.flush(batch, false)
+				c.flush(batch)
 				batch = nil
 				if !t.Stop() {
 					<-t.C
@@ -447,7 +473,7 @@ func (c *IngressClient) startSender() {
 			}
 		case <-t.C:
 			if len(batch) > 0 {
-				c.flush(batch, false)
+				c.flush(batch)
 				batch = nil
 			}
 			t.Reset(c.batchFlushInterval)
@@ -455,8 +481,8 @@ func (c *IngressClient) startSender() {
 	}
 }
 
-func (c *IngressClient) flush(batch []*loggregator_v2.Envelope, close bool) error {
-	err := c.emit(batch, close)
+func (c *IngressClient) flush(batch []*loggregator_v2.Envelope) error {
+	err := c.emit(batch)
 	if err != nil {
 		c.logger.Printf("Error while flushing: %s", err)
 	}
@@ -464,12 +490,10 @@ func (c *IngressClient) flush(batch []*loggregator_v2.Envelope, close bool) erro
 	return err
 }
 
-func (c *IngressClient) emit(batch []*loggregator_v2.Envelope, close bool) error {
+func (c *IngressClient) emit(batch []*loggregator_v2.Envelope) error {
 	if c.sender == nil {
 		var err error
-		// TODO Callers of emit should pass in a context. The code should not
-		// be hard-coding context.TODO here.
-		c.sender, err = c.client.BatchSender(context.TODO())
+		c.sender, err = c.client.BatchSender(c.ctx)
 		if err != nil {
 			return err
 		}
@@ -479,10 +503,6 @@ func (c *IngressClient) emit(batch []*loggregator_v2.Envelope, close bool) error
 	if err != nil {
 		c.sender = nil
 		return err
-	}
-
-	if close {
-		return c.sender.CloseSend()
 	}
 
 	return nil
