@@ -28,9 +28,7 @@ required = [
   "code.cloudfoundry.org/clock",
   "code.cloudfoundry.org/locket",
   "code.cloudfoundry.org/locket/lock",
-  "code.cloudfoundry.org/locket/models",
   "github.com/satori/go.uuid",
-  "github.com/tedsuo/ifrit",
   "github.com/tedsuo/ifrit/grouper",
   "github.com/tedsuo/ifrit/sigmon"
 ]

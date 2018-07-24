@@ -54,6 +54,7 @@
   name = "code.cloudfoundry.org/locket"
   packages = [
     ".",
+    "grpcserver",
     "lock",
     "models"
   ]
@@ -501,6 +502,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7ca49bd680921f4a1c0ab2184dccff4a642ef293d4b2088bdc737e7926deb674"
+  inputs-digest = "cbf56488d0ca8a7c5a6d3459f026d5cc3bf54b25f91bd4f11d10c4d8f69963be"
   solver-name = "gps-cdcl"
   solver-version = 1
