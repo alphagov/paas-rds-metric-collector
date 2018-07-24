@@ -36,7 +36,7 @@ func main() {
 	var handler = testHandler{
 		mode: lockingMode,
 	}
-	certificate, err := tls.LoadX509KeyPair(fixturesPath+"/server.crt", fixturesPath+"/server.key")
+	certificate, err := tls.LoadX509KeyPair(fixturesPath+"/locket-server.cert.pem", fixturesPath+"/locket-server.key.pem")
 	if err != nil {
 		logger.Error("Error loading certs", err)
 		os.Exit(1)

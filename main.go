@@ -144,13 +144,8 @@ func createLocketRunner(logger lager.Logger, locketConfig *config.Config) ifrit.
 		err          error
 		locketClient locketmodels.LocketClient
 	)
-	if locketConfig.LocketInsecureSkipCertVerify {
-		logger.Info("insecure-connecting-to-locket")
-		locketClient, err = locket.NewClientSkipCertVerify(logger, locketConfig.ClientLocketConfig)
-	} else {
-		logger.Debug("connecting-to-locket")
-		locketClient, err = locket.NewClient(logger, locketConfig.ClientLocketConfig)
-	}
+	logger.Debug("connecting-to-locket")
+	locketClient, err = locket.NewClient(logger, locketConfig.ClientLocketConfig)
 	if err != nil {
 		logger.Fatal("Failed to initialize locket client", err)
 	}

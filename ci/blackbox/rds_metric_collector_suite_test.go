@@ -72,9 +72,9 @@ func TestSuite(t *testing.T) {
 
 		// Start a fake server for loggregator
 		fakeLoggregator, err = helpers.NewFakeLoggregatorIngressServer(
-			"../../fixtures/server.crt",
-			"../../fixtures/server.key",
-			"../../fixtures/CA.crt")
+			"../../fixtures/loggregator-server.cert.pem",
+			"../../fixtures/loggregator-server.key.pem",
+			"../../fixtures/ca.cert.pem")
 		Expect(err).ShouldNot(HaveOccurred())
 		err = fakeLoggregator.Start()
 		Expect(err).ShouldNot(HaveOccurred())
@@ -88,9 +88,9 @@ func TestSuite(t *testing.T) {
 		Expect(err).ToNot(HaveOccurred())
 		rdsMetricCollectorConfig.RDSBrokerInfo.BrokerName = rdsBrokerConfig.RDSConfig.BrokerName
 		rdsMetricCollectorConfig.LoggregatorEmitter.MetronURL = fakeLoggregator.Addr
-		rdsMetricCollectorConfig.LoggregatorEmitter.CACertPath = "../../fixtures/CA.crt"
-		rdsMetricCollectorConfig.LoggregatorEmitter.CertPath = "../../fixtures/client.crt"
-		rdsMetricCollectorConfig.LoggregatorEmitter.KeyPath = "../../fixtures/client.key"
+		rdsMetricCollectorConfig.LoggregatorEmitter.CACertPath = "../../fixtures/ca.cert.pem"
+		rdsMetricCollectorConfig.LoggregatorEmitter.CertPath = "../../fixtures/client.cert.pem"
+		rdsMetricCollectorConfig.LoggregatorEmitter.KeyPath = "../../fixtures/client.key.pem"
 
 		// Start the services
 		rdsBrokerSession, brokerAPIClient, rdsClient = startNewBroker(rdsBrokerConfig)

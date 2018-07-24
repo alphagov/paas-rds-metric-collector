@@ -17,7 +17,6 @@ type Config struct {
 	RDSBrokerInfo                RDSBrokerInfoConfig      `json:"rds_broker"`
 	Scheduler                    SchedulerConfig          `json:"scheduler"`
 	LoggregatorEmitter           LoggregatorEmitterConfig `json:"loggregator_emitter"`
-	LocketInsecureSkipCertVerify bool                     `json:"locket_insecure_skip_cert_verify"`
 	locket.ClientLocketConfig
 }
 

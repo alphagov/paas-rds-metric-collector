@@ -26,17 +26,16 @@ func BuildTempConfigFile(locketAddress, fixturesPath string) (configFilePath str
 		},
 		LoggregatorEmitter: config.LoggregatorEmitterConfig{
 			MetronURL:  "localhost:3458",
-			CACertPath: fixturesPath + "/CA.crt",
-			CertPath:   fixturesPath + "/client.crt",
-			KeyPath:    fixturesPath + "/client.key",
+			CACertPath: fixturesPath + "/ca.cert.pem",
+			CertPath:   fixturesPath + "/client.cert.pem",
+			KeyPath:    fixturesPath + "/client.key.pem",
 		},
 		ClientLocketConfig: locket.ClientLocketConfig{
-			LocketCACertFile:     fixturesPath + "/CA.crt",
-			LocketClientCertFile: fixturesPath + "/client.crt",
-			LocketClientKeyFile:  fixturesPath + "/client.key",
+			LocketCACertFile:     fixturesPath + "/ca.cert.pem",
+			LocketClientCertFile: fixturesPath + "/client.cert.pem",
+			LocketClientKeyFile:  fixturesPath + "/client.key.pem",
 			LocketAddress:        locketAddress,
 		},
-		LocketInsecureSkipCertVerify: true,
 	}
 	temporaryConfigFile, err := ioutil.TempFile("", "rds-metrics-collector-config-")
 	Expect(err).ToNot(HaveOccurred())

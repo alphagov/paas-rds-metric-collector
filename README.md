@@ -31,6 +31,14 @@ You can stop the databases with:
 make stop_docker_dbs
 ```
 
+### Fixtures
+
+Certificates in the test fixtures are generated with a script. To generate them run:
+
+```bash
+./scripts/generate-cert-fixtures.sh
+```
+
 (See the [Makefile](Makefile) for more details)
 
 ## Running locally

@@ -23,7 +23,7 @@ func (server *MockLocketServer) Build() {
 func (server *MockLocketServer) Run(fixturesPath, lockingMode string) (*gexec.Session) {
 	port, err := freeport.GetFreePort()
 	Expect(err).NotTo(HaveOccurred())
-	server.ListenAddress = fmt.Sprintf("0.0.0.0:%d", port)
+	server.ListenAddress = fmt.Sprintf("127.0.0.1:%d", port)
 	command := exec.Command(server.compiledPath,
 		"-fixturesPath="+fixturesPath,
 		"-mode="+lockingMode,
