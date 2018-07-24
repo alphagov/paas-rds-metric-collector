@@ -77,7 +77,7 @@ func (r *RDSBrokerInfo) ConnectionString(instanceInfo InstanceInfo) (string, err
 	case "postgres":
 		ConnectionString = fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=require", masterUsername, masterPassword, dbAddress, dbPort, dbName)
 	case "mysql":
-		ConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?tls=true", masterUsername, masterPassword, dbAddress, dbPort, dbName)
+		ConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?tls=skip-verify", masterUsername, masterPassword, dbAddress, dbPort, dbName)
 	}
 
 	return ConnectionString, nil

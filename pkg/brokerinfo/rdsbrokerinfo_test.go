@@ -122,7 +122,7 @@ var _ = Describe("RDSBrokerInfo", func() {
 			fakeDBInstance.DescribeDBInstanceDetails.Engine = "mysql"
 			connectionString, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "mysql"})
 			Expect(err).ToNot(HaveOccurred())
-			Expect(connectionString).To(Equal("master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@tcp(endpoint-address.example.com:5432)/dbprefix-db?tls=true"))
+			Expect(connectionString).To(Equal("master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@tcp(endpoint-address.example.com:5432)/dbprefix-db?tls=skip-verify"))
 		})
 		It("fails if the type is invalid", func() {
 			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "foo"})
