@@ -17,6 +17,11 @@
 		"ca_cert": "./fixtures/CA.crt",
 		"client_cert": "./fixtures/client.crt",
 		"client_key": "./fixtures/client.key"
-	}
+	},
+	"locket_address": "127.0.0.1:8891",
+	"locket_ca_cert_file": "./fixtures/CA.crt",
+	"locket_client_cert_file": "./fixtures/client.crt",
+	"locket_client_key_file": "./fixtures/client.key",
+	"locket_insecure_skip_cert_verify": true
 }
 

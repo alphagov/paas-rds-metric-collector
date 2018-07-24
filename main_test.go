@@ -7,6 +7,7 @@ import (
 
 	_ "github.com/lib/pq"
 
+	"github.com/alphagov/paas-rds-metric-collector/testhelpers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -48,7 +49,7 @@ var _ = Describe("collector", func() {
 		BeforeEach(func() {
 			var err error
 			command := exec.Command(rdsMetricCollectorPath,
-				fmt.Sprintf("-config=./fixtures/collector_config.json"),
+				"-config="+testhelpers.BuildTempConfigFile(mockLocketServer.ListenAddress, "./fixtures"),
 			)
 			rdsMetricsCollectorSession, err = gexec.Start(command, GinkgoWriter, GinkgoWriter)
 			Expect(err).ShouldNot(HaveOccurred())
@@ -62,16 +63,16 @@ var _ = Describe("collector", func() {
 
 		It("starts the collector process and keeps running for a while", func() {
 			Eventually(rdsMetricsCollectorSession, 10*time.Second).Should(
-				gbytes.Say("rds-metric-collector.start"),
+				gbytes.Say("rds-metric-collector.scheduler.scheduler-started"),
 			)
 			Consistently(rdsMetricsCollectorSession, 2*time.Second).ShouldNot(gexec.Exit(0))
 		})
 		It("terminates (Ctrl+C) the process", func() {
 			Eventually(rdsMetricsCollectorSession, 10*time.Second).Should(
-				gbytes.Say("rds-metric-collector.start"),
+				gbytes.Say("rds-metric-collector.scheduler.scheduler-started"),
 			)
 			rdsMetricsCollectorSession.Terminate()
-			Eventually(rdsMetricsCollectorSession).Should(gexec.Exit())
+			Eventually(rdsMetricsCollectorSession, 20*time.Second).Should(gexec.Exit())
 		})
 	})
 

@@ -7,15 +7,18 @@ import (
 	"io/ioutil"
 	"os"
 
+	"code.cloudfoundry.org/locket"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
 type Config struct {
-	LogLevel           string                   `json:"log_level" validate:"required"`
-	AWS                AWSConfig                `json:"aws"`
-	RDSBrokerInfo      RDSBrokerInfoConfig      `json:"rds_broker"`
-	Scheduler          SchedulerConfig          `json:"scheduler"`
-	LoggregatorEmitter LoggregatorEmitterConfig `json:"loggregator_emitter"`
+	LogLevel                     string                   `json:"log_level" validate:"required"`
+	AWS                          AWSConfig                `json:"aws"`
+	RDSBrokerInfo                RDSBrokerInfoConfig      `json:"rds_broker"`
+	Scheduler                    SchedulerConfig          `json:"scheduler"`
+	LoggregatorEmitter           LoggregatorEmitterConfig `json:"loggregator_emitter"`
+	LocketInsecureSkipCertVerify bool                     `json:"locket_insecure_skip_cert_verify"`
+	locket.ClientLocketConfig
 }
 
 type AWSConfig struct {
