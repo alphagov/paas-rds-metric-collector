@@ -3,6 +3,33 @@
 
 [[projects]]
   branch = "master"
+  name = "code.cloudfoundry.org/cfhttp"
+  packages = [
+    ".",
+    "unix_transport"
+  ]
+  revision = "08baa6b247caf03100a743f6c3c426d28e55336a"
+
+[[projects]]
+  branch = "master"
+  name = "code.cloudfoundry.org/clock"
+  packages = ["."]
+  revision = "02e53af36e6c978af692887ed449b74026d76fec"
+
+[[projects]]
+  branch = "master"
+  name = "code.cloudfoundry.org/consuladapter"
+  packages = ["."]
+  revision = "c6d9ccbe0f83c7f3052e8304918f1107d321a39a"
+
+[[projects]]
+  branch = "master"
+  name = "code.cloudfoundry.org/diego-logging-client"
+  packages = ["."]
+  revision = "67e71e13e3daa285ae0b2af4bb6cc34f5bd045ac"
+
+[[projects]]
+  branch = "master"
   name = "code.cloudfoundry.org/go-diodes"
   packages = ["."]
   revision = "3385e722aaa0b227aa64439d3c451eb626aa5ac3"
@@ -21,6 +48,16 @@
   packages = ["."]
   revision = "b60e04e119450552243196105bae0d42179ee0ca"
   version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "code.cloudfoundry.org/locket"
+  packages = [
+    ".",
+    "lock",
+    "models"
+  ]
+  revision = "cd6f53abfd149fea7a1b276a3f1d469c10e07811"
 
 [[projects]]
   branch = "master"
@@ -87,6 +124,12 @@
   revision = "ee74d2f83d82cd1d2e92ed3ec3dbaf162ca5ece5"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/cloudfoundry/sonde-go"
+  packages = ["events"]
+  revision = "b33733203bb48d7c56de7cb639d77f78b0449d19"
+
+[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -120,6 +163,16 @@
   version = "v1.4.0"
 
 [[projects]]
+  name = "github.com/gogo/protobuf"
+  packages = [
+    "gogoproto",
+    "proto",
+    "protoc-gen-gogo/descriptor"
+  ]
+  revision = "636bf0302bc95575d69441b25a2603156ffdddf1"
+  version = "v1.1.1"
+
+[[projects]]
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -142,6 +195,30 @@
   packages = ["."]
   revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
   version = "v1.6.2"
+
+[[projects]]
+  name = "github.com/hashicorp/consul"
+  packages = ["api"]
+  revision = "39f93f011e591c842acc8053a7f5972aa6e592fd"
+  version = "v1.2.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/go-cleanhttp"
+  packages = ["."]
+  revision = "d5fe4b57a186c716b0e00b8c301cbd9b4182694d"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/go-rootcerts"
+  packages = ["."]
+  revision = "6bb64b370b90e7ef1fa532be9e591a81c3493e00"
+
+[[projects]]
+  name = "github.com/hashicorp/serf"
+  packages = ["coordinate"]
+  revision = "d6574a5bb1226678d7010325fb6c985db20ee458"
+  version = "v0.8.1"
 
 [[projects]]
   name = "github.com/hpcloud/tail"
@@ -168,6 +245,35 @@
     "oid"
   ]
   revision = "90697d60dd844d5ef6ff15135d0203f65d2f53b8"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/mailru/easyjson"
+  packages = [
+    ".",
+    "buffer",
+    "jlexer",
+    "jwriter"
+  ]
+  revision = "d5012789d6659eeed305f54c1b1542e7b65829e6"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/mitchellh/go-homedir"
+  packages = ["."]
+  revision = "3864e76763d94a6df2f9960b16a20a33da9f9a66"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/mitchellh/mapstructure"
+  packages = ["."]
+  revision = "f15292f7a699fcc1a38a80977f80a046874ba8ac"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/nu7hatch/gouuid"
+  packages = ["."]
+  revision = "179d4d0c4d8d407a32af483c2354df1d2c91e6c3"
 
 [[projects]]
   name = "github.com/onsi/ginkgo"
@@ -256,6 +362,16 @@
   ]
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/tedsuo/ifrit"
+  packages = [
+    ".",
+    "grouper",
+    "sigmon"
+  ]
+  revision = "2a37a9eb7c3a18e2df8f98067b68de248c126871"
 
 [[projects]]
   branch = "master"
@@ -385,6 +501,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "29c3723c0e51a90850878e51163881c46805d4b79625b91fb28a791ffa6c6643"
+  inputs-digest = "7ca49bd680921f4a1c0ab2184dccff4a642ef293d4b2088bdc737e7926deb674"
   solver-name = "gps-cdcl"
   solver-version = 1
