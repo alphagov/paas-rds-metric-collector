@@ -10,12 +10,13 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo/fakebrokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 )
 
-var testQueries = []MetricQuery{
-	{
+var testColumnQueries = map[string]metricQuery{
+	"multi_value": &columnMetricQuery{
 		Query: `
 			SELECT
 				1::integer as foo,
@@ -24,36 +25,133 @@ var testQueries = []MetricQuery{
 				'val1' as tag1,
 				'val2' as tag2
 		`,
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{Key: "foo", Unit: "b"},
 			{Key: "bar", Unit: "s"},
 			{Key: "baz", Unit: "conn"},
 		},
 	},
-	{
+	"single_value": &columnMetricQuery{
 		Query: "SELECT 1::integer as foo2",
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{Key: "foo2", Unit: "gauge"},
 		},
 	},
-	{
+}
+
+var badColumnQueries = map[string]metricQuery{
+	"missing_key": &columnMetricQuery{
 		Query: "SELECT 1::integer as foo",
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{Key: "powah", Unit: "gauge"},
 		},
 	},
-	{
+	"invalid_query": &columnMetricQuery{
 		Query: "SELECT * FROM hell",
 	},
-	{
+	"not_a_number": &columnMetricQuery{
 		Query: "SELECT 'Hello World' as foo2",
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{Key: "foo2", Unit: "gauge"},
 		},
 	},
-	{
+	"empty_query": &columnMetricQuery{
 		Query: "SELECT 1 AS foo WHERE 1 = 2",
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
+			{Key: "foo", Unit: "gauge"},
+		},
+	},
+}
+
+var testRowQueries = map[string]metricQuery{
+	"integer_value": &rowMetricQuery{
+		Query: `
+			SELECT
+				'foo' as key,
+				1::integer as value,
+				'val1' as tag1,
+				'val2' as tag2
+			UNION
+			SELECT
+				'Bar' as key,
+				2::integer as value,
+				'val1' as tag1,
+				'val2' as tag2
+			UNION
+			SELECT
+				'Ignored_value' as key,
+				2::integer as value,
+				'val1' as tag1,
+				'val2' as tag2
+		`,
+		Metrics: []metricQueryMeta{
+			{Key: "foo", Unit: "b"},
+			{Key: "bar", Unit: "s"},
+		},
+	},
+	"varchar_value": &rowMetricQuery{
+		Query: `
+			SELECT
+				'foo' as key,
+				'1'::varchar as value,
+				'val1' as tag1,
+				'val2' as tag2
+			UNION
+			SELECT
+				'Bar' as key,
+				'2'::varchar as value,
+				'val1' as tag1,
+				'val2' as tag2
+		`,
+		Metrics: []metricQueryMeta{
+			{Key: "foo", Unit: "b"},
+			{Key: "bar", Unit: "s"},
+		},
+	},
+	"double_value": &rowMetricQuery{
+		Query: `
+			SELECT
+				'foo' as key,
+				1::double precision as value,
+				'val1' as tag1,
+				'val2' as tag2
+			UNION
+			SELECT
+				'Bar' as key,
+				2::double precision as value,
+				'val1' as tag1,
+				'val2' as tag2
+		`,
+		Metrics: []metricQueryMeta{
+			{Key: "foo", Unit: "b"},
+			{Key: "bar", Unit: "s"},
+		},
+	},
+}
+
+var badRowQueries = map[string]metricQuery{
+	"missing_key": &rowMetricQuery{
+		Query: `
+			SELECT
+				'foo' as key,
+				1::integer as value
+		`,
+		Metrics: []metricQueryMeta{
+			{Key: "powah", Unit: "gauge"},
+		},
+	},
+	"invalid_query": &columnMetricQuery{
+		Query: "SELECT * FROM hell",
+	},
+	"not_a_number": &columnMetricQuery{
+		Query: "SELECT 'foo' as key, 'Hello World' as value",
+		Metrics: []metricQueryMeta{
+			{Key: "foo2", Unit: "gauge"},
+		},
+	},
+	"empty_query": &columnMetricQuery{
+		Query: "SELECT 'foo' as key, 1 as value WHERE 1 = 2",
+		Metrics: []metricQueryMeta{
 			{Key: "foo", Unit: "gauge"},
 		},
 	},
@@ -67,8 +165,13 @@ var _ = Describe("sql_collector", func() {
 	)
 	BeforeEach(func() {
 		brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
+
+		testColumnQueriesSlice := []metricQuery{}
+		for _, v := range testColumnQueries {
+			testColumnQueriesSlice = append(testColumnQueriesSlice, v)
+		}
 		metricsCollectorDriver = &sqlMetricsCollectorDriver{
-			queries:    testQueries,
+			queries:    testColumnQueriesSlice,
 			driver:     "postgres", // valid driver for testing
 			brokerInfo: brokerInfo,
 			name:       "sql",
@@ -89,7 +192,7 @@ var _ = Describe("sql_collector", func() {
 				"", fmt.Errorf("failure"),
 			)
 
-			_, err := metricsCollectorDriver.NewCollector("instance-guid1")
+			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).To(HaveOccurred())
 		})
 
@@ -106,7 +209,7 @@ var _ = Describe("sql_collector", func() {
 				"dummy", nil,
 			)
 
-			_, err := metricsCollectorDriver.NewCollector("instance-guid1")
+			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("sql: unknown driver")))
 		})
@@ -123,7 +226,7 @@ var _ = Describe("sql_collector", func() {
 				"postgresql://postgres@localhost:3000?sslmode=disable", nil,
 			)
 
-			_, err := metricsCollectorDriver.NewCollector("instance-guid1")
+			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("connect")))
 		})
@@ -140,7 +243,7 @@ var _ = Describe("sql_collector", func() {
 				postgresTestDatabaseConnectionURL, nil,
 			)
 
-			_, err := metricsCollectorDriver.NewCollector("instance-guid1")
+			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -164,7 +267,7 @@ var _ = Describe("sql_collector", func() {
 				postgresTestDatabaseConnectionURL, nil,
 			)
 
-			collector, err = metricsCollectorDriver.NewCollector("instance-guid1")
+			collector, err = metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -188,10 +291,10 @@ var _ = Describe("sql_collector", func() {
 			Expect(err).To(HaveOccurred())
 		})
 	})
-
 })
 
-var _ = Describe("helpers", func() {
+var _ = Describe("metricQuery", func() {
+
 	var dbConn *sql.DB
 
 	BeforeEach(func() {
@@ -202,6 +305,93 @@ var _ = Describe("helpers", func() {
 
 	AfterEach(func() {
 		dbConn.Close()
+	})
+
+	Context("columnMetricQuery.getMetrics()", func() {
+		It("should error when query is missing a required key", func() {
+			_, err := badColumnQueries["missing_key"].getMetrics(dbConn)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(MatchRegexp("unable to find key")))
+		})
+
+		It("should error when query has syntax error", func() {
+			_, err := badColumnQueries["invalid_query"].getMetrics(dbConn)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(MatchRegexp("unable to execute query")))
+		})
+
+		It("should error when query doesn't record float", func() {
+			_, err := badColumnQueries["not_a_number"].getMetrics(dbConn)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(MatchRegexp("converting driver.Value type")))
+		})
+
+		It("should not error when query doesn't return any row", func() {
+			_, err := badColumnQueries["empty_query"].getMetrics(dbConn)
+
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should succeed to obtain metrics from query", func() {
+			rowMetrics, err := testColumnQueries["multi_value"].getMetrics(dbConn)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(len(rowMetrics)).To(Equal(3))
+			expectedTags := map[string]string{"source": "sql", "tag1": "val1", "tag2": "val2"}
+			Expect(rowMetrics).To(Equal([]metrics.Metric{
+				{Key: "foo", Value: 1, Unit: "b", Tags: expectedTags},
+				{Key: "bar", Value: 2, Unit: "s", Tags: expectedTags},
+				{Key: "baz", Value: 3, Unit: "conn", Tags: expectedTags},
+			}))
+		})
+	})
+
+	Context("rowMetricQuery.getMetrics()", func() {
+		It("should error when query is missing a required key", func() {
+			_, err := badRowQueries["missing_key"].getMetrics(dbConn)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(MatchRegexp("unable to find key")))
+		})
+
+		It("should error when query has syntax error", func() {
+			_, err := badRowQueries["invalid_query"].getMetrics(dbConn)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(MatchRegexp("unable to execute query")))
+		})
+
+		It("should error when query doesn't record float", func() {
+			_, err := badRowQueries["not_a_number"].getMetrics(dbConn)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(MatchRegexp("converting driver.Value type")))
+		})
+
+		It("should not error when query doesn't return any row", func() {
+			_, err := badRowQueries["empty_query"].getMetrics(dbConn)
+
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should succeed to obtain metrics from query", func() {
+			for _, t := range []string{"integer_value", "varchar_value", "double_value"} {
+				By(fmt.Sprintf("Running a query that returns a %s typed value", t))
+
+				rowMetrics, err := testRowQueries[t].getMetrics(dbConn)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(len(rowMetrics)).To(Equal(2))
+				expectedTags := map[string]string{"source": "sql", "tag1": "val1", "tag2": "val2"}
+				Expect(rowMetrics).To(Equal([]metrics.Metric{
+					{Key: "foo", Value: 1, Unit: "b", Tags: expectedTags},
+					{Key: "bar", Value: 2, Unit: "s", Tags: expectedTags},
+				}))
+			}
+		})
 	})
 
 	Context("getRowDataAsMaps()", func() {
@@ -310,45 +500,4 @@ var _ = Describe("helpers", func() {
 
 	})
 
-	Context("queryToMetrics()", func() {
-		It("should error when query is missing a required key", func() {
-			_, err := queryToMetrics(dbConn, testQueries[2])
-
-			Expect(err).To(HaveOccurred())
-			Expect(err).To(MatchError(MatchRegexp("unable to find key")))
-		})
-
-		It("should error when query has syntax error", func() {
-			_, err := queryToMetrics(dbConn, testQueries[3])
-
-			Expect(err).To(HaveOccurred())
-			Expect(err).To(MatchError(MatchRegexp("unable to execute query")))
-		})
-
-		It("should error when query doesn't record float", func() {
-			_, err := queryToMetrics(dbConn, testQueries[4])
-
-			Expect(err).To(HaveOccurred())
-			Expect(err).To(MatchError(MatchRegexp("converting driver.Value type")))
-		})
-
-		It("should not error when query doesn't return any row", func() {
-			_, err := queryToMetrics(dbConn, testQueries[5])
-
-			Expect(err).NotTo(HaveOccurred())
-		})
-
-		It("should succeed to obtain metrics from query", func() {
-			rowMetrics, err := queryToMetrics(dbConn, testQueries[0])
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(len(rowMetrics)).To(Equal(3))
-			expectedTags := map[string]string{"source": "sql", "tag1": "val1", "tag2": "val2"}
-			Expect(rowMetrics).To(Equal([]metrics.Metric{
-				{Key: "foo", Value: 1, Unit: "b", Tags: expectedTags},
-				{Key: "bar", Value: 2, Unit: "s", Tags: expectedTags},
-				{Key: "baz", Value: 3, Unit: "conn", Tags: expectedTags},
-			}))
-		})
-	})
 })

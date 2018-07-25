@@ -9,35 +9,35 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 )
 
-var postgresMetricQueries = []MetricQuery{
-	MetricQuery{
+var postgresMetricQueries = []metricQuery{
+	&columnMetricQuery{
 		Query: `
 			SELECT
 				SUM(numbackends) AS connections
 			FROM pg_stat_database
 		`,
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{
 				Key:  "connections",
 				Unit: "conn",
 			},
 		},
 	},
-	MetricQuery{
+	&columnMetricQuery{
 		Query: `
 			SELECT
 					setting::float as max_connections
 			FROM pg_settings
 			WHERE name = 'max_connections'
 		`,
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{
 				Key:  "max_connections",
 				Unit: "conn",
 			},
 		},
 	},
-	MetricQuery{
+	&columnMetricQuery{
 		Query: `
 			SELECT
 				pg_database_size(pg_database.datname) as dbsize,
@@ -45,14 +45,14 @@ var postgresMetricQueries = []MetricQuery{
 			FROM pg_database
 			WHERE datname = current_database()
 		`,
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{
 				Key:  "dbsize",
 				Unit: "byte",
 			},
 		},
 	},
-	MetricQuery{
+	&columnMetricQuery{
 		Query: `
 			SELECT
 				deadlocks as deadlocks,
@@ -67,7 +67,7 @@ var postgresMetricQueries = []MetricQuery{
 			FROM pg_stat_database
 			WHERE datname = current_database()
 		`,
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{
 				Key:  "deadlocks",
 				Unit: "lock",
@@ -102,7 +102,7 @@ var postgresMetricQueries = []MetricQuery{
 			},
 		},
 	},
-	MetricQuery{
+	&columnMetricQuery{
 		Query: `
 			SELECT
 				COALESCE(SUM(seq_scan), 0) as seq_scan,
@@ -110,7 +110,7 @@ var postgresMetricQueries = []MetricQuery{
 				current_database() as dbname
 			FROM pg_stat_user_tables
 		`,
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{
 				Key:  "seq_scan",
 				Unit: "scan",
@@ -121,28 +121,28 @@ var postgresMetricQueries = []MetricQuery{
 			},
 		},
 	},
-	MetricQuery{
+	&columnMetricQuery{
 		Query: `
 			SELECT
 				count(distinct pid) as blocked_connections
 			FROM pg_locks
 			WHERE granted = false
 		`,
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{
 				Key:  "blocked_connections",
 				Unit: "conn",
 			},
 		},
 	},
-	MetricQuery{
+	&columnMetricQuery{
 		Query: `
 			SELECT
 				EXTRACT(epoch FROM MAX(now() - xact_start))::INT as max_tx_age
 			FROM pg_stat_activity
       WHERE state IN ('idle in transaction', 'active')
 		`,
-		Metrics: []MetricQueryMeta{
+		Metrics: []metricQueryMeta{
 			{
 				Key:  "max_tx_age",
 				Unit: "s",

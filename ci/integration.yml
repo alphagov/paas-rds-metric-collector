@@ -14,10 +14,16 @@ run:
     - -e
     - -c
     - |
-      apk add -U git make
+      apk add -U git make curl ca-certificates
       go get github.com/onsi/ginkgo/ginkgo
 
+
+      # pull the RDS broker code
       go get github.com/alphagov/paas-rds-broker
+
+      # install the AWS RDS CA certs
+      curl https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem > /usr/local/share/ca-certificates/rds-combined-ca-bundle.pem
+      update-ca-certificates
 
       cp -Ra repo "${GOPATH}/src/github.com/alphagov/paas-rds-metric-collector"
       cd "${GOPATH}/src/github.com/alphagov/paas-rds-metric-collector"

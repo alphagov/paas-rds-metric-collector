@@ -3,6 +3,7 @@ package collector
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"code.cloudfoundry.org/lager"
 
@@ -10,33 +11,26 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 )
 
-// MetricQueryMeta Metric meta information (Key and unit)
-type MetricQueryMeta struct {
-	Key  string
-	Unit string
-}
-
-// MetricQuery would be holding information about our custom metric.
-type MetricQuery struct {
-	Query   string
-	Metrics []MetricQueryMeta
+// MetricQuery has a method to get the metrics for a query
+type metricQuery interface {
+	getMetrics(db *sql.DB) ([]metrics.Metric, error)
 }
 
 // sqlMetricsCollectorDriver pulls metrics using generic SQL queries
 type sqlMetricsCollectorDriver struct {
 	brokerInfo brokerinfo.BrokerInfo
-	queries    []MetricQuery
+	queries    []metricQuery
 	driver     string
 	name       string
 	logger     lager.Logger
 }
 
 // NewCollector ...
-func (d *sqlMetricsCollectorDriver) NewCollector(instanceGUID string) (MetricsCollector, error) {
-	url, err := d.brokerInfo.ConnectionString(instanceGUID)
+func (d *sqlMetricsCollectorDriver) NewCollector(instanceInfo brokerinfo.InstanceInfo) (MetricsCollector, error) {
+	url, err := d.brokerInfo.ConnectionString(instanceInfo)
 	if err != nil {
 		d.logger.Error("cannot compose connection string", err, lager.Data{
-			"instanceGUID": instanceGUID,
+			"instanceInfo": instanceInfo,
 		})
 		return nil, err
 	}
@@ -44,7 +38,7 @@ func (d *sqlMetricsCollectorDriver) NewCollector(instanceGUID string) (MetricsCo
 	dbConn, err := sql.Open(d.driver, url)
 	if err != nil {
 		d.logger.Error("cannot connect to the database", err, lager.Data{
-			"instanceGUID": instanceGUID,
+			"instanceInfo": instanceInfo,
 		})
 		return nil, err
 	}
@@ -52,7 +46,7 @@ func (d *sqlMetricsCollectorDriver) NewCollector(instanceGUID string) (MetricsCo
 	err = dbConn.Ping()
 	if err != nil {
 		d.logger.Error("cannot ping the database", err, lager.Data{
-			"instanceGUID": instanceGUID,
+			"instanceInfo": instanceInfo,
 		})
 		return nil, err
 	}
@@ -70,8 +64,12 @@ func (d *sqlMetricsCollectorDriver) GetName() string {
 	return d.name
 }
 
+func (d *sqlMetricsCollectorDriver) SupportedTypes() []string {
+	return []string{d.name}
+}
+
 type sqlMetricsCollector struct {
-	queries []MetricQuery
+	queries []metricQuery
 	dbConn  *sql.DB
 	logger  lager.Logger
 }
@@ -84,7 +82,7 @@ func (mc *sqlMetricsCollector) Collect() ([]metrics.Metric, error) {
 		return metrics, err
 	}
 	for _, q := range mc.queries {
-		newMetrics, err := queryToMetrics(mc.dbConn, q)
+		newMetrics, err := q.getMetrics(mc.dbConn)
 		if err != nil {
 			mc.logger.Error("querying metrics", err, lager.Data{"query": q})
 		}
@@ -96,6 +94,145 @@ func (mc *sqlMetricsCollector) Collect() ([]metrics.Metric, error) {
 
 func (mc *sqlMetricsCollector) Close() error {
 	return mc.dbConn.Close()
+}
+
+// MetricQueryMeta Metric meta information (Key and unit)
+type metricQueryMeta struct {
+	Key  string
+	Unit string
+}
+
+// The query retuns one metric per column in the form:
+//
+// mysql> SELECT
+//     ->     variable_value as connections
+//     -> FROM
+//     ->     performance_schema.global_status
+//     -> WHERE
+//     ->     variable_name = 'Threads_connected';
+// +-------------+
+// | connections |
+// +-------------+
+// | 1           |
+// +-------------+
+// 1 row in set (0.01 sec)
+type columnMetricQuery struct {
+	Query   string
+	Metrics []metricQueryMeta
+}
+
+// queryToMetrics Executes the given query and retunrs the result as
+// a list of Metric[]
+func (q *columnMetricQuery) getMetrics(db *sql.DB) ([]metrics.Metric, error) {
+	rows, err := db.Query(q.Query)
+	if err != nil {
+		return nil, fmt.Errorf("unable to execute query: %s", err)
+	}
+	defer rows.Close()
+
+	rowMetrics := []metrics.Metric{}
+	for rows.Next() {
+		rowMap, tags, err := getRowDataAsMaps(len(q.Metrics), rows)
+		if err != nil {
+			return nil, err
+		}
+		tags["source"] = "sql"
+
+		for _, m := range q.Metrics {
+			v, ok := rowMap[m.Key]
+			if !ok {
+				return nil, fmt.Errorf("unable to find key '%s' in the query '%s'", m.Key, q.Query)
+			}
+
+			rowMetrics = append(rowMetrics, metrics.Metric{
+				Key:   m.Key,
+				Unit:  m.Unit,
+				Value: v,
+				Tags:  tags,
+			})
+		}
+	}
+
+	return rowMetrics, nil
+}
+
+// The query retuns one metric per row in the format:
+//
+// mysql> SHOW STATUS WHERE variable_name = 'Threads_connected';
+// +-------------------+-------+
+// | Variable_name     | Value |
+// +-------------------+-------+
+// | Threads_connected | 1     |
+// +-------------------+-------+
+// 1 row in set (0.09 sec)
+//
+type rowMetricQuery struct {
+	Query   string
+	Metrics []metricQueryMeta
+}
+
+// queryToMetrics Executes the given query and retunrs the result as
+// a list of Metric[]
+func (q *rowMetricQuery) getMetrics(db *sql.DB) (resultMetrics []metrics.Metric, err error) {
+	rows, err := db.Query(q.Query)
+	if err != nil {
+		return nil, fmt.Errorf("unable to execute query: %s", err)
+	}
+	defer rows.Close()
+
+	acumMetrics := map[string]metrics.Metric{}
+	for rows.Next() {
+		columnNames, err := rows.Columns()
+		if err != nil {
+			return resultMetrics, err
+		}
+		if len(columnNames) < 2 {
+			return resultMetrics, fmt.Errorf("query '%s' must return at least 2 columns", q.Query)
+		}
+
+		var metricKey string
+		var metricValue float64
+		scanArgs := []interface{}{
+			&metricKey, &metricValue,
+		}
+
+		tagsData := make([]string, len(columnNames)-2)
+		for i := range tagsData {
+			scanArgs = append(scanArgs, &tagsData[i])
+		}
+
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			return resultMetrics, err
+		}
+
+		tags := make(map[string]string, len(tagsData)+1)
+		for i, v := range tagsData {
+			tags[columnNames[i+2]] = v
+		}
+		tags["source"] = "sql"
+
+		acumMetrics[strings.ToLower(metricKey)] = metrics.Metric{
+			Value: metricValue,
+			Tags:  tags,
+		}
+	}
+
+	for _, m := range q.Metrics {
+		v, ok := acumMetrics[m.Key]
+		if !ok {
+			return resultMetrics, fmt.Errorf("unable to find key '%s' in the query '%s'", m.Key, q.Query)
+		}
+
+		resultMetrics = append(resultMetrics, metrics.Metric{
+			Key:   m.Key,
+			Unit:  m.Unit,
+			Value: v.Value,
+			Tags:  v.Tags,
+		})
+	}
+
+	return resultMetrics, nil
 }
 
 // Helpers
@@ -143,39 +280,4 @@ func getRowDataAsMaps(numberOfValues int, rows *sql.Rows) (valuesMap map[string]
 	}
 
 	return valuesMap, tagsMap, nil
-}
-
-// queryToMetrics Executes the given query and retunrs the result as
-// a list of Metric[]
-func queryToMetrics(db *sql.DB, mq MetricQuery) ([]metrics.Metric, error) {
-	rows, err := db.Query(mq.Query)
-	if err != nil {
-		return nil, fmt.Errorf("unable to execute query: %s", err)
-	}
-	defer rows.Close()
-
-	rowMetrics := []metrics.Metric{}
-	for rows.Next() {
-		rowMap, tags, err := getRowDataAsMaps(len(mq.Metrics), rows)
-		if err != nil {
-			return nil, err
-		}
-		tags["source"] = "sql"
-
-		for _, m := range mq.Metrics {
-			v, ok := rowMap[m.Key]
-			if !ok {
-				return nil, fmt.Errorf("unable to find key '%s' in the query '%s'", m.Key, mq.Query)
-			}
-
-			rowMetrics = append(rowMetrics, metrics.Metric{
-				Key:   m.Key,
-				Unit:  m.Unit,
-				Value: v,
-				Tags:  tags,
-			})
-		}
-	}
-
-	return rowMetrics, nil
 }

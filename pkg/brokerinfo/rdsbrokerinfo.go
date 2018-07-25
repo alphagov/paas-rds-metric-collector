@@ -33,45 +33,59 @@ func NewRDSBrokerInfo(
 	}
 }
 
-func (r *RDSBrokerInfo) ListInstanceGUIDs() ([]string, error) {
-	serviceInstanceGUIDs := []string{}
+func (r *RDSBrokerInfo) ListInstances() ([]InstanceInfo, error) {
+	serviceInstances := []InstanceInfo{}
 
 	dbInstanceDetailsList, err := r.dbInstance.DescribeByTag("Broker Name", r.brokerName)
 	if err != nil {
 		r.logger.Error("retriving list of AWS instances", err, lager.Data{"brokerName": r.brokerName})
-		return serviceInstanceGUIDs, err
+		return serviceInstances, err
 	}
 
 	for _, dbDetails := range dbInstanceDetailsList {
-		if dbDetails.Engine == "postgres" {
-			serviceInstanceGUID := r.dbInstanceIdentifierToServiceInstanceID(dbDetails.Identifier)
-			serviceInstanceGUIDs = append(serviceInstanceGUIDs, serviceInstanceGUID)
+		if dbDetails.Engine != "postgres" && dbDetails.Engine != "mysql" {
+			continue
 		}
+		instanceInfo := InstanceInfo{
+			GUID: r.dbInstanceIdentifierToServiceInstanceID(dbDetails.Identifier),
+			Type: dbDetails.Engine,
+		}
+		serviceInstances = append(serviceInstances, instanceInfo)
 	}
-	return serviceInstanceGUIDs, nil
+	return serviceInstances, nil
 }
 
-func (r *RDSBrokerInfo) ConnectionString(instanceGUID string) (string, error) {
-	dbInstanceDetails, err := r.dbInstance.Describe(r.dbInstanceIdentifier(instanceGUID))
+func (r *RDSBrokerInfo) ConnectionString(instanceInfo InstanceInfo) (string, error) {
+	if instanceInfo.Type != "postgres" && instanceInfo.Type != "mysql" {
+		return "", fmt.Errorf("invalid instance type: %s", instanceInfo.Type)
+	}
+	dbInstanceDetails, err := r.dbInstance.Describe(r.dbInstanceIdentifier(instanceInfo.GUID))
 	if err != nil {
-		r.logger.Error("obtaining instances details", err, lager.Data{"brokerName": r.brokerName, "instanceGUID": instanceGUID})
+		r.logger.Error("obtaining instances details", err, lager.Data{"brokerName": r.brokerName, "instanceInfo": instanceInfo})
 		return "", err
 	}
 
 	dbAddress := dbInstanceDetails.Address
 	dbPort := dbInstanceDetails.Port
 	masterUsername := dbInstanceDetails.MasterUsername
-	masterPassword := r.generateMasterPassword(instanceGUID)
+	masterPassword := r.generateMasterPassword(instanceInfo.GUID)
 	dbName := dbInstanceDetails.DBName
 
-	ConnectionString := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=require", masterUsername, masterPassword, dbAddress, dbPort, dbName)
+	var ConnectionString string
+
+	switch instanceInfo.Type {
+	case "postgres":
+		ConnectionString = fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=require", masterUsername, masterPassword, dbAddress, dbPort, dbName)
+	case "mysql":
+		ConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?tls=skip-verify", masterUsername, masterPassword, dbAddress, dbPort, dbName)
+	}
 
 	return ConnectionString, nil
 
 }
 
-func (r *RDSBrokerInfo) GetInstanceName(instanceGUID string) string {
-	return r.dbInstanceIdentifier(instanceGUID)
+func (r *RDSBrokerInfo) GetInstanceName(instanceInfo InstanceInfo) string {
+	return r.dbInstanceIdentifier(instanceInfo.GUID)
 }
 
 // FIXME: Following code has been copied from

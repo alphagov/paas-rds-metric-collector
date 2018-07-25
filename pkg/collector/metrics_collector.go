@@ -1,11 +1,15 @@
 package collector
 
-import "github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
+import (
+	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
+	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
+)
 
 // MetricsCollectorDriver ...
 type MetricsCollectorDriver interface {
-	NewCollector(instanceID string) (MetricsCollector, error)
+	NewCollector(instanceInfo brokerinfo.InstanceInfo) (MetricsCollector, error)
 	GetName() string
+	SupportedTypes() []string
 }
 
 // MetricsCollector ...

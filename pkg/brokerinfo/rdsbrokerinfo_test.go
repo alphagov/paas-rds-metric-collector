@@ -32,7 +32,7 @@ var _ = Describe("RDSBrokerInfo", func() {
 		)
 	})
 
-	Context("ListInstanceGUIDs()", func() {
+	Context("ListInstances()", func() {
 		BeforeEach(func() {
 			fakeDBInstance.DescribeByTagDBInstanceDetails = []*awsrds.DBInstanceDetails{
 				&awsrds.DBInstanceDetails{
@@ -65,21 +65,22 @@ var _ = Describe("RDSBrokerInfo", func() {
 		It("returns error if it fails retrieving existing instances in AWS", func() {
 			fakeDBInstance.DescribeByTagError = fmt.Errorf("Error calling rds.DescribeByTag(...)")
 
-			_, err := brokerInfo.ListInstanceGUIDs()
+			_, err := brokerInfo.ListInstances()
 			Expect(err).To(HaveOccurred())
 		})
 		It("lists the instances for the right tag", func() {
-			_, err := brokerInfo.ListInstanceGUIDs()
+			_, err := brokerInfo.ListInstances()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(fakeDBInstance.DescribeByTagKey).To(Equal("Broker Name"))
 			Expect(fakeDBInstance.DescribeByTagValue).To(Equal("broker_name"))
 		})
-		It("returns the list of instance GUIDs", func() {
-			instanceGUIDs, err := brokerInfo.ListInstanceGUIDs()
+		It("returns the list of instances", func() {
+			instances, err := brokerInfo.ListInstances()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(instanceGUIDs).To(ConsistOf(
-				"instance-id-1",
-				"instance-id-2",
+			Expect(instances).To(ConsistOf(
+				brokerinfo.InstanceInfo{GUID: "instance-id-1", Type: "postgres"},
+				brokerinfo.InstanceInfo{GUID: "instance-id-2", Type: "postgres"},
+				brokerinfo.InstanceInfo{GUID: "instance-id-3", Type: "mysql"},
 			))
 		})
 	})
@@ -98,19 +99,34 @@ var _ = Describe("RDSBrokerInfo", func() {
 		It("returns error if it fails retrieving existing instances in AWS", func() {
 			fakeDBInstance.DescribeError = fmt.Errorf("Error calling rds.Describe(...)")
 
-			_, err := brokerInfo.ConnectionString("instance-id")
+			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "postgres"})
+			Expect(err).To(HaveOccurred())
+		})
+		It("returns error if we query the wrong instance type", func() {
+			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "foo"})
 			Expect(err).To(HaveOccurred())
 		})
 		It("retrieves information of the right AWS RDS instance", func() {
-			_, err := brokerInfo.ConnectionString("instance-id")
+			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "postgres"})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(fakeDBInstance.DescribeCalled).To(BeTrue())
 			Expect(fakeDBInstance.DescribeID).To(Equal("dbprefix-instance-id"))
 		})
-		It("returns the proper connection string", func() {
-			connectionString, err := brokerInfo.ConnectionString("instance-id")
+		It("returns the proper connection string for postgres", func() {
+			fakeDBInstance.DescribeDBInstanceDetails.Engine = "postgres"
+			connectionString, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "postgres"})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(connectionString).To(Equal("postgresql://master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@endpoint-address.example.com:5432/dbprefix-db?sslmode=require"))
+		})
+		It("returns the proper connection string for mysql", func() {
+			fakeDBInstance.DescribeDBInstanceDetails.Engine = "mysql"
+			connectionString, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "mysql"})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(connectionString).To(Equal("master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@tcp(endpoint-address.example.com:5432)/dbprefix-db?tls=skip-verify"))
+		})
+		It("fails if the type is invalid", func() {
+			_, err := brokerInfo.ConnectionString(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "foo"})
+			Expect(err).To(HaveOccurred())
 		})
 	})
 })

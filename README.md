@@ -6,31 +6,33 @@ PaaS and gathering metrics. Pushing them to loggregator.
 
 ## Testing
 
-In order to run the tests, you will be required to run postgres instance on
+In order to run the tests, you will be required to run the DB instances on
 your machine.
 
 We usually use `docker` to achieve that, either by using the make target:
 
 ```
-make start_postgres_docker
+make start_docker_dbs
 ```
 
 Or manually by:
 
 ```
-docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD= -d postgres:9.5
+docker run --rm -p 5432:5432 --name postgres -e POSTGRES_PASSWORD= -d postgres:9.5
+docker run --rm -p 3306:3306 --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql:5.7
 ```
 
 You can tear it down after with:
 
 ```
-make stop_postgres_docker
+make stop_docker_dbs
 
 ```
 Or manually by:
 
 ```
-docker rm -f postgres
+docker stop postgres
+docker stop mysql
 ```
 
 installing the dependencies can be achieved by running:
@@ -63,6 +65,6 @@ We provide a `Makefile` for the different tasks to run and test the application.
 
 ## How does it work?
 
-The metrics collector queries AWS RDS for Postgres instances. Once these have been found the metrics collector generated the master password for each instance in order to spawn a worker process that connects to the instance. There is one process per instance. This runs a series of queries against the instance and pushes the results to loggregator. 
+The metrics collector queries AWS RDS for instances. Once these have been found the metrics collector generated the master password for each instance in order to spawn a worker process that connects to the instance. There is one process per instance. This runs a series of queries against the instance and pushes the results to loggregator.
 
 From Loggregator the metics can be collected by our tenants in the same manner as any other metrics. This is now through the plugin for log-cache.
