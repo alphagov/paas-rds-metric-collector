@@ -21,3 +21,18 @@ start_docker_dbs:
 stop_docker_dbs:
 	docker stop postgres
 	docker stop mysql
+
+start_mock_locket_server:
+	go run ./testhelpers/mock_locket_server/main.go -listenAddress=127.0.0.1:8891 -fixturesPath=./fixtures -mode=alwaysGrantLock \
+		> tmp/mock_locket_server.stdout \
+		2> tmp/mock_locket_server.stderr \
+		& \
+		ps -o pgid= -p "$$!" > tmp/mock_locket_server.pgid
+
+stop_mock_locket_server:
+	@if [ -f tmp/mock_locket_server.pgid ];\
+	then\
+		kill -- "-$$(cat tmp/mock_locket_server.pgid)";\
+		rm tmp/mock_locket_server.pgid;\
+	fi
+
