@@ -75,9 +75,9 @@ var _ = Describe("RDSBrokerInfo", func() {
 			Expect(fakeDBInstance.DescribeByTagValue).To(Equal("broker_name"))
 		})
 		It("returns the list of instances", func() {
-			instanceGUIDs, err := brokerInfo.ListInstances()
+			instances, err := brokerInfo.ListInstances()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(instanceGUIDs).To(ConsistOf(
+			Expect(instances).To(ConsistOf(
 				brokerinfo.InstanceInfo{GUID: "instance-id-1", Type: "postgres"},
 				brokerinfo.InstanceInfo{GUID: "instance-id-2", Type: "postgres"},
 				brokerinfo.InstanceInfo{GUID: "instance-id-3", Type: "mysql"},
