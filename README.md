@@ -18,21 +18,21 @@ make start_docker_dbs
 Or manually by:
 
 ```
-docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD= -d postgres:9.5
-docker run -p 3306:3306 --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql:5.7
+docker run --rm -p 5432:5432 --name postgres -e POSTGRES_PASSWORD= -d postgres:9.5
+docker run --rm -p 3306:3306 --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql:5.7
 ```
 
 You can tear it down after with:
 
 ```
-make stop_docker_db
+make stop_docker_dbs
 
 ```
 Or manually by:
 
 ```
-docker rm -f postgres
-docker rm -f mysql
+docker stop postgres
+docker stop mysql
 ```
 
 installing the dependencies can be achieved by running:

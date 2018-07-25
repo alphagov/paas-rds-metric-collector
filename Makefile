@@ -20,6 +20,4 @@ start_docker_dbs:
 
 stop_docker_dbs:
 	docker stop postgres
-	docker rm postgres
 	docker stop mysql
-	docker rm mysql
