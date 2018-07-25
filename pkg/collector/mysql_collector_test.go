@@ -33,16 +33,16 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		testDBName = utils.RandomString(10)
 		testDBConnectionString = injectDBName(mysqlTestDatabaseConnectionURL, testDBName)
 		mainDBConn, err := sql.Open("mysql", mysqlTestDatabaseConnectionURL)
-		defer mainDBConn.Close()
 		Expect(err).NotTo(HaveOccurred())
+		defer mainDBConn.Close()
 		_, err = mainDBConn.Exec(fmt.Sprintf("CREATE DATABASE %s", testDBName))
 		Expect(err).NotTo(HaveOccurred())
 	})
 
 	AfterEach(func() {
 		dbConn, err := sql.Open("mysql", mysqlTestDatabaseConnectionURL)
-		defer dbConn.Close()
 		Expect(err).NotTo(HaveOccurred())
+		defer dbConn.Close()
 
 		_, err = dbConn.Query(fmt.Sprintf("DROP DATABASE %s", testDBName))
 		Expect(err).NotTo(HaveOccurred())
