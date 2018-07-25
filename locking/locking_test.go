@@ -76,7 +76,7 @@ var _ = Describe("Locket / rds-metric-collector process group", func() {
 
 		Eventually(rdsMetricCollectorSession.Buffer).Should(gbytes.Say("rds-metric-collector.locket-lock.acquired-lock"))
 		Eventually(rdsMetricCollectorSession.Buffer, 10*time.Second).Should(gbytes.Say("rds-metric-collector.locket-lock.lost-lock"))
-		Eventually(rdsMetricCollectorSession.Buffer, 10*time.Second).Should(gbytes.Say("rds-metric-collector.process-group-stopped-with-error"))
-		Eventually(rdsMetricCollectorSession, 10*time.Second).Should(gexec.Exit())
+		Eventually(rdsMetricCollectorSession.Buffer, 30*time.Second).Should(gbytes.Say("rds-metric-collector.process-group-stopped-with-error"))
+		Eventually(rdsMetricCollectorSession, 30*time.Second).Should(gexec.Exit())
 	})
 })

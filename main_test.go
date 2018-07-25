@@ -72,7 +72,7 @@ var _ = Describe("collector", func() {
 				gbytes.Say("rds-metric-collector.scheduler.scheduler-started"),
 			)
 			rdsMetricsCollectorSession.Terminate()
-			Eventually(rdsMetricsCollectorSession, 20*time.Second).Should(gexec.Exit())
+			Eventually(rdsMetricsCollectorSession, 30*time.Second).Should(gexec.Exit())
 		})
 	})
 
