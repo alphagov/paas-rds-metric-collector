@@ -13,7 +13,7 @@ integration:
 
 start_docker_dbs:
 	docker run --rm -p 5432:5432 --name postgres -e POSTGRES_PASSWORD= -d postgres:9.5
-	docker run -p 3306:3306 --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql:5.7
+	docker run --rm -p 3306:3306 --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql:5.7
 	until docker exec mysql mysqladmin ping --silent; do \
 		printf "."; sleep 1;                             \
 	done
