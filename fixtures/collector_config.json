@@ -14,9 +14,13 @@
 	},
 	"loggregator_emitter": {
 		"url": "localhost:3458",
-		"ca_cert": "./fixtures/CA.crt",
-		"client_cert": "./fixtures/client.crt",
-		"client_key": "./fixtures/client.key"
-	}
+		"ca_cert": "./fixtures/ca.cert.pem",
+		"client_cert": "./fixtures/client.cert.pem",
+		"client_key": "./fixtures/client.key.pem"
+	},
+	"locket_address": "127.0.0.1:8891",
+	"locket_ca_cert_file": "./fixtures/ca.cert.pem",
+	"locket_client_cert_file": "./fixtures/client.cert.pem",
+	"locket_client_key_file": "./fixtures/client.key.pem"
 }
 

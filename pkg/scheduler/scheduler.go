@@ -13,6 +13,7 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
+	"os"
 )
 
 type workerID struct {
@@ -112,8 +113,7 @@ func (w *Scheduler) WithDriver(drivers ...collector.MetricsCollectorDriver) *Sch
 	return w
 }
 
-// Start ...
-func (w *Scheduler) Start() error {
+func (w *Scheduler) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
 	var err error
 	w.job, err = scheduler.Every(w.instanceRefreshInterval).Seconds().Run(func() {
 		w.workersStarting.Add(1)
@@ -153,7 +153,16 @@ func (w *Scheduler) Start() error {
 			}
 		}
 	})
-	return err
+	if err != nil {
+		w.logger.Debug("error-starting-scheduler")
+		return err
+	}
+	close(ready)
+	w.logger.Info("scheduler-started")
+	sig := <- signals
+	w.logger.Debug("received-signal", lager.Data{"signal": sig})
+	w.Stop()
+	return nil
 }
 
 // Stop ...
@@ -161,6 +170,7 @@ func (w *Scheduler) Stop() {
 	w.job.Quit <- true
 	w.workersStarting.Wait()
 	for _, id := range w.workers.keys() {
+		w.logger.Debug("stopping-worker")
 		w.stopWorker(id)
 	}
 	w.workersStopping.Wait()

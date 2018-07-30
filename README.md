@@ -3,65 +3,71 @@
 Small application connecting to all RDS instances hosted on the GOV.UK
 PaaS and gathering metrics. Pushing them to loggregator.
 
+## Getting started
+
+Install the dependencies with [dep](https://github.com/golang/dep):
+
+```
+dep ensure
+```
 
 ## Testing
 
-In order to run the tests, you will be required to run the DB instances on
-your machine.
-
-We usually use `docker` to achieve that, either by using the make target:
+To run the tests you need to run the databases on your machine:
 
 ```
 make start_docker_dbs
 ```
 
-Or manually by:
-
-```
-docker run --rm -p 5432:5432 --name postgres -e POSTGRES_PASSWORD= -d postgres:9.5
-docker run --rm -p 3306:3306 --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql:5.7
-```
-
-You can tear it down after with:
-
-```
-make stop_docker_dbs
-
-```
-Or manually by:
-
-```
-docker stop postgres
-docker stop mysql
-```
-
-installing the dependencies can be achieved by running:
-
-```
-go get ./...
-```
-
-Ginkgo is setup with the suite, which allows you to run:
+Then run the tests with:
 
 ```
 make test
 ```
 
-or
+You can stop the databases with:
 
 ```
-go test ./...
+make stop_docker_dbs
 ```
 
-or
+### Fixtures
+
+Certificates in the test fixtures are generated with a script. To generate them run:
+
+```bash
+./scripts/generate-cert-fixtures.sh
+```
+
+(See the [Makefile](Makefile) for more details)
+
+## Running locally
+
+The application will not do very much running locally, but it is possible to
+start it.
+
+First you will need the databases and locket (or a mock) running. These can be
+started with the following make tasks:
 
 ```
-ginkgo ./...
+make start_docker_dbs
+make start_mock_locket_server
 ```
 
-Without further configuring your stack.
+And stopped with:
 
-We provide a `Makefile` for the different tasks to run and test the application.
+```
+make stop_docker_dbs
+make stop_mock_locket_server
+```
+
+(See the [Makefile](Makefile) for more details)
+
+You can then start the application with:
+
+```
+go run main.go -config=./fixtures/collector_config.json
+```
 
 ## How does it work?
 

@@ -76,7 +76,7 @@ func startNewCollector(rdsMetricCollectorConfig *collectorconfig.Config) *gexec.
 
 	// Wait for it to start
 	Eventually(rdsMetricsCollectorSession, 10*time.Second).Should(And(
-		gbytes.Say("rds-metric-collector.start"),
+		gbytes.Say("rds-metric-collector.scheduler.scheduler-started"),
 	))
 
 	Consistently(rdsMetricsCollectorSession, 3*time.Second).ShouldNot(gexec.Exit())

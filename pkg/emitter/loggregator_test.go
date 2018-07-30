@@ -23,9 +23,9 @@ var _ = Describe("IngressClient", func() {
 	BeforeEach(func() {
 		var err error
 		server, err = helpers.NewFakeLoggregatorIngressServer(
-			"../../fixtures/server.crt",
-			"../../fixtures/server.key",
-			"../../fixtures/CA.crt",
+			"../../fixtures/loggregator-server.cert.pem",
+			"../../fixtures/loggregator-server.key.pem",
+			"../../fixtures/ca.cert.pem",
 		)
 		Expect(err).NotTo(HaveOccurred())
 
@@ -34,9 +34,9 @@ var _ = Describe("IngressClient", func() {
 
 		emitterConfig = config.LoggregatorEmitterConfig{
 			MetronURL:  server.Addr,
-			CACertPath: "../../fixtures/CA.crt",
-			CertPath:   "../../fixtures/client.crt",
-			KeyPath:    "../../fixtures/client.key",
+			CACertPath: "../../fixtures/ca.cert.pem",
+			CertPath:   "../../fixtures/client.cert.pem",
+			KeyPath:    "../../fixtures/client.key.pem",
 		}
 		loggregatorEmitter, err = emitter.NewLoggregatorEmitter(
 			emitterConfig,

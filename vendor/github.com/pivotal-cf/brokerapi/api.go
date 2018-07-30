@@ -1,41 +1,70 @@
+// Copyright (C) 2015-Present Pivotal Software, Inc. All rights reserved.
+
+// This program and the accompanying materials are made available under
+// the terms of the under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package brokerapi
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"code.cloudfoundry.org/lager"
 	"github.com/gorilla/mux"
 	"github.com/pivotal-cf/brokerapi/auth"
 )
 
-const provisionLogKey = "provision"
-const deprovisionLogKey = "deprovision"
-const bindLogKey = "bind"
-const unbindLogKey = "unbind"
-const lastOperationLogKey = "lastOperation"
+const (
+	provisionLogKey     = "provision"
+	deprovisionLogKey   = "deprovision"
+	bindLogKey          = "bind"
+	unbindLogKey        = "unbind"
+	updateLogKey        = "update"
+	lastOperationLogKey = "lastOperation"
+	catalogLogKey       = "catalog"
 
-const instanceIDLogKey = "instance-id"
-const instanceDetailsLogKey = "instance-details"
-const bindingIDLogKey = "binding-id"
+	instanceIDLogKey      = "instance-id"
+	instanceDetailsLogKey = "instance-details"
+	bindingIDLogKey       = "binding-id"
 
-const invalidServiceDetailsErrorKey = "invalid-service-details"
-const invalidBindDetailsErrorKey = "invalid-bind-details"
-const invalidUnbindDetailsErrorKey = "invalid-unbind-details"
-const invalidDeprovisionDetailsErrorKey = "invalid-deprovision-details"
-const instanceLimitReachedErrorKey = "instance-limit-reached"
-const instanceAlreadyExistsErrorKey = "instance-already-exists"
-const bindingAlreadyExistsErrorKey = "binding-already-exists"
-const instanceMissingErrorKey = "instance-missing"
-const bindingMissingErrorKey = "binding-missing"
-const asyncRequiredKey = "async-required"
-const planChangeNotSupportedKey = "plan-change-not-supported"
-const unknownErrorKey = "unknown-error"
-const invalidRawParamsKey = "invalid-raw-params"
-const appGuidNotProvidedErrorKey = "app-guid-not-provided"
+	invalidServiceDetailsErrorKey = "invalid-service-details"
+	invalidBindDetailsErrorKey    = "invalid-bind-details"
+	instanceLimitReachedErrorKey  = "instance-limit-reached"
+	instanceAlreadyExistsErrorKey = "instance-already-exists"
+	bindingAlreadyExistsErrorKey  = "binding-already-exists"
+	instanceMissingErrorKey       = "instance-missing"
+	bindingMissingErrorKey        = "binding-missing"
+	asyncRequiredKey              = "async-required"
+	planChangeNotSupportedKey     = "plan-change-not-supported"
+	unknownErrorKey               = "unknown-error"
+	invalidRawParamsKey           = "invalid-raw-params"
+	appGuidNotProvidedErrorKey    = "app-guid-not-provided"
+	apiVersionInvalidKey          = "broker-api-version-invalid"
+	serviceIdMissingKey           = "service-id-missing"
+	planIdMissingKey              = "plan-id-missing"
+	invalidServiceID              = "invalid-service-id"
+	invalidPlanID                 = "invalid-plan-id"
+)
 
-const statusUnprocessableEntity = 422
+var (
+	serviceIdError        = errors.New("service_id missing")
+	planIdError           = errors.New("plan_id missing")
+	invalidServiceIDError = errors.New("service-id not in the catalog")
+	invalidPlanIDError    = errors.New("plan-id not in the catalog")
+)
 
 type BrokerCredentials struct {
 	Username string
@@ -67,8 +96,26 @@ type serviceBrokerHandler struct {
 }
 
 func (h serviceBrokerHandler) catalog(w http.ResponseWriter, req *http.Request) {
+	logger := h.logger.Session(catalogLogKey, lager.Data{})
+
+	if err := checkBrokerAPIVersionHdr(req); err != nil {
+		h.respond(w, http.StatusPreconditionFailed, ErrorResponse{
+			Description: err.Error(),
+		})
+		logger.Error(apiVersionInvalidKey, err)
+		return
+	}
+
+	services, err := h.serviceBroker.Services(req.Context())
+	if err != nil {
+		h.respond(w, http.StatusInternalServerError, ErrorResponse{
+			Description: err.Error(),
+		})
+		return
+	}
+
 	catalog := CatalogResponse{
-		Services: h.serviceBroker.Services(req.Context()),
+		Services: services,
 	}
 
 	h.respond(w, http.StatusOK, catalog)
@@ -82,44 +129,85 @@ func (h serviceBrokerHandler) provision(w http.ResponseWriter, req *http.Request
 		instanceIDLogKey: instanceID,
 	})
 
+	if err := checkBrokerAPIVersionHdr(req); err != nil {
+		h.respond(w, http.StatusPreconditionFailed, ErrorResponse{
+			Description: err.Error(),
+		})
+		logger.Error(apiVersionInvalidKey, err)
+		return
+	}
+
 	var details ProvisionDetails
 	if err := json.NewDecoder(req.Body).Decode(&details); err != nil {
 		logger.Error(invalidServiceDetailsErrorKey, err)
-		h.respond(w, statusUnprocessableEntity, ErrorResponse{
+		h.respond(w, http.StatusUnprocessableEntity, ErrorResponse{
 			Description: err.Error(),
 		})
 		return
 	}
 
-	acceptsIncompleteFlag, _ := strconv.ParseBool(req.URL.Query().Get("accepts_incomplete"))
+	if details.ServiceID == "" {
+		logger.Error(serviceIdMissingKey, serviceIdError)
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: serviceIdError.Error(),
+		})
+		return
+	}
+
+	if details.PlanID == "" {
+		logger.Error(planIdMissingKey, planIdError)
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: planIdError.Error(),
+		})
+		return
+	}
+
+	valid := false
+	services, _ := h.serviceBroker.Services(req.Context())
+	for _, service := range services {
+		if service.ID == details.ServiceID {
+			valid = true
+			break
+		}
+	}
+	if !valid {
+		logger.Error(invalidServiceID, invalidServiceIDError)
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: invalidServiceIDError.Error(),
+		})
+		return
+	}
+
+	valid = false
+	for _, service := range services {
+		for _, plan := range service.Plans {
+			if plan.ID == details.PlanID {
+				valid = true
+				break
+			}
+		}
+	}
+	if !valid {
+		logger.Error(invalidPlanID, invalidPlanIDError)
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: invalidPlanIDError.Error(),
+		})
+		return
+	}
+
+	asyncAllowed := req.FormValue("accepts_incomplete") == "true"
 
 	logger = logger.WithData(lager.Data{
 		instanceDetailsLogKey: details,
 	})
 
-	provisionResponse, err := h.serviceBroker.Provision(req.Context(), instanceID, details, acceptsIncompleteFlag)
+	provisionResponse, err := h.serviceBroker.Provision(req.Context(), instanceID, details, asyncAllowed)
 
 	if err != nil {
-		switch err {
-		case ErrRawParamsInvalid:
-			logger.Error(invalidRawParamsKey, err)
-			h.respond(w, 422, ErrorResponse{
-				Description: err.Error(),
-			})
-		case ErrInstanceAlreadyExists:
-			logger.Error(instanceAlreadyExistsErrorKey, err)
-			h.respond(w, http.StatusConflict, EmptyResponse{})
-		case ErrInstanceLimitMet:
-			logger.Error(instanceLimitReachedErrorKey, err)
-			h.respond(w, http.StatusInternalServerError, ErrorResponse{
-				Description: err.Error(),
-			})
-		case ErrAsyncRequired:
-			logger.Error(asyncRequiredKey, err)
-			h.respond(w, 422, ErrorResponse{
-				Error:       "AsyncRequired",
-				Description: err.Error(),
-			})
+		switch err := err.(type) {
+		case *FailureResponse:
+			logger.Error(err.LoggerAction(), err)
+			h.respond(w, err.ValidatedStatusCode(logger), err.ErrorResponse())
 		default:
 			logger.Error(unknownErrorKey, err)
 			h.respond(w, http.StatusInternalServerError, ErrorResponse{
@@ -145,11 +233,31 @@ func (h serviceBrokerHandler) update(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	instanceID := vars["instance_id"]
 
+	logger := h.logger.Session(updateLogKey, lager.Data{
+		instanceIDLogKey: instanceID,
+	})
+
+	if err := checkBrokerAPIVersionHdr(req); err != nil {
+		h.respond(w, http.StatusPreconditionFailed, ErrorResponse{
+			Description: err.Error(),
+		})
+		logger.Error(apiVersionInvalidKey, err)
+		return
+	}
+
 	var details UpdateDetails
 	if err := json.NewDecoder(req.Body).Decode(&details); err != nil {
 		h.logger.Error(invalidServiceDetailsErrorKey, err)
-		h.respond(w, statusUnprocessableEntity, ErrorResponse{
+		h.respond(w, http.StatusUnprocessableEntity, ErrorResponse{
 			Description: err.Error(),
+		})
+		return
+	}
+
+	if details.ServiceID == "" {
+		logger.Error(serviceIdMissingKey, serviceIdError)
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: serviceIdError.Error(),
 		})
 		return
 	}
@@ -158,30 +266,17 @@ func (h serviceBrokerHandler) update(w http.ResponseWriter, req *http.Request) {
 
 	updateServiceSpec, err := h.serviceBroker.Update(req.Context(), instanceID, details, acceptsIncompleteFlag)
 	if err != nil {
-		switch err {
-		case ErrAsyncRequired:
-			h.logger.Error(asyncRequiredKey, err)
-			h.respond(w, 422, ErrorResponse{
-				Error:       "AsyncRequired",
-				Description: err.Error(),
-			})
-			return
-
-		case ErrPlanChangeNotSupported:
-			h.logger.Error(planChangeNotSupportedKey, err)
-			h.respond(w, 422, ErrorResponse{
-				Error:       "PlanChangeNotSupported",
-				Description: err.Error(),
-			})
-			return
-
+		switch err := err.(type) {
+		case *FailureResponse:
+			h.logger.Error(err.LoggerAction(), err)
+			h.respond(w, err.ValidatedStatusCode(h.logger), err.ErrorResponse())
 		default:
 			h.logger.Error(unknownErrorKey, err)
 			h.respond(w, http.StatusInternalServerError, ErrorResponse{
 				Description: err.Error(),
 			})
-			return
 		}
+		return
 	}
 
 	statusCode := http.StatusOK
@@ -198,24 +293,43 @@ func (h serviceBrokerHandler) deprovision(w http.ResponseWriter, req *http.Reque
 		instanceIDLogKey: instanceID,
 	})
 
+	if err := checkBrokerAPIVersionHdr(req); err != nil {
+		h.respond(w, http.StatusPreconditionFailed, ErrorResponse{
+			Description: err.Error(),
+		})
+		logger.Error(apiVersionInvalidKey, err)
+		return
+	}
+
 	details := DeprovisionDetails{
 		PlanID:    req.FormValue("plan_id"),
 		ServiceID: req.FormValue("service_id"),
 	}
+
+	if details.ServiceID == "" {
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: serviceIdError.Error(),
+		})
+		logger.Error(serviceIdMissingKey, serviceIdError)
+		return
+	}
+
+	if details.PlanID == "" {
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: planIdError.Error(),
+		})
+		logger.Error(planIdMissingKey, planIdError)
+		return
+	}
+
 	asyncAllowed := req.FormValue("accepts_incomplete") == "true"
 
 	deprovisionSpec, err := h.serviceBroker.Deprovision(req.Context(), instanceID, details, asyncAllowed)
 	if err != nil {
-		switch err {
-		case ErrInstanceDoesNotExist:
-			logger.Error(instanceMissingErrorKey, err)
-			h.respond(w, http.StatusGone, EmptyResponse{})
-		case ErrAsyncRequired:
-			logger.Error(asyncRequiredKey, err)
-			h.respond(w, 422, ErrorResponse{
-				Error:       "AsyncRequired",
-				Description: err.Error(),
-			})
+		switch err := err.(type) {
+		case *FailureResponse:
+			logger.Error(err.LoggerAction(), err)
+			h.respond(w, err.ValidatedStatusCode(logger), err.ErrorResponse())
 		default:
 			logger.Error(unknownErrorKey, err)
 			h.respond(w, http.StatusInternalServerError, ErrorResponse{
@@ -242,33 +356,54 @@ func (h serviceBrokerHandler) bind(w http.ResponseWriter, req *http.Request) {
 		bindingIDLogKey:  bindingID,
 	})
 
+	if err := checkBrokerAPIVersionHdr(req); err != nil {
+		h.respond(w, http.StatusPreconditionFailed, ErrorResponse{
+			Description: err.Error(),
+		})
+		logger.Error(apiVersionInvalidKey, err)
+		return
+	}
+
 	var details BindDetails
 	if err := json.NewDecoder(req.Body).Decode(&details); err != nil {
 		logger.Error(invalidBindDetailsErrorKey, err)
-		h.respond(w, statusUnprocessableEntity, ErrorResponse{
+		h.respond(w, http.StatusUnprocessableEntity, ErrorResponse{
 			Description: err.Error(),
+		})
+		return
+	}
+
+	if details.ServiceID == "" {
+		logger.Error(serviceIdMissingKey, serviceIdError)
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: serviceIdError.Error(),
+		})
+		return
+	}
+
+	if details.PlanID == "" {
+		logger.Error(planIdMissingKey, planIdError)
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: planIdError.Error(),
 		})
 		return
 	}
 
 	binding, err := h.serviceBroker.Bind(req.Context(), instanceID, bindingID, details)
 	if err != nil {
-		switch err {
-		case ErrInstanceDoesNotExist:
-			logger.Error(instanceMissingErrorKey, err)
-			h.respond(w, http.StatusNotFound, ErrorResponse{
-				Description: err.Error(),
-			})
-		case ErrBindingAlreadyExists:
-			logger.Error(bindingAlreadyExistsErrorKey, err)
-			h.respond(w, http.StatusConflict, ErrorResponse{
-				Description: err.Error(),
-			})
-		case ErrAppGuidNotProvided:
-			logger.Error(appGuidNotProvidedErrorKey, err)
-			h.respond(w, statusUnprocessableEntity, ErrorResponse{
-				Description: err.Error(),
-			})
+		switch err := err.(type) {
+		case *FailureResponse:
+			statusCode := err.ValidatedStatusCode(logger)
+			errorResponse := err.ErrorResponse()
+			if err == ErrInstanceDoesNotExist {
+				// work around ErrInstanceDoesNotExist having different pre-refactor behaviour to other actions
+				errorResponse = ErrorResponse{
+					Description: err.Error(),
+				}
+				statusCode = http.StatusNotFound
+			}
+			logger.Error(err.LoggerAction(), err)
+			h.respond(w, statusCode, errorResponse)
 		default:
 			logger.Error(unknownErrorKey, err)
 			h.respond(w, http.StatusInternalServerError, ErrorResponse{
@@ -324,19 +459,40 @@ func (h serviceBrokerHandler) unbind(w http.ResponseWriter, req *http.Request) {
 		bindingIDLogKey:  bindingID,
 	})
 
+	if err := checkBrokerAPIVersionHdr(req); err != nil {
+		h.respond(w, http.StatusPreconditionFailed, ErrorResponse{
+			Description: err.Error(),
+		})
+		logger.Error(apiVersionInvalidKey, err)
+		return
+	}
+
 	details := UnbindDetails{
 		PlanID:    req.FormValue("plan_id"),
 		ServiceID: req.FormValue("service_id"),
 	}
 
+	if details.ServiceID == "" {
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: serviceIdError.Error(),
+		})
+		logger.Error(serviceIdMissingKey, serviceIdError)
+		return
+	}
+
+	if details.PlanID == "" {
+		h.respond(w, http.StatusBadRequest, ErrorResponse{
+			Description: planIdError.Error(),
+		})
+		logger.Error(planIdMissingKey, planIdError)
+		return
+	}
+
 	if err := h.serviceBroker.Unbind(req.Context(), instanceID, bindingID, details); err != nil {
-		switch err {
-		case ErrInstanceDoesNotExist:
-			logger.Error(instanceMissingErrorKey, err)
-			h.respond(w, http.StatusGone, EmptyResponse{})
-		case ErrBindingDoesNotExist:
-			logger.Error(bindingMissingErrorKey, err)
-			h.respond(w, http.StatusGone, EmptyResponse{})
+		switch err := err.(type) {
+		case *FailureResponse:
+			logger.Error(err.LoggerAction(), err)
+			h.respond(w, err.ValidatedStatusCode(logger), err.ErrorResponse())
 		default:
 			logger.Error(unknownErrorKey, err)
 			h.respond(w, http.StatusInternalServerError, ErrorResponse{
@@ -358,24 +514,29 @@ func (h serviceBrokerHandler) lastOperation(w http.ResponseWriter, req *http.Req
 		instanceIDLogKey: instanceID,
 	})
 
+	if err := checkBrokerAPIVersionHdr(req); err != nil {
+		h.respond(w, http.StatusPreconditionFailed, ErrorResponse{
+			Description: err.Error(),
+		})
+		logger.Error(apiVersionInvalidKey, err)
+		return
+	}
+
 	logger.Info("starting-check-for-operation")
 
 	lastOperation, err := h.serviceBroker.LastOperation(req.Context(), instanceID, operationData)
 
 	if err != nil {
-		switch err {
-		case ErrInstanceDoesNotExist:
-			logger.Error(instanceMissingErrorKey, err)
-			h.respond(w, http.StatusGone, ErrorResponse{
-				Description: err.Error(),
-			})
+		switch err := err.(type) {
+		case *FailureResponse:
+			logger.Error(err.LoggerAction(), err)
+			h.respond(w, err.ValidatedStatusCode(logger), err.ErrorResponse())
 		default:
 			logger.Error(unknownErrorKey, err)
 			h.respond(w, http.StatusInternalServerError, ErrorResponse{
 				Description: err.Error(),
 			})
 		}
-
 		return
 	}
 
@@ -398,4 +559,16 @@ func (h serviceBrokerHandler) respond(w http.ResponseWriter, status int, respons
 	if err != nil {
 		h.logger.Error("encoding response", err, lager.Data{"status": status, "response": response})
 	}
+}
+
+func checkBrokerAPIVersionHdr(req *http.Request) error {
+	apiVersion := req.Header.Get("X-Broker-API-Version")
+	if apiVersion == "" {
+		return errors.New("X-Broker-API-Version Header not set")
+	}
+
+	if !strings.HasPrefix(apiVersion, "2.") {
+		return errors.New("X-Broker-API-Version Header must be 2.x")
+	}
+	return nil
 }

@@ -16,6 +16,10 @@ import (
 
 	. "github.com/alphagov/paas-rds-broker/ci/helpers"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/helpers"
+	"github.com/alphagov/paas-rds-metric-collector/testhelpers"
+	"github.com/onsi/gomega/gbytes"
+	"code.cloudfoundry.org/locket"
+	"path"
 )
 
 var (
@@ -28,6 +32,8 @@ var (
 	brokerAPIClient  *BrokerAPIClient
 	rdsClient        *RDSClient
 
+	mockLocketServerSession *gexec.Session
+
 	rdsMetricCollectorPath     string
 	rdsMetricCollectorConfig   *collectorconfig.Config
 	rdsMetricsCollectorSession *gexec.Session
@@ -37,14 +43,21 @@ var (
 
 func TestSuite(t *testing.T) {
 	BeforeSuite(func() {
+		const fixturesPath = "../../fixtures"
 		var err error
 
 		// Compile the broker
 		rdsBrokerPath, err = gexec.Build("github.com/alphagov/paas-rds-broker")
 		Expect(err).ShouldNot(HaveOccurred())
 
+		// Compile test Locket server
+		mockLocketServer := testhelpers.MockLocketServer{}
+		mockLocketServer.Build()
+		mockLocketServerSession = mockLocketServer.Run(fixturesPath, "alwaysGrantLock")
+		Eventually(mockLocketServerSession.Buffer).Should(gbytes.Say("grpc.grpc-server.started"))
+
 		// Update config
-		rdsBrokerConfig, err = rdsconfig.LoadConfig("../../fixtures/broker_config.json")
+		rdsBrokerConfig, err = rdsconfig.LoadConfig(path.Join(fixturesPath, "broker_config.json"))
 		Expect(err).ToNot(HaveOccurred())
 		err = rdsBrokerConfig.Validate()
 		Expect(err).ToNot(HaveOccurred())
@@ -72,9 +85,10 @@ func TestSuite(t *testing.T) {
 
 		// Start a fake server for loggregator
 		fakeLoggregator, err = helpers.NewFakeLoggregatorIngressServer(
-			"../../fixtures/server.crt",
-			"../../fixtures/server.key",
-			"../../fixtures/CA.crt")
+			path.Join(fixturesPath, "loggregator-server.cert.pem"),
+			path.Join(fixturesPath, "loggregator-server.key.pem"),
+			path.Join(fixturesPath, "ca.cert.pem"),
+		)
 		Expect(err).ShouldNot(HaveOccurred())
 		err = fakeLoggregator.Start()
 		Expect(err).ShouldNot(HaveOccurred())
@@ -84,17 +98,39 @@ func TestSuite(t *testing.T) {
 		Expect(err).ShouldNot(HaveOccurred())
 
 		// Update config
-		rdsMetricCollectorConfig, err = collectorconfig.LoadConfig("../../fixtures/collector_config.json")
+		rdsMetricCollectorConfig := collectorconfig.Config{
+			LogLevel: "debug",
+			AWS: collectorconfig.AWSConfig{
+				Region:       "eu-west-1",
+				AWSPartition: "aws",
+			},
+			RDSBrokerInfo: collectorconfig.RDSBrokerInfoConfig{
+				BrokerName:         rdsBrokerConfig.RDSConfig.BrokerName,
+				DBPrefix:           "build-test",
+				MasterPasswordSeed: "something-secret",
+			},
+			Scheduler: collectorconfig.SchedulerConfig{
+				InstanceRefreshInterval: 30,
+				MetricCollectorInterval: 5,
+			},
+			LoggregatorEmitter: collectorconfig.LoggregatorEmitterConfig{
+				MetronURL:  fakeLoggregator.Addr,
+				CACertPath: path.Join(fixturesPath, "ca.cert.pem"),
+				CertPath:   path.Join(fixturesPath, "client.cert.pem"),
+				KeyPath:    path.Join(fixturesPath, "client.key.pem"),
+			},
+			ClientLocketConfig: locket.ClientLocketConfig{
+				LocketCACertFile:     path.Join(fixturesPath, "ca.cert.pem"),
+				LocketClientCertFile: path.Join(fixturesPath, "client.cert.pem"),
+				LocketClientKeyFile:  path.Join(fixturesPath, "client.key.pem"),
+				LocketAddress:        mockLocketServer.ListenAddress,
+			},
+		}
 		Expect(err).ToNot(HaveOccurred())
-		rdsMetricCollectorConfig.RDSBrokerInfo.BrokerName = rdsBrokerConfig.RDSConfig.BrokerName
-		rdsMetricCollectorConfig.LoggregatorEmitter.MetronURL = fakeLoggregator.Addr
-		rdsMetricCollectorConfig.LoggregatorEmitter.CACertPath = "../../fixtures/CA.crt"
-		rdsMetricCollectorConfig.LoggregatorEmitter.CertPath = "../../fixtures/client.crt"
-		rdsMetricCollectorConfig.LoggregatorEmitter.KeyPath = "../../fixtures/client.key"
 
 		// Start the services
 		rdsBrokerSession, brokerAPIClient, rdsClient = startNewBroker(rdsBrokerConfig)
-		rdsMetricsCollectorSession = startNewCollector(rdsMetricCollectorConfig)
+		rdsMetricsCollectorSession = startNewCollector(&rdsMetricCollectorConfig)
 	})
 
 	AfterSuite(func() {
@@ -117,6 +153,7 @@ func TestSuite(t *testing.T) {
 		if rdsSubnetGroupName != nil {
 			Expect(DestroySubnetGroup(rdsSubnetGroupName, awsSession)).To(Succeed())
 		}
+		mockLocketServerSession.Kill()
 	})
 
 	RegisterFailHandler(Fail)

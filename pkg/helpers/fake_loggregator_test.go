@@ -20,9 +20,9 @@ var _ = Describe("IngressClient", func() {
 	BeforeEach(func() {
 		var err error
 		server, err = helpers.NewFakeLoggregatorIngressServer(
-			"../../fixtures/server.crt",
-			"../../fixtures/server.key",
-			"../../fixtures/CA.crt",
+			"../../fixtures/loggregator-server.cert.pem",
+			"../../fixtures/loggregator-server.key.pem",
+			"../../fixtures/ca.cert.pem",
 		)
 		Expect(err).NotTo(HaveOccurred())
 
@@ -30,9 +30,9 @@ var _ = Describe("IngressClient", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		tlsConfig, err := loggregator.NewIngressTLSConfig(
-			"../../fixtures/CA.crt",
-			"../../fixtures/server.crt",
-			"../../fixtures/server.key",
+			"../../fixtures/ca.cert.pem",
+			"../../fixtures/loggregator-server.cert.pem",
+			"../../fixtures/loggregator-server.key.pem",
 		)
 		Expect(err).NotTo(HaveOccurred())
 

@@ -3,15 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
-	"os"
-	"os/signal"
-	"strings"
-	"time"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/rds"
+	"log"
+	"os"
+	"strings"
 
 	_ "github.com/lib/pq"
 
@@ -19,12 +16,20 @@ import (
 
 	"github.com/alphagov/paas-rds-broker/awsrds"
 
+	"code.cloudfoundry.org/clock"
+	"code.cloudfoundry.org/locket"
+	"code.cloudfoundry.org/locket/lock"
+	locketmodels "code.cloudfoundry.org/locket/models"
+
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/collector"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/scheduler"
-	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
+	"github.com/satori/go.uuid"
+	"github.com/tedsuo/ifrit"
+	"github.com/tedsuo/ifrit/grouper"
+	"github.com/tedsuo/ifrit/sigmon"
 )
 
 var (
@@ -42,24 +47,6 @@ var (
 func init() {
 	flag.StringVar(&configFilePath, "config", "", "Location of the config file")
 	flag.BoolVar(&useStdoutEmitter, "stdoutEmitter", false, "Print metrics to stdout rather than send to loggregator")
-}
-
-func stopOnSignal(metricsScheduler *scheduler.Scheduler) {
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt, os.Kill)
-	receivedSignal := <-signalChan
-	log.Printf("Received signal: %v. Stopping...\n", receivedSignal)
-
-	// Stop if another signal is sent
-	go func() {
-		receivedSignal = <-signalChan
-		log.Printf("Received another signal: %v. Dying...\n", receivedSignal)
-		os.Exit(1)
-	}()
-	if utils.WithTimeout(30*time.Second, func() { metricsScheduler.Stop() }) {
-		log.Printf("Timeout stopping. Exitting\n")
-	}
-	os.Exit(1)
 }
 
 var logger = lager.NewLogger("rds-metric-collector")
@@ -135,13 +122,48 @@ func main() {
 	scheduler.WithDriver(mysqlMetricsCollectorDriver)
 	scheduler.WithDriver(cloudWatchMetricsCollectorDriver)
 
-	err = scheduler.Start()
+	members := []grouper.Member{}
+	locketRunner := createLocketRunner(logger, cfg)
+
+	members = append(members, grouper.Member{"locketRunner", locketRunner})
+	members = append(members, grouper.Member{"scheduleRunner", scheduler})
+
+	group := grouper.NewOrdered(os.Interrupt, members)
+
+	monitor := ifrit.Invoke(sigmon.New(group))
+	err = <-monitor.Wait()
+
 	if err != nil {
-		logger.Error("starting scheduler", err)
+		logger.Error("process-group-stopped-with-error", err)
 		os.Exit(1)
 	}
+}
 
-	logger.Info("start")
+func createLocketRunner(logger lager.Logger, locketConfig *config.Config) ifrit.Runner {
+	var (
+		err          error
+		locketClient locketmodels.LocketClient
+	)
+	logger.Debug("connecting-to-locket")
+	locketClient, err = locket.NewClient(logger, locketConfig.ClientLocketConfig)
+	if err != nil {
+		logger.Fatal("Failed to initialize locket client", err)
+	}
+	logger.Debug("connected-to-locket")
+	id := uuid.NewV4()
 
-	stopOnSignal(scheduler)
+	lockIdentifier := &locketmodels.Resource{
+		Key:   "rds-metrics-collector",
+		Owner: id.String(),
+		Type:  locketmodels.LockType,
+	}
+
+	return lock.NewLockRunner(
+		logger,
+		locketClient,
+		lockIdentifier,
+		locket.DefaultSessionTTLInSeconds,
+		clock.NewClock(),
+		locket.SQLRetryInterval,
+	)
 }

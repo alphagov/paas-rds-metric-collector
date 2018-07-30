@@ -14,6 +14,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"os"
 )
 
 type fakeMetricsCollectorDriver struct {
@@ -69,6 +70,8 @@ var _ = Describe("collector scheduler", func() {
 		metricsCollectorDriver *fakeMetricsCollectorDriver
 		metricsCollector       *fakeMetricsCollector
 		scheduler              *Scheduler
+		signals                chan os.Signal
+		ready                  chan struct{}
 	)
 
 	BeforeEach(func() {
@@ -78,6 +81,9 @@ var _ = Describe("collector scheduler", func() {
 		metricsCollectorDriver.On("GetName").Return("fake")
 		metricsCollectorDriver.On("SupportedTypes").Return([]string{"fake"})
 		metricsCollector = &fakeMetricsCollector{}
+
+		signals = make(chan os.Signal)
+		ready = make(chan struct{})
 
 		scheduler = NewScheduler(
 			config.SchedulerConfig{
@@ -94,7 +100,7 @@ var _ = Describe("collector scheduler", func() {
 	It("should not start any worker and return error if fails starting the scheduler", func() {
 		scheduler.instanceRefreshInterval = 0 // Force the `scheduler` library to fail
 
-		err := scheduler.Start()
+		err := scheduler.Run(signals, ready)
 		Expect(err).To(HaveOccurred())
 
 		Consistently(func() []string {
@@ -111,7 +117,7 @@ var _ = Describe("collector scheduler", func() {
 			[]brokerinfo.InstanceInfo{}, fmt.Errorf("Error in ListInstanceGUIDs"),
 		)
 
-		scheduler.Start()
+		go scheduler.Run(signals, ready)
 
 		Consistently(func() []string {
 			return scheduler.ListIntanceGUIDs()
@@ -128,7 +134,7 @@ var _ = Describe("collector scheduler", func() {
 			[]brokerinfo.InstanceInfo{}, nil,
 		)
 
-		scheduler.Start()
+		go scheduler.Run(signals, ready)
 
 		Eventually(
 			func() int { return len(brokerInfo.Calls) },
@@ -150,7 +156,7 @@ var _ = Describe("collector scheduler", func() {
 			nil, fmt.Errorf("Failed creating collector"),
 		)
 
-		scheduler.Start()
+		go scheduler.Run(signals, ready)
 
 		Consistently(func() []string {
 			return scheduler.ListIntanceGUIDs()
@@ -182,7 +188,7 @@ var _ = Describe("collector scheduler", func() {
 			fmt.Errorf("error collecting metrics"),
 		)
 
-		scheduler.Start()
+		go scheduler.Run(signals, ready)
 
 		Consistently(func() []metrics.MetricEnvelope {
 			return metricsEmitter.envelopesReceived
@@ -227,7 +233,7 @@ var _ = Describe("collector scheduler", func() {
 				}, nil,
 			)
 
-			scheduler.Start()
+			go scheduler.Run(signals, ready)
 
 			Eventually(func() []string {
 				return scheduler.ListIntanceGUIDs()
@@ -245,7 +251,7 @@ var _ = Describe("collector scheduler", func() {
 				}, nil,
 			)
 
-			scheduler.Start()
+			go scheduler.Run(signals, ready)
 
 			Eventually(func() []string {
 				return scheduler.ListIntanceGUIDs()
@@ -274,7 +280,7 @@ var _ = Describe("collector scheduler", func() {
 				}, nil,
 			)
 
-			scheduler.Start()
+			go scheduler.Run(signals, ready)
 
 			Eventually(func() []string {
 				return scheduler.ListIntanceGUIDs()
@@ -313,7 +319,7 @@ var _ = Describe("collector scheduler", func() {
 				}, nil,
 			).Once()
 
-			scheduler.Start()
+			go scheduler.Run(signals, ready)
 
 			Eventually(func() []string {
 				return scheduler.ListIntanceGUIDs()
@@ -387,7 +393,7 @@ var _ = Describe("collector scheduler", func() {
 				}, nil,
 			)
 
-			scheduler.Start()
+			go scheduler.Run(signals, ready)
 
 			Eventually(func() []string {
 				return scheduler.ListIntanceGUIDs()
@@ -426,7 +432,8 @@ var _ = Describe("collector scheduler", func() {
 				}, nil,
 			)
 
-			scheduler.Start()
+			go scheduler.Run(signals, ready)
+
 			Eventually(func() []string {
 				return scheduler.ListIntanceGUIDs()
 			}, 1*time.Second).Should(
@@ -461,7 +468,7 @@ var _ = Describe("collector scheduler", func() {
 
 			metricsCollectorDriverNewCollectorCall.After(700 * time.Millisecond)
 
-			scheduler.Start()
+			go scheduler.Run(signals, ready)
 
 			// Wait for the collector to collect metrics at least once
 			Eventually(func() []metrics.MetricEnvelope {
@@ -513,7 +520,7 @@ var _ = Describe("collector scheduler", func() {
 					nil, fmt.Errorf("Failed creating collector"),
 				)
 
-				scheduler.Start()
+				go scheduler.Run(signals, ready)
 
 				Eventually(func() []string {
 					return scheduler.ListIntanceGUIDs()
@@ -566,7 +573,7 @@ var _ = Describe("collector scheduler", func() {
 					nil,
 				)
 
-				scheduler.Start()
+				go scheduler.Run(signals, ready)
 
 				Eventually(func() []string {
 					return scheduler.ListIntanceGUIDs()
@@ -615,7 +622,7 @@ var _ = Describe("collector scheduler", func() {
 					nil,
 				)
 
-				scheduler.Start()
+				go scheduler.Run(signals, ready)
 
 				Eventually(func() []string {
 					return scheduler.ListIntanceGUIDs()
@@ -690,7 +697,7 @@ var _ = Describe("collector scheduler", func() {
 					}, nil,
 				)
 
-				scheduler.Start()
+				go scheduler.Run(signals, ready)
 
 				Eventually(func() []string {
 					return scheduler.ListIntanceGUIDs()
@@ -777,7 +784,7 @@ var _ = Describe("collector scheduler", func() {
 
 				metricsCollectorDriverNewCollectorCall.After(700 * time.Millisecond)
 
-				scheduler.Start()
+				go scheduler.Run(signals, ready)
 
 				// Wait for the collector to collect metrics at least once
 				Eventually(func() []metrics.MetricEnvelope {
