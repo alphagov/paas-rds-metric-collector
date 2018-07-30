@@ -19,6 +19,7 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/testhelpers"
 	"github.com/onsi/gomega/gbytes"
 	"code.cloudfoundry.org/locket"
+	"path"
 )
 
 var (
@@ -56,7 +57,7 @@ func TestSuite(t *testing.T) {
 		Eventually(mockLocketServerSession.Buffer).Should(gbytes.Say("grpc.grpc-server.started"))
 
 		// Update config
-		rdsBrokerConfig, err = rdsconfig.LoadConfig(fixturesPath + "/broker_config.json")
+		rdsBrokerConfig, err = rdsconfig.LoadConfig(path.Join(fixturesPath, "broker_config.json"))
 		Expect(err).ToNot(HaveOccurred())
 		err = rdsBrokerConfig.Validate()
 		Expect(err).ToNot(HaveOccurred())
@@ -84,9 +85,10 @@ func TestSuite(t *testing.T) {
 
 		// Start a fake server for loggregator
 		fakeLoggregator, err = helpers.NewFakeLoggregatorIngressServer(
-			fixturesPath + "/loggregator-server.cert.pem",
-			fixturesPath + "/loggregator-server.key.pem",
-			fixturesPath + "/ca.cert.pem")
+			path.Join(fixturesPath, "loggregator-server.cert.pem"),
+			path.Join(fixturesPath, "loggregator-server.key.pem"),
+			path.Join(fixturesPath, "ca.cert.pem"),
+		)
 		Expect(err).ShouldNot(HaveOccurred())
 		err = fakeLoggregator.Start()
 		Expect(err).ShouldNot(HaveOccurred())
@@ -113,14 +115,14 @@ func TestSuite(t *testing.T) {
 			},
 			LoggregatorEmitter: collectorconfig.LoggregatorEmitterConfig{
 				MetronURL:  fakeLoggregator.Addr,
-				CACertPath: fixturesPath + "/ca.cert.pem",
-				CertPath:   fixturesPath + "/client.cert.pem",
-				KeyPath:    fixturesPath + "/client.key.pem",
+				CACertPath: path.Join(fixturesPath, "ca.cert.pem"),
+				CertPath:   path.Join(fixturesPath, "client.cert.pem"),
+				KeyPath:    path.Join(fixturesPath, "client.key.pem"),
 			},
 			ClientLocketConfig: locket.ClientLocketConfig{
-				LocketCACertFile:     fixturesPath + "/ca.cert.pem",
-				LocketClientCertFile: fixturesPath + "/client.cert.pem",
-				LocketClientKeyFile:  fixturesPath + "/client.key.pem",
+				LocketCACertFile:     path.Join(fixturesPath, "ca.cert.pem"),
+				LocketClientCertFile: path.Join(fixturesPath, "client.cert.pem"),
+				LocketClientKeyFile:  path.Join(fixturesPath, "client.key.pem"),
 				LocketAddress:        mockLocketServer.ListenAddress,
 			},
 		}

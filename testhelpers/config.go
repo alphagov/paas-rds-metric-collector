@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	. "github.com/onsi/gomega"
+	"path"
 )
 
 func BuildTempConfigFile(locketAddress, fixturesPath string) (configFilePath string) {
@@ -26,14 +27,14 @@ func BuildTempConfigFile(locketAddress, fixturesPath string) (configFilePath str
 		},
 		LoggregatorEmitter: config.LoggregatorEmitterConfig{
 			MetronURL:  "localhost:3458",
-			CACertPath: fixturesPath + "/ca.cert.pem",
-			CertPath:   fixturesPath + "/client.cert.pem",
-			KeyPath:    fixturesPath + "/client.key.pem",
+			CACertPath: path.Join(fixturesPath, "ca.cert.pem"),
+			CertPath:   path.Join(fixturesPath, "client.cert.pem"),
+			KeyPath:    path.Join(fixturesPath, "client.key.pem"),
 		},
 		ClientLocketConfig: locket.ClientLocketConfig{
-			LocketCACertFile:     fixturesPath + "/ca.cert.pem",
-			LocketClientCertFile: fixturesPath + "/client.cert.pem",
-			LocketClientKeyFile:  fixturesPath + "/client.key.pem",
+			LocketCACertFile:     path.Join(fixturesPath, "ca.cert.pem"),
+			LocketClientCertFile: path.Join(fixturesPath, "client.cert.pem"),
+			LocketClientKeyFile:  path.Join(fixturesPath, "client.key.pem"),
 			LocketAddress:        locketAddress,
 		},
 	}

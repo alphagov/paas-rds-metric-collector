@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"github.com/tedsuo/ifrit"
 	gcontext "golang.org/x/net/context"
+	"path"
 )
 
 var (
@@ -36,7 +37,10 @@ func main() {
 	var handler = testHandler{
 		mode: lockingMode,
 	}
-	certificate, err := tls.LoadX509KeyPair(fixturesPath+"/locket-server.cert.pem", fixturesPath+"/locket-server.key.pem")
+	certificate, err := tls.LoadX509KeyPair(
+		path.Join(fixturesPath, "locket-server.cert.pem"),
+		path.Join(fixturesPath, "locket-server.key.pem"),
+	)
 	if err != nil {
 		logger.Error("Error loading certs", err)
 		os.Exit(1)
