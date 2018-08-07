@@ -17,6 +17,7 @@ type RDSBrokerInfo struct {
 	masterPasswordSeed string
 	dbInstance         awsrds.DBInstance
 	logger             lager.Logger
+	ConnectionTimeout  int
 }
 
 func NewRDSBrokerInfo(
@@ -30,6 +31,7 @@ func NewRDSBrokerInfo(
 		masterPasswordSeed: brokerInfoConfig.MasterPasswordSeed,
 		dbInstance:         dbInstance,
 		logger:             logger,
+		ConnectionTimeout:  10,
 	}
 }
 
@@ -75,9 +77,9 @@ func (r *RDSBrokerInfo) ConnectionString(instanceInfo InstanceInfo) (string, err
 
 	switch instanceInfo.Type {
 	case "postgres":
-		ConnectionString = fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=require", masterUsername, masterPassword, dbAddress, dbPort, dbName)
+		ConnectionString = fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=require&connect_timeout=%d", masterUsername, masterPassword, dbAddress, dbPort, dbName, r.ConnectionTimeout)
 	case "mysql":
-		ConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?tls=skip-verify", masterUsername, masterPassword, dbAddress, dbPort, dbName)
+		ConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?tls=skip-verify&timeout=%ds", masterUsername, masterPassword, dbAddress, dbPort, dbName, r.ConnectionTimeout)
 	}
 
 	return ConnectionString, nil
