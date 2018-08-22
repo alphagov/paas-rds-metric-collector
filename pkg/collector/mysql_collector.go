@@ -192,12 +192,13 @@ var mysqlMetricQueries = []metricQuery{
 }
 
 // NewMysqlMetricsCollectorDriver ...
-func NewMysqlMetricsCollectorDriver(brokerInfo brokerinfo.BrokerInfo, logger lager.Logger) MetricsCollectorDriver {
+func NewMysqlMetricsCollectorDriver(intervalSeconds int, brokerInfo brokerinfo.BrokerInfo, logger lager.Logger) MetricsCollectorDriver {
 	return &sqlMetricsCollectorDriver{
-		logger:     logger,
-		queries:    mysqlMetricQueries,
-		driver:     "mysql",
-		brokerInfo: brokerInfo,
-		name:       "mysql",
+		collectInterval: intervalSeconds,
+		logger:          logger,
+		queries:         mysqlMetricQueries,
+		driver:          "mysql",
+		brokerInfo:      brokerInfo,
+		name:            "mysql",
 	}
 }

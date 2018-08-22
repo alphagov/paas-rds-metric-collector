@@ -29,7 +29,7 @@ var _ = Describe("cloudwatch_collector", func() {
 			)
 
 			s := session.New()
-			metricsCollectorDriver = NewCloudWatchCollectorDriver(s, brokerInfo, logger)
+			metricsCollectorDriver = NewCloudWatchCollectorDriver(5, s, brokerInfo, logger)
 		})
 
 		It("should create a NewCollector successfully", func() {
@@ -41,6 +41,10 @@ var _ = Describe("cloudwatch_collector", func() {
 
 		It("shall return the name", func() {
 			Expect(metricsCollectorDriver.GetName()).To(Equal("cloudwatch"))
+		})
+
+		It("should return the CollectInterval", func() {
+			Expect(metricsCollectorDriver.GetCollectInterval()).To(Equal(5))
 		})
 	})
 

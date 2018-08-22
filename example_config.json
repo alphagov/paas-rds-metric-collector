@@ -10,7 +10,8 @@
 	},
 	"scheduler": {
 		"instance_refresh_interval": 120,
-		"metrics_collector_interval": 60
+		"sql_metrics_collector_interval": 180,
+		"cloudwatch_metrics_collector_interval": 300
 	},
 	"loggregator_emitter": {
 		"url": "localhost:3458",

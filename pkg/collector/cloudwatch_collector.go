@@ -42,19 +42,21 @@ var metricNamesToLabels = map[string]string{
 }
 
 // NewCloudWatchCollectorDriver ...
-func NewCloudWatchCollectorDriver(session client.ConfigProvider, brokerInfo brokerinfo.BrokerInfo, logger lager.Logger) *CloudWatchCollectorDriver {
+func NewCloudWatchCollectorDriver(intervalSeconds int, session client.ConfigProvider, brokerInfo brokerinfo.BrokerInfo, logger lager.Logger) MetricsCollectorDriver {
 	return &CloudWatchCollectorDriver{
-		session:    session,
-		brokerInfo: brokerInfo,
-		logger:     logger,
+		collectInterval: intervalSeconds,
+		session:         session,
+		brokerInfo:      brokerInfo,
+		logger:          logger,
 	}
 }
 
 // CloudWatchCollectorDriver ...
 type CloudWatchCollectorDriver struct {
-	session    client.ConfigProvider
-	brokerInfo brokerinfo.BrokerInfo
-	logger     lager.Logger
+	collectInterval int
+	session         client.ConfigProvider
+	brokerInfo      brokerinfo.BrokerInfo
+	logger          lager.Logger
 }
 
 // NewCollector ...
@@ -73,6 +75,10 @@ func (cw *CloudWatchCollectorDriver) GetName() string {
 
 func (cw *CloudWatchCollectorDriver) SupportedTypes() []string {
 	return []string{"postgres", "mysql"}
+}
+
+func (cw *CloudWatchCollectorDriver) GetCollectInterval() int {
+	return cw.collectInterval
 }
 
 // CloudWatchCollector ...

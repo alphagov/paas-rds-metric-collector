@@ -18,11 +18,12 @@ type metricQuery interface {
 
 // sqlMetricsCollectorDriver pulls metrics using generic SQL queries
 type sqlMetricsCollectorDriver struct {
-	brokerInfo brokerinfo.BrokerInfo
-	queries    []metricQuery
-	driver     string
-	name       string
-	logger     lager.Logger
+	collectInterval int
+	brokerInfo      brokerinfo.BrokerInfo
+	queries         []metricQuery
+	driver          string
+	name            string
+	logger          lager.Logger
 }
 
 // NewCollector ...
@@ -66,6 +67,10 @@ func (d *sqlMetricsCollectorDriver) GetName() string {
 
 func (d *sqlMetricsCollectorDriver) SupportedTypes() []string {
 	return []string{d.name}
+}
+
+func (d *sqlMetricsCollectorDriver) GetCollectInterval() int {
+	return d.collectInterval
 }
 
 type sqlMetricsCollector struct {

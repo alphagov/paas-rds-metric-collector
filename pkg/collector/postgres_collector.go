@@ -152,12 +152,13 @@ var postgresMetricQueries = []metricQuery{
 }
 
 // NewPostgresMetricsCollectorDriver ...
-func NewPostgresMetricsCollectorDriver(brokerInfo brokerinfo.BrokerInfo, logger lager.Logger) MetricsCollectorDriver {
+func NewPostgresMetricsCollectorDriver(intervalSeconds int, brokerInfo brokerinfo.BrokerInfo, logger lager.Logger) MetricsCollectorDriver {
 	return &sqlMetricsCollectorDriver{
-		logger:     logger,
-		queries:    postgresMetricQueries,
-		driver:     "postgres",
-		brokerInfo: brokerInfo,
-		name:       "postgres",
+		collectInterval: intervalSeconds,
+		logger:          logger,
+		queries:         postgresMetricQueries,
+		driver:          "postgres",
+		brokerInfo:      brokerInfo,
+		name:            "postgres",
 	}
 }

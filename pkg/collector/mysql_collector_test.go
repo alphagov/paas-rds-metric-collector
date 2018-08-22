@@ -51,7 +51,7 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 	BeforeEach(func() {
 		var err error
 		brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
-		metricsCollectorDriver = NewMysqlMetricsCollectorDriver(brokerInfo, logger)
+		metricsCollectorDriver = NewMysqlMetricsCollectorDriver(5, brokerInfo, logger)
 
 		brokerInfo.On(
 			"ConnectionString", mock.Anything,
@@ -75,6 +75,10 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 	AfterEach(func() {
 		err := metricsCollector.Close()
 		Expect(err).NotTo(HaveOccurred())
+	})
+
+	It("should return the CollectInterval", func() {
+		Expect(metricsCollectorDriver.GetCollectInterval()).To(Equal(5))
 	})
 
 	It("returns the right metricsCollectorDriver name", func() {
