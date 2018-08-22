@@ -15,6 +15,16 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 )
 
+type fakeSqlConnectionStringBuilder struct {
+	connectionString string
+}
+
+func (f *fakeSqlConnectionStringBuilder) ConnectionString(
+	details brokerinfo.InstanceConnectionDetails,
+) string {
+	return f.connectionString
+}
+
 var testColumnQueries = map[string]metricQuery{
 	"multi_value": &columnMetricQuery{
 		Query: `
@@ -176,6 +186,9 @@ var _ = Describe("sql_collector", func() {
 			brokerInfo: brokerInfo,
 			name:       "sql",
 			logger:     logger,
+			connectionStringBuilder: &fakeSqlConnectionStringBuilder{
+				connectionString: postgresTestDatabaseConnectionURL,
+			},
 		}
 	})
 
@@ -187,9 +200,9 @@ var _ = Describe("sql_collector", func() {
 				[]string{"instance-guid1"}, nil,
 			)
 			brokerInfo.On(
-				"ConnectionString", mock.Anything,
+				"GetInstanceConnectionDetails", mock.Anything,
 			).Return(
-				"", fmt.Errorf("failure"),
+				brokerinfo.InstanceConnectionDetails{}, fmt.Errorf("failure"),
 			)
 
 			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
@@ -204,9 +217,9 @@ var _ = Describe("sql_collector", func() {
 				[]string{"instance-guid1"}, nil,
 			)
 			brokerInfo.On(
-				"ConnectionString", mock.Anything,
+				"GetInstanceConnectionDetails", mock.Anything,
 			).Return(
-				"dummy", nil,
+				brokerinfo.InstanceConnectionDetails{}, nil,
 			)
 
 			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
@@ -221,10 +234,14 @@ var _ = Describe("sql_collector", func() {
 				[]string{"instance-guid1"}, nil,
 			)
 			brokerInfo.On(
-				"ConnectionString", mock.Anything,
+				"GetInstanceConnectionDetails", mock.Anything,
 			).Return(
-				"postgresql://postgres@localhost:3000?sslmode=disable", nil,
+				brokerinfo.InstanceConnectionDetails{}, nil,
 			)
+
+			metricsCollectorDriver.connectionStringBuilder = &fakeSqlConnectionStringBuilder{
+				connectionString: "postgresql://postgres@localhost:3000?sslmode=disable",
+			}
 
 			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
 			Expect(err).To(HaveOccurred())
@@ -238,9 +255,10 @@ var _ = Describe("sql_collector", func() {
 				[]string{"instance-guid1"}, nil,
 			)
 			brokerInfo.On(
-				"ConnectionString", mock.Anything,
+				"GetInstanceConnectionDetails", mock.Anything,
 			).Return(
-				postgresTestDatabaseConnectionURL, nil,
+				brokerinfo.InstanceConnectionDetails{},
+				nil,
 			)
 
 			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
@@ -262,9 +280,9 @@ var _ = Describe("sql_collector", func() {
 				"ListInstanceGUIDs", mock.Anything,
 			).Return([]string{"instance-guid1"}, nil)
 			brokerInfo.On(
-				"ConnectionString", mock.Anything,
+				"GetInstanceConnectionDetails", mock.Anything,
 			).Return(
-				postgresTestDatabaseConnectionURL, nil,
+				brokerinfo.InstanceConnectionDetails{}, nil,
 			)
 
 			collector, err = metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})

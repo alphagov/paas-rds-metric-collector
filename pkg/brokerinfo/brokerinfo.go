@@ -5,9 +5,17 @@ type InstanceInfo struct {
 	Type string
 }
 
+type InstanceConnectionDetails struct {
+	DBAddress      string
+	DBPort         int64
+	DBName         string
+	MasterUsername string
+	MasterPassword string
+}
+
 // BrokerInfo ...
 type BrokerInfo interface {
 	ListInstances() ([]InstanceInfo, error)
-	ConnectionString(instanceInfo InstanceInfo) (string, error)
+	GetInstanceConnectionDetails(instanceInfo InstanceInfo) (InstanceConnectionDetails, error)
 	GetInstanceName(instanceInfo InstanceInfo) string
 }

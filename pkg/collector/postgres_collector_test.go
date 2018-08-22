@@ -4,6 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net"
+	"net/url"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -96,13 +100,36 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 	BeforeEach(func() {
 		var err error
 		brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
-		metricsCollectorDriver = NewPostgresMetricsCollectorDriver(5, brokerInfo, logger)
+
+		psqlURL, err := url.Parse(testDBConnectionString)
+		Expect(err).NotTo(HaveOccurred())
+
+		address, portStr, err := net.SplitHostPort(psqlURL.Host)
+		Expect(err).NotTo(HaveOccurred())
+		port, err := strconv.ParseInt(portStr, 10, 64)
+		Expect(err).NotTo(HaveOccurred())
+		passwd, _ := psqlURL.User.Password()
 
 		brokerInfo.On(
-			"ConnectionString", mock.Anything,
+			"GetInstanceConnectionDetails", mock.Anything,
 		).Return(
-			testDBConnectionString, nil,
+			brokerinfo.InstanceConnectionDetails{
+				DBAddress:      address,
+				DBPort:         port,
+				DBName:         strings.TrimLeft(psqlURL.Path, "/"),
+				MasterUsername: psqlURL.User.Username(),
+				MasterPassword: passwd,
+			}, nil,
 		)
+
+		metricsCollectorDriver = NewPostgresMetricsCollectorDriver(
+			brokerInfo,
+			5,
+			10,
+			psqlURL.Query().Get("sslmode"),
+			logger,
+		)
+
 		By("Creating a new collector")
 		metricsCollector, err = metricsCollectorDriver.NewCollector(
 			brokerinfo.InstanceInfo{
@@ -373,5 +400,48 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		Expect(metric).ToNot(BeNil())
 		Expect(metric.Value).To(BeNumerically(">=", 1))
 		Expect(metric.Unit).To(Equal("s"))
+	})
+})
+
+var _ = Describe("postgresConnectionStringBuilder.ConnectionString()", func() {
+	It("returns the proper connection string for postgres", func() {
+		details := brokerinfo.InstanceConnectionDetails{
+			DBAddress:      "endpoint-address.example.com",
+			DBPort:         5432,
+			DBName:         "dbprefix-db",
+			MasterUsername: "master-username",
+			MasterPassword: "9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M",
+		}
+		builder := postgresConnectionStringBuilder{
+			ConnectionTimeout: 10,
+			SSLMode:           "require",
+		}
+		connectionString := builder.ConnectionString(details)
+		Expect(connectionString).To(Equal("postgresql://master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@endpoint-address.example.com:5432/dbprefix-db?sslmode=require&connect_timeout=10"))
+	})
+
+	It("should timeout postgres connection", func() {
+		details := brokerinfo.InstanceConnectionDetails{
+			DBAddress:      "1.2.3.4",
+			DBPort:         5678,
+			DBName:         "dbprefix-db",
+			MasterUsername: "master-username",
+			MasterPassword: "9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M",
+		}
+		builder := postgresConnectionStringBuilder{ConnectionTimeout: 1}
+		connectionString := builder.ConnectionString(details)
+
+		startTime := time.Now()
+
+		dbConn, err := sql.Open("postgres", connectionString)
+		defer dbConn.Close()
+		Expect(err).NotTo(HaveOccurred())
+
+		err = dbConn.Ping()
+		Expect(err).To(HaveOccurred())
+
+		endTime := time.Now()
+
+		Expect(endTime).To(BeTemporally("~", startTime, 2*time.Second))
 	})
 })

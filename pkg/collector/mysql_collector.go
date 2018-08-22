@@ -1,6 +1,8 @@
 package collector
 
 import (
+	"fmt"
+
 	"code.cloudfoundry.org/lager"
 
 	// Used in the SQL driver.
@@ -191,8 +193,37 @@ var mysqlMetricQueries = []metricQuery{
 	},
 }
 
+type mysqlConnectionStringBuilder struct {
+	ConnectionTimeout int
+	TLS               string
+}
+
+func (m *mysqlConnectionStringBuilder) ConnectionString(details brokerinfo.InstanceConnectionDetails) string {
+	tls := "false"
+	if m.TLS != "" {
+		tls = m.TLS
+	}
+
+	return fmt.Sprintf(
+		"%s:%s@tcp(%s:%d)/%s?tls=%s&timeout=%ds",
+		details.MasterUsername,
+		details.MasterPassword,
+		details.DBAddress,
+		details.DBPort,
+		details.DBName,
+		tls,
+		m.ConnectionTimeout,
+	)
+}
+
 // NewMysqlMetricsCollectorDriver ...
-func NewMysqlMetricsCollectorDriver(intervalSeconds int, brokerInfo brokerinfo.BrokerInfo, logger lager.Logger) MetricsCollectorDriver {
+func NewMysqlMetricsCollectorDriver(
+	brokerInfo brokerinfo.BrokerInfo,
+	intervalSeconds int,
+	timeout int,
+	TLS string,
+	logger lager.Logger,
+) MetricsCollectorDriver {
 	return &sqlMetricsCollectorDriver{
 		collectInterval: intervalSeconds,
 		logger:          logger,
@@ -200,5 +231,9 @@ func NewMysqlMetricsCollectorDriver(intervalSeconds int, brokerInfo brokerinfo.B
 		driver:          "mysql",
 		brokerInfo:      brokerInfo,
 		name:            "mysql",
+		connectionStringBuilder: &mysqlConnectionStringBuilder{
+			ConnectionTimeout: timeout,
+			TLS:               TLS,
+		},
 	}
 }

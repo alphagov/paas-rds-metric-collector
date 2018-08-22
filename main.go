@@ -45,6 +45,12 @@ var (
 	}
 )
 
+const (
+	ConnectionTimeout = 10
+	MysqlTLS          = "skip-verify"
+	PostgresSSLMode   = "require"
+)
+
 func init() {
 	flag.StringVar(&configFilePath, "config", "", "Location of the config file")
 	flag.BoolVar(&useStdoutEmitter, "stdoutEmitter", false, "Print metrics to stdout rather than send to loggregator")
@@ -98,14 +104,18 @@ func main() {
 	}
 
 	postgresMetricsCollectorDriver := collector.NewPostgresMetricsCollectorDriver(
-		cfg.Scheduler.SQLMetricCollectorInterval,
 		rdsBrokerInfo,
+		cfg.Scheduler.SQLMetricCollectorInterval,
+		ConnectionTimeout,
+		PostgresSSLMode,
 		logger.Session("postgres_metrics_collector"),
 	)
 
 	mysqlMetricsCollectorDriver := collector.NewMysqlMetricsCollectorDriver(
-		cfg.Scheduler.SQLMetricCollectorInterval,
 		rdsBrokerInfo,
+		cfg.Scheduler.SQLMetricCollectorInterval,
+		ConnectionTimeout,
+		MysqlTLS,
 		logger.Session("mysql_metrics_collector"),
 	)
 
