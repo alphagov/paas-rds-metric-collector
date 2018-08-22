@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/rds"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/rds"
 
 	_ "github.com/lib/pq"
 
@@ -97,16 +98,19 @@ func main() {
 	}
 
 	postgresMetricsCollectorDriver := collector.NewPostgresMetricsCollectorDriver(
+		cfg.Scheduler.SQLMetricCollectorInterval,
 		rdsBrokerInfo,
 		logger.Session("postgres_metrics_collector"),
 	)
 
 	mysqlMetricsCollectorDriver := collector.NewMysqlMetricsCollectorDriver(
+		cfg.Scheduler.SQLMetricCollectorInterval,
 		rdsBrokerInfo,
 		logger.Session("mysql_metrics_collector"),
 	)
 
 	cloudWatchMetricsCollectorDriver := collector.NewCloudWatchCollectorDriver(
+		cfg.Scheduler.CWMetricCollectorInterval,
 		awsSession,
 		rdsBrokerInfo,
 		logger.Session("cloudwatch_metrics_collector"),

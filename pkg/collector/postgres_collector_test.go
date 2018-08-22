@@ -96,7 +96,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 	BeforeEach(func() {
 		var err error
 		brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
-		metricsCollectorDriver = NewPostgresMetricsCollectorDriver(brokerInfo, logger)
+		metricsCollectorDriver = NewPostgresMetricsCollectorDriver(5, brokerInfo, logger)
 
 		brokerInfo.On(
 			"ConnectionString", mock.Anything,
@@ -120,6 +120,10 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 	AfterEach(func() {
 		err := metricsCollector.Close()
 		Expect(err).NotTo(HaveOccurred())
+	})
+
+	It("should return the CollectInterval", func() {
+		Expect(metricsCollectorDriver.GetCollectInterval()).To(Equal(5))
 	})
 
 	It("returns the right metricsCollectorDriver name", func() {

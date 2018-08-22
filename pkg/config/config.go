@@ -12,11 +12,11 @@ import (
 )
 
 type Config struct {
-	LogLevel                     string                   `json:"log_level" validate:"required"`
-	AWS                          AWSConfig                `json:"aws"`
-	RDSBrokerInfo                RDSBrokerInfoConfig      `json:"rds_broker"`
-	Scheduler                    SchedulerConfig          `json:"scheduler"`
-	LoggregatorEmitter           LoggregatorEmitterConfig `json:"loggregator_emitter"`
+	LogLevel           string                   `json:"log_level" validate:"required"`
+	AWS                AWSConfig                `json:"aws"`
+	RDSBrokerInfo      RDSBrokerInfoConfig      `json:"rds_broker"`
+	Scheduler          SchedulerConfig          `json:"scheduler"`
+	LoggregatorEmitter LoggregatorEmitterConfig `json:"loggregator_emitter"`
 	locket.ClientLocketConfig
 }
 
@@ -32,8 +32,9 @@ type RDSBrokerInfoConfig struct {
 }
 
 type SchedulerConfig struct {
-	InstanceRefreshInterval int `json:"instance_refresh_interval" validate:"required,gte=1,lte=3600"`
-	MetricCollectorInterval int `json:"metrics_collector_interval" validate:"required,gte=1,lte=3600"`
+	InstanceRefreshInterval    int `json:"instance_refresh_interval" validate:"required,gte=1,lte=3600"`
+	SQLMetricCollectorInterval int `json:"sql_metrics_collector_interval" validate:"required,gte=0,lte=3600"`
+	CWMetricCollectorInterval  int `json:"cloudwatch_metrics_collector_interval" validate:"required,gte=0,lte=3600"`
 }
 
 type LoggregatorEmitterConfig struct {
@@ -51,7 +52,8 @@ const defaultConfig = `
 	},
 	"scheduler": {
 		"instance_refresh_interval": 120,
-		"metrics_collector_interval": 60
+		"sql_metrics_collector_interval": 180,
+		"cloudwatch_metrics_collector_interval": 300
 	},
 	"loggregator_emitter": {
 		"url": "localhost:3458"

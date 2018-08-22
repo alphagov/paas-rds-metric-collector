@@ -7,13 +7,14 @@ import (
 	"code.cloudfoundry.org/lager"
 	"github.com/carlescere/scheduler"
 
+	"os"
+
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/collector"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
-	"os"
 )
 
 type workerID struct {
@@ -68,7 +69,6 @@ type Scheduler struct {
 	metricsEmitter emitter.MetricsEmitter
 
 	instanceRefreshInterval int
-	metricCollectorInterval int
 
 	logger lager.Logger
 
@@ -94,7 +94,6 @@ func NewScheduler(
 		metricsEmitter: metricsEmitter,
 
 		instanceRefreshInterval: schedulerConfig.InstanceRefreshInterval,
-		metricCollectorInterval: schedulerConfig.MetricCollectorInterval,
 
 		metricsCollectorDrivers: map[string]collector.MetricsCollectorDriver{},
 		workers:                 collectorWorkerMap{workers: map[workerID]*collectorWorker{}},
@@ -159,7 +158,7 @@ func (w *Scheduler) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
 	}
 	close(ready)
 	w.logger.Info("scheduler-started")
-	sig := <- signals
+	sig := <-signals
 	w.logger.Debug("received-signal", lager.Data{"signal": sig})
 	w.Stop()
 	return nil
@@ -185,8 +184,15 @@ func (w *Scheduler) startWorker(id workerID, instanceInfo brokerinfo.InstanceInf
 			"driver":       id.Driver,
 			"instanceGUID": id.InstanceGUID,
 		})
+		driver, ok := w.metricsCollectorDrivers[id.Driver]
+		if !ok {
+			w.logger.Error("driver doesn't exist", nil, lager.Data{
+				"driver": id.Driver,
+			})
+			return
+		}
 
-		collector, err := w.metricsCollectorDrivers[id.Driver].NewCollector(instanceInfo)
+		collector, err := driver.NewCollector(instanceInfo)
 		if err != nil {
 			w.logger.Error("starting worker collector", err, lager.Data{
 				"driver":       id.Driver,
@@ -200,7 +206,7 @@ func (w *Scheduler) startWorker(id workerID, instanceInfo brokerinfo.InstanceInf
 			"instanceGUID": id.InstanceGUID,
 		})
 
-		newJob, err := scheduler.Every(w.metricCollectorInterval).Seconds().Run(func() {
+		newJob, err := scheduler.Every(driver.GetCollectInterval()).Seconds().Run(func() {
 			w.logger.Debug("collecting metrics", lager.Data{
 				"driver":       id.Driver,
 				"instanceGUID": id.InstanceGUID,

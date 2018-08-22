@@ -14,12 +14,13 @@ import (
 	rdsconfig "github.com/alphagov/paas-rds-broker/config"
 	collectorconfig "github.com/alphagov/paas-rds-metric-collector/pkg/config"
 
+	"path"
+
+	"code.cloudfoundry.org/locket"
 	. "github.com/alphagov/paas-rds-broker/ci/helpers"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/helpers"
 	"github.com/alphagov/paas-rds-metric-collector/testhelpers"
 	"github.com/onsi/gomega/gbytes"
-	"code.cloudfoundry.org/locket"
-	"path"
 )
 
 var (
@@ -110,8 +111,9 @@ func TestSuite(t *testing.T) {
 				MasterPasswordSeed: "something-secret",
 			},
 			Scheduler: collectorconfig.SchedulerConfig{
-				InstanceRefreshInterval: 30,
-				MetricCollectorInterval: 5,
+				InstanceRefreshInterval:    30,
+				SQLMetricCollectorInterval: 5,
+				CWMetricCollectorInterval:  5,
 			},
 			LoggregatorEmitter: collectorconfig.LoggregatorEmitterConfig{
 				MetronURL:  fakeLoggregator.Addr,

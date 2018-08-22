@@ -1,12 +1,13 @@
 package testhelpers
 
 import (
-	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
-	"code.cloudfoundry.org/locket"
-	"io/ioutil"
 	"encoding/json"
-	. "github.com/onsi/gomega"
+	"io/ioutil"
 	"path"
+
+	"code.cloudfoundry.org/locket"
+	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
+	. "github.com/onsi/gomega"
 )
 
 func BuildTempConfigFile(locketAddress, fixturesPath string) (configFilePath string) {
@@ -22,8 +23,9 @@ func BuildTempConfigFile(locketAddress, fixturesPath string) (configFilePath str
 			MasterPasswordSeed: "something-secret",
 		},
 		Scheduler: config.SchedulerConfig{
-			InstanceRefreshInterval: 30,
-			MetricCollectorInterval: 5,
+			InstanceRefreshInterval:    30,
+			SQLMetricCollectorInterval: 5,
+			CWMetricCollectorInterval:  5,
 		},
 		LoggregatorEmitter: config.LoggregatorEmitterConfig{
 			MetronURL:  "localhost:3458",
@@ -47,4 +49,3 @@ func BuildTempConfigFile(locketAddress, fixturesPath string) (configFilePath str
 	Expect(err).ToNot(HaveOccurred())
 	return configFilePath
 }
-

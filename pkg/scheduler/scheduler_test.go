@@ -12,9 +12,10 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/mock"
 
+	"os"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"os"
 )
 
 type fakeMetricsCollectorDriver struct {
@@ -39,6 +40,11 @@ func (f *fakeMetricsCollectorDriver) GetName() string {
 func (f *fakeMetricsCollectorDriver) SupportedTypes() []string {
 	args := f.Called()
 	return args.Get(0).([]string)
+}
+
+func (f *fakeMetricsCollectorDriver) GetCollectInterval() int {
+	args := f.Called()
+	return args.Int(0)
 }
 
 type fakeMetricsCollector struct {
@@ -79,6 +85,7 @@ var _ = Describe("collector scheduler", func() {
 		metricsEmitter = &fakeMetricsEmitter{}
 		metricsCollectorDriver = &fakeMetricsCollectorDriver{}
 		metricsCollectorDriver.On("GetName").Return("fake")
+		metricsCollectorDriver.On("GetCollectInterval").Return(1)
 		metricsCollectorDriver.On("SupportedTypes").Return([]string{"fake"})
 		metricsCollector = &fakeMetricsCollector{}
 
@@ -88,7 +95,6 @@ var _ = Describe("collector scheduler", func() {
 		scheduler = NewScheduler(
 			config.SchedulerConfig{
 				InstanceRefreshInterval: 1,
-				MetricCollectorInterval: 1,
 			},
 			brokerInfo,
 			metricsEmitter,
@@ -224,7 +230,7 @@ var _ = Describe("collector scheduler", func() {
 		})
 
 		It("should not add a worker if it fails scheduling the worker job", func() {
-			scheduler.metricCollectorInterval = 0 // Force the `scheduler` library to fail
+			scheduler.metricsCollectorDrivers = map[string]collector.MetricsCollectorDriver{} // Force the `scheduler` library to fail
 			brokerInfo.On(
 				"ListInstances", mock.Anything,
 			).Return(
@@ -499,6 +505,7 @@ var _ = Describe("collector scheduler", func() {
 			BeforeEach(func() {
 				metricsCollectorDriver2 = &fakeMetricsCollectorDriver{}
 				metricsCollectorDriver2.On("GetName").Return("fake2")
+				metricsCollectorDriver2.On("GetCollectInterval").Return(1)
 				metricsCollectorDriver2.On("SupportedTypes").Return([]string{"fake", "fake2"})
 				metricsCollector2 = &fakeMetricsCollector{}
 
