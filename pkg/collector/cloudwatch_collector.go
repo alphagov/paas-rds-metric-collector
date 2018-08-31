@@ -99,7 +99,11 @@ func (cw *CloudWatchCollector) Collect() ([]metrics.Metric, error) {
 		})
 		data, err := cw.client.GetMetricStatistics(input)
 		if err != nil {
-			return nil, err
+			cw.logger.Error("querying cloudwatch metrics", err, lager.Data{
+				"metricName":   metricName,
+				"instanceGUID": cw.instance,
+			})
+			continue
 		}
 
 		cw.logger.Debug("GetMetricStatistics", lager.Data{
