@@ -17,7 +17,6 @@ type RDSBrokerInfo struct {
 	masterPasswordSeed string
 	dbInstance         awsrds.DBInstance
 	logger             lager.Logger
-	ConnectionTimeout  int
 }
 
 func NewRDSBrokerInfo(
@@ -31,7 +30,6 @@ func NewRDSBrokerInfo(
 		masterPasswordSeed: brokerInfoConfig.MasterPasswordSeed,
 		dbInstance:         dbInstance,
 		logger:             logger,
-		ConnectionTimeout:  10,
 	}
 }
 
@@ -57,33 +55,23 @@ func (r *RDSBrokerInfo) ListInstances() ([]InstanceInfo, error) {
 	return serviceInstances, nil
 }
 
-func (r *RDSBrokerInfo) ConnectionString(instanceInfo InstanceInfo) (string, error) {
+func (r *RDSBrokerInfo) GetInstanceConnectionDetails(instanceInfo InstanceInfo) (InstanceConnectionDetails, error) {
 	if instanceInfo.Type != "postgres" && instanceInfo.Type != "mysql" {
-		return "", fmt.Errorf("invalid instance type: %s", instanceInfo.Type)
+		return InstanceConnectionDetails{}, fmt.Errorf("invalid instance type: %s", instanceInfo.Type)
 	}
 	dbInstanceDetails, err := r.dbInstance.Describe(r.dbInstanceIdentifier(instanceInfo.GUID))
 	if err != nil {
 		r.logger.Error("obtaining instances details", err, lager.Data{"brokerName": r.brokerName, "instanceInfo": instanceInfo})
-		return "", err
+		return InstanceConnectionDetails{}, err
 	}
 
-	dbAddress := dbInstanceDetails.Address
-	dbPort := dbInstanceDetails.Port
-	masterUsername := dbInstanceDetails.MasterUsername
-	masterPassword := r.generateMasterPassword(instanceInfo.GUID)
-	dbName := dbInstanceDetails.DBName
-
-	var ConnectionString string
-
-	switch instanceInfo.Type {
-	case "postgres":
-		ConnectionString = fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=require&connect_timeout=%d", masterUsername, masterPassword, dbAddress, dbPort, dbName, r.ConnectionTimeout)
-	case "mysql":
-		ConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?tls=skip-verify&timeout=%ds", masterUsername, masterPassword, dbAddress, dbPort, dbName, r.ConnectionTimeout)
-	}
-
-	return ConnectionString, nil
-
+	return InstanceConnectionDetails{
+		DBAddress:      dbInstanceDetails.Address,
+		DBPort:         dbInstanceDetails.Port,
+		MasterUsername: dbInstanceDetails.MasterUsername,
+		MasterPassword: r.generateMasterPassword(instanceInfo.GUID),
+		DBName:         dbInstanceDetails.DBName,
+	}, nil
 }
 
 func (r *RDSBrokerInfo) GetInstanceName(instanceInfo InstanceInfo) string {

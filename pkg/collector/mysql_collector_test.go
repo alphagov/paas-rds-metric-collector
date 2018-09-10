@@ -4,8 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net"
+	"strconv"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/mock"
 
@@ -51,13 +54,35 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 	BeforeEach(func() {
 		var err error
 		brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
-		metricsCollectorDriver = NewMysqlMetricsCollectorDriver(5, brokerInfo, logger)
+
+		mysqlConfig, err := mysql.ParseDSN(testDBConnectionString)
+		Expect(err).NotTo(HaveOccurred())
+
+		address, portStr, err := net.SplitHostPort(mysqlConfig.Addr)
+		Expect(err).NotTo(HaveOccurred())
+		port, err := strconv.ParseInt(portStr, 10, 64)
+		Expect(err).NotTo(HaveOccurred())
 
 		brokerInfo.On(
-			"ConnectionString", mock.Anything,
+			"GetInstanceConnectionDetails", mock.Anything,
 		).Return(
-			testDBConnectionString, nil,
+			brokerinfo.InstanceConnectionDetails{
+				DBAddress:      address,
+				DBPort:         port,
+				DBName:         mysqlConfig.DBName,
+				MasterUsername: mysqlConfig.User,
+				MasterPassword: mysqlConfig.Passwd,
+			}, nil,
 		)
+
+		metricsCollectorDriver = NewMysqlMetricsCollectorDriver(
+			brokerInfo,
+			5,
+			10,
+			mysqlConfig.TLSConfig,
+			logger,
+		)
+
 		By("Creating a new collector")
 		metricsCollector, err = metricsCollectorDriver.NewCollector(
 			brokerinfo.InstanceInfo{
@@ -197,5 +222,49 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		}, 2*time.Second).Should(
 			BeNumerically("<=", initialConnections+5),
 		)
+	})
+
+})
+
+var _ = Describe("mysqlConnectionStringBuilder.ConnectionString()", func() {
+	It("returns the proper connection string for mysql", func() {
+		details := brokerinfo.InstanceConnectionDetails{
+			DBAddress:      "endpoint-address.example.com",
+			DBPort:         5432,
+			DBName:         "dbprefix-db",
+			MasterUsername: "master-username",
+			MasterPassword: "9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M",
+		}
+		builder := mysqlConnectionStringBuilder{
+			ConnectionTimeout: 10,
+			TLS:               "skip-verify",
+		}
+		connectionString := builder.ConnectionString(details)
+		Expect(connectionString).To(Equal("master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@tcp(endpoint-address.example.com:5432)/dbprefix-db?tls=skip-verify&timeout=10s"))
+	})
+
+	It("should timeout mysql connection", func() {
+		details := brokerinfo.InstanceConnectionDetails{
+			DBAddress:      "1.2.3.4",
+			DBPort:         5432,
+			DBName:         "dbprefix-db",
+			MasterUsername: "master-username",
+			MasterPassword: "9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M",
+		}
+		builder := mysqlConnectionStringBuilder{ConnectionTimeout: 1}
+		connectionString := builder.ConnectionString(details)
+
+		startTime := time.Now()
+
+		dbConn, err := sql.Open("mysql", connectionString)
+		defer dbConn.Close()
+		Expect(err).NotTo(HaveOccurred())
+
+		err = dbConn.Ping()
+		Expect(err).To(HaveOccurred())
+
+		endTime := time.Now()
+
+		Expect(endTime).To(BeTemporally("~", startTime, 2*time.Second))
 	})
 })

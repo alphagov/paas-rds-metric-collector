@@ -16,6 +16,11 @@ type metricQuery interface {
 	getMetrics(db *sql.DB) ([]metrics.Metric, error)
 }
 
+// Used to get the right connection string for each DB type
+type sqlConnectionStringBuilder interface {
+	ConnectionString(brokerinfo.InstanceConnectionDetails) string
+}
+
 // sqlMetricsCollectorDriver pulls metrics using generic SQL queries
 type sqlMetricsCollectorDriver struct {
 	collectInterval int
@@ -24,17 +29,21 @@ type sqlMetricsCollectorDriver struct {
 	driver          string
 	name            string
 	logger          lager.Logger
+
+	connectionStringBuilder sqlConnectionStringBuilder
 }
 
 // NewCollector ...
 func (d *sqlMetricsCollectorDriver) NewCollector(instanceInfo brokerinfo.InstanceInfo) (MetricsCollector, error) {
-	url, err := d.brokerInfo.ConnectionString(instanceInfo)
+	details, err := d.brokerInfo.GetInstanceConnectionDetails(instanceInfo)
 	if err != nil {
 		d.logger.Error("cannot compose connection string", err, lager.Data{
 			"instanceInfo": instanceInfo,
 		})
 		return nil, err
 	}
+
+	url := d.connectionStringBuilder.ConnectionString(details)
 
 	dbConn, err := sql.Open(d.driver, url)
 	if err != nil {

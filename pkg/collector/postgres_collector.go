@@ -1,6 +1,8 @@
 package collector
 
 import (
+	"fmt"
+
 	"code.cloudfoundry.org/lager"
 
 	// Used in the SQL driver.
@@ -151,8 +153,36 @@ var postgresMetricQueries = []metricQuery{
 	},
 }
 
+type postgresConnectionStringBuilder struct {
+	ConnectionTimeout int
+	SSLMode           string
+}
+
+func (m *postgresConnectionStringBuilder) ConnectionString(details brokerinfo.InstanceConnectionDetails) string {
+	sslMode := "disable"
+	if m.SSLMode != "" {
+		sslMode = m.SSLMode
+	}
+	return fmt.Sprintf(
+		"postgresql://%s:%s@%s:%d/%s?sslmode=%s&connect_timeout=%d",
+		details.MasterUsername,
+		details.MasterPassword,
+		details.DBAddress,
+		details.DBPort,
+		details.DBName,
+		sslMode,
+		m.ConnectionTimeout,
+	)
+}
+
 // NewPostgresMetricsCollectorDriver ...
-func NewPostgresMetricsCollectorDriver(intervalSeconds int, brokerInfo brokerinfo.BrokerInfo, logger lager.Logger) MetricsCollectorDriver {
+func NewPostgresMetricsCollectorDriver(
+	brokerInfo brokerinfo.BrokerInfo,
+	intervalSeconds int,
+	timeout int,
+	SSLMode string,
+	logger lager.Logger,
+) MetricsCollectorDriver {
 	return &sqlMetricsCollectorDriver{
 		collectInterval: intervalSeconds,
 		logger:          logger,
@@ -160,5 +190,9 @@ func NewPostgresMetricsCollectorDriver(intervalSeconds int, brokerInfo brokerinf
 		driver:          "postgres",
 		brokerInfo:      brokerInfo,
 		name:            "postgres",
+		connectionStringBuilder: &postgresConnectionStringBuilder{
+			ConnectionTimeout: timeout,
+			SSLMode:           SSLMode,
+		},
 	}
 }

@@ -9,9 +9,11 @@ type FakeBrokerInfo struct {
 	mock.Mock
 }
 
-func (b *FakeBrokerInfo) ConnectionString(instanceInfo brokerinfo.InstanceInfo) (string, error) {
+func (b *FakeBrokerInfo) GetInstanceConnectionDetails(
+	instanceInfo brokerinfo.InstanceInfo,
+) (brokerinfo.InstanceConnectionDetails, error) {
 	args := b.Called(instanceInfo)
-	return args.String(0), args.Error(1)
+	return args.Get(0).(brokerinfo.InstanceConnectionDetails), args.Error(1)
 }
 
 func (b *FakeBrokerInfo) ListInstances() ([]brokerinfo.InstanceInfo, error) {
