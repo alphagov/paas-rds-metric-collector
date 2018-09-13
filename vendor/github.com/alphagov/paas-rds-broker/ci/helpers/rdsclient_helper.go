@@ -3,6 +3,7 @@ package helpers
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -19,9 +20,9 @@ func NewRDSClient(region string, dbPrefix string) (*RDSClient, error) {
 	sess := session.New(&aws.Config{Region: aws.String(region)})
 	rdssvc := rds.New(sess)
 	return &RDSClient{
-		region: region,
+		region:   region,
 		dbPrefix: dbPrefix,
-		rdssvc: rdssvc,
+		rdssvc:   rdssvc,
 	}, nil
 }
 
@@ -31,6 +32,10 @@ func (b *RDSClient) dbInstanceIdentifier(instanceID string) string {
 
 func (b *RDSClient) dbInstanceIdentifierToServiceInstanceID(serviceInstanceID string) string {
 	return strings.TrimPrefix(serviceInstanceID, strings.Replace(b.dbPrefix, "_", "-", -1)+"-")
+}
+
+func (b *RDSClient) DBInstanceFinalSnapshotIdentifier(instanceID string) string {
+	return b.dbInstanceIdentifier(instanceID) + "-final-snapshot"
 }
 
 func (r *RDSClient) Ping() (bool, error) {
@@ -44,9 +49,25 @@ func (r *RDSClient) Ping() (bool, error) {
 	return true, nil
 }
 
-func (r *RDSClient) GetDBFinalSnapshots(ID string) (*rds.DescribeDBSnapshotsOutput, error) {
+func (r *RDSClient) CreateDBSnapshot(ID string) (string, error) {
+	snapshotID := r.dbInstanceIdentifier(ID) + time.Now().Format("2006-01-02-15-04")
+
+	params := &rds.CreateDBSnapshotInput{
+		DBInstanceIdentifier: aws.String(r.dbInstanceIdentifier(ID)),
+		DBSnapshotIdentifier: aws.String(snapshotID),
+	}
+
+	_, err := r.rdssvc.CreateDBSnapshot(params)
+
+	if err != nil {
+		return snapshotID, err
+	}
+	return snapshotID, nil
+}
+
+func (r *RDSClient) GetDBSnapshot(snapshotID string) (*rds.DescribeDBSnapshotsOutput, error) {
 	params := &rds.DescribeDBSnapshotsInput{
-		DBSnapshotIdentifier: aws.String(r.dbInstanceIdentifier(ID) + "-final-snapshot"),
+		DBSnapshotIdentifier: aws.String(snapshotID),
 	}
 
 	resp, err := r.rdssvc.DescribeDBSnapshots(params)
@@ -57,9 +78,9 @@ func (r *RDSClient) GetDBFinalSnapshots(ID string) (*rds.DescribeDBSnapshotsOutp
 	return resp, nil
 }
 
-func (r *RDSClient) DeleteDBFinalSnapshot(ID string) (*rds.DeleteDBSnapshotOutput, error) {
+func (r *RDSClient) DeleteDBSnapshot(snapshotID string) (*rds.DeleteDBSnapshotOutput, error) {
 	params := &rds.DeleteDBSnapshotInput{
-		DBSnapshotIdentifier: aws.String(r.dbInstanceIdentifier(ID) + "-final-snapshot"),
+		DBSnapshotIdentifier: aws.String(snapshotID),
 	}
 
 	resp, err := r.rdssvc.DeleteDBSnapshot(params)
@@ -68,4 +89,12 @@ func (r *RDSClient) DeleteDBFinalSnapshot(ID string) (*rds.DeleteDBSnapshotOutpu
 		return nil, err
 	}
 	return resp, nil
+}
+
+func (r *RDSClient) GetDBInstanceDetails(ID string) (*rds.DescribeDBInstancesOutput, error) {
+	params := &rds.DescribeDBInstancesInput{
+		DBInstanceIdentifier: aws.String(r.dbInstanceIdentifier(ID)),
+	}
+
+	return r.rdssvc.DescribeDBInstances(params)
 }

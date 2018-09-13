@@ -77,8 +77,8 @@
     "sqlengine",
     "utils"
   ]
-  revision = "d59802630127d0c2a957f555dc8c4677536a00ff"
-  version = "v0.19.0"
+  revision = "cf61ca550bbaf3c2b1fbff475c3735438d1d9f63"
+  version = "v0.22.0"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
