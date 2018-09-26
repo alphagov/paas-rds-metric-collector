@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
+	fakeLoggregator "github.com/alphagov/paas-go/testing/fakes/loggregator"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
-	"github.com/alphagov/paas-rds-metric-collector/pkg/helpers"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 
 	. "github.com/onsi/ginkgo"
@@ -15,14 +15,14 @@ import (
 
 var _ = Describe("IngressClient", func() {
 	var (
-		server             *helpers.FakeLoggregatorIngressServer
+		server             *fakeLoggregator.FakeLoggregatorIngressServer
 		emitterConfig      config.LoggregatorEmitterConfig
 		loggregatorEmitter *emitter.LoggregatorEmitter
 	)
 
 	BeforeEach(func() {
 		var err error
-		server, err = helpers.NewFakeLoggregatorIngressServer(
+		server, err = fakeLoggregator.NewFakeLoggregatorIngressServer(
 			"../../fixtures/loggregator-server.cert.pem",
 			"../../fixtures/loggregator-server.key.pem",
 			"../../fixtures/ca.cert.pem",

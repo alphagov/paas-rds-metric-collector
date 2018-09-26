@@ -49,7 +49,7 @@ var _ = Describe("RDS Metrics Collector", func() {
 			loop:
 				for {
 					select {
-					case e := <-fakeLoggregator.ReceivedEnvelopes:
+					case e := <-fakeLoggregatorServer.ReceivedEnvelopes:
 						fmt.Fprintf(GinkgoWriter, "Received envelope: %v\n", e)
 						envelopes = append(envelopes, e)
 					case <-timer.C:
@@ -72,10 +72,10 @@ var _ = Describe("RDS Metrics Collector", func() {
 
 				By("not receiving more metrics in the fake loggregator server")
 				// Flush the channel
-				for len(fakeLoggregator.ReceivedEnvelopes) > 0 {
-					<-fakeLoggregator.ReceivedEnvelopes
+				for len(fakeLoggregatorServer.ReceivedEnvelopes) > 0 {
+					<-fakeLoggregatorServer.ReceivedEnvelopes
 				}
-				Consistently(fakeLoggregator.ReceivedEnvelopes, 30*time.Second).ShouldNot(Receive())
+				Consistently(fakeLoggregatorServer.ReceivedEnvelopes, 30*time.Second).ShouldNot(Receive())
 			})
 		}
 

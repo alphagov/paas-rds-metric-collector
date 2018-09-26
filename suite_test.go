@@ -3,11 +3,11 @@ package main_test
 import (
 	"testing"
 
+	"github.com/alphagov/paas-rds-metric-collector/testhelpers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
-	"github.com/alphagov/paas-rds-metric-collector/testhelpers"
 )
 
 var (

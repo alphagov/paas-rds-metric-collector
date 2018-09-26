@@ -17,8 +17,8 @@ import (
 	"path"
 
 	"code.cloudfoundry.org/locket"
+	fakeLoggregator "github.com/alphagov/paas-go/testing/fakes/loggregator"
 	. "github.com/alphagov/paas-rds-broker/ci/helpers"
-	"github.com/alphagov/paas-rds-metric-collector/pkg/helpers"
 	"github.com/alphagov/paas-rds-metric-collector/testhelpers"
 	"github.com/onsi/gomega/gbytes"
 )
@@ -39,7 +39,7 @@ var (
 	rdsMetricCollectorConfig   *collectorconfig.Config
 	rdsMetricsCollectorSession *gexec.Session
 
-	fakeLoggregator *helpers.FakeLoggregatorIngressServer
+	fakeLoggregatorServer *fakeLoggregator.FakeLoggregatorIngressServer
 )
 
 func TestSuite(t *testing.T) {
@@ -85,13 +85,13 @@ func TestSuite(t *testing.T) {
 		}
 
 		// Start a fake server for loggregator
-		fakeLoggregator, err = helpers.NewFakeLoggregatorIngressServer(
+		fakeLoggregatorServer, err = fakeLoggregator.NewFakeLoggregatorIngressServer(
 			path.Join(fixturesPath, "loggregator-server.cert.pem"),
 			path.Join(fixturesPath, "loggregator-server.key.pem"),
 			path.Join(fixturesPath, "ca.cert.pem"),
 		)
 		Expect(err).ShouldNot(HaveOccurred())
-		err = fakeLoggregator.Start()
+		err = fakeLoggregatorServer.Start()
 		Expect(err).ShouldNot(HaveOccurred())
 
 		// Compile the rds collector
@@ -116,7 +116,7 @@ func TestSuite(t *testing.T) {
 				CWMetricCollectorInterval:  5,
 			},
 			LoggregatorEmitter: collectorconfig.LoggregatorEmitterConfig{
-				MetronURL:  fakeLoggregator.Addr,
+				MetronURL:  fakeLoggregatorServer.Addr,
 				CACertPath: path.Join(fixturesPath, "ca.cert.pem"),
 				CertPath:   path.Join(fixturesPath, "client.cert.pem"),
 				KeyPath:    path.Join(fixturesPath, "client.key.pem"),
@@ -136,8 +136,8 @@ func TestSuite(t *testing.T) {
 	})
 
 	AfterSuite(func() {
-		if fakeLoggregator != nil {
-			fakeLoggregator.Stop()
+		if fakeLoggregatorServer != nil {
+			fakeLoggregatorServer.Stop()
 		}
 		if rdsBrokerSession != nil {
 			rdsBrokerSession.Kill()
