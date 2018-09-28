@@ -89,22 +89,6 @@ var _ = Describe("RDS Metrics Collector", func() {
 	})
 })
 
-func filterEnvelopesBySourceAndMetric(
-	envelopes []*loggregator_v2.Envelope,
-	sourceId string,
-	metricKey string,
-) []*loggregator_v2.Envelope {
-	filteredEnvelopes := []*loggregator_v2.Envelope{}
-	for _, e := range envelopes {
-		if e.GetSourceId() == sourceId && e.GetGauge() != nil {
-			if _, ok := e.GetGauge().GetMetrics()[metricKey]; ok {
-				filteredEnvelopes = append(filteredEnvelopes, e)
-			}
-		}
-	}
-	return filteredEnvelopes
-}
-
 func filterEnvelopesBySourceAndTag(
 	envelopes []*loggregator_v2.Envelope,
 	sourceId string,
