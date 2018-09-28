@@ -11,7 +11,11 @@ import (
 
 var (
 	rdsMetricCollectorPath string
-	mockLocketServer       testhelpers.MockLocketServer
+
+	// MockLocketServer is now available as in in-process server in an external library:
+	// https://github.com/alphagov/paas-go
+	// Consider refactoring next time this is updated.
+	mockLocketServer testhelpers.MockLocketServer
 )
 
 func TestLocking(t *testing.T) {
