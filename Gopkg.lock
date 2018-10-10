@@ -44,8 +44,10 @@
   version = "v7.0.0"
 
 [[projects]]
+  digest = "1:33773da4339428c15b367ff7ab56b2ab2eb0a21e504bfb4a87700decce63c519"
   name = "code.cloudfoundry.org/lager"
   packages = ["."]
+  pruneopts = "UT"
   revision = "b60e04e119450552243196105bae0d42179ee0ca"
   version = "v1.1.0"
 
@@ -67,6 +69,7 @@
   revision = "769e2ed6887e639e9a2b9492fad9844dd2846ca0"
 
 [[projects]]
+  digest = "1:93d0e7dc4e80a5319aca052bc1ef1f32b949ec7616d6b212529e09c17389271d"
   name = "github.com/alphagov/paas-rds-broker"
   packages = [
     "awsrds",
@@ -75,10 +78,11 @@
     "config",
     "rdsbroker",
     "sqlengine",
-    "utils"
+    "utils",
   ]
-  revision = "cf61ca550bbaf3c2b1fbff475c3735438d1d9f63"
-  version = "v0.22.0"
+  pruneopts = "UT"
+  revision = "62363a5951a1fcb4c95bc45190da731453f7d33d"
+  version = "v0.24.0"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
