@@ -9,19 +9,20 @@ import (
 	"github.com/alphagov/paas-rds-broker/utils"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
+	"github.com/aws/aws-sdk-go/service/rds"
 )
 
 type RDSBrokerInfo struct {
 	brokerName         string
 	dbPrefix           string
 	masterPasswordSeed string
-	dbInstance         awsrds.DBInstance
+	dbInstance         awsrds.RDSInstance
 	logger             lager.Logger
 }
 
 func NewRDSBrokerInfo(
 	brokerInfoConfig config.RDSBrokerInfoConfig,
-	dbInstance awsrds.DBInstance,
+	dbInstance awsrds.RDSInstance,
 	logger lager.Logger,
 ) *RDSBrokerInfo {
 	return &RDSBrokerInfo{
@@ -43,12 +44,13 @@ func (r *RDSBrokerInfo) ListInstances() ([]InstanceInfo, error) {
 	}
 
 	for _, dbDetails := range dbInstanceDetailsList {
-		if dbDetails.Engine != "postgres" && dbDetails.Engine != "mysql" {
+		engine := stringValue(dbDetails.Engine)
+		if engine != "postgres" && engine != "mysql" {
 			continue
 		}
 		instanceInfo := InstanceInfo{
-			GUID: r.dbInstanceIdentifierToServiceInstanceID(dbDetails.Identifier),
-			Type: dbDetails.Engine,
+			GUID: r.dbInstanceIdentifierToServiceInstanceID(stringValue(dbDetails.DBInstanceIdentifier)),
+			Type: engine,
 		}
 		serviceInstances = append(serviceInstances, instanceInfo)
 	}
@@ -66,16 +68,46 @@ func (r *RDSBrokerInfo) GetInstanceConnectionDetails(instanceInfo InstanceInfo) 
 	}
 
 	return InstanceConnectionDetails{
-		DBAddress:      dbInstanceDetails.Address,
-		DBPort:         dbInstanceDetails.Port,
-		MasterUsername: dbInstanceDetails.MasterUsername,
+		DBAddress:      getEndpointAddress(dbInstanceDetails.Endpoint),
+		DBPort:         getEndpointPort(dbInstanceDetails.Endpoint),
+		MasterUsername: stringValue(dbInstanceDetails.MasterUsername),
 		MasterPassword: r.generateMasterPassword(instanceInfo.GUID),
-		DBName:         dbInstanceDetails.DBName,
+		DBName:         stringValue(dbInstanceDetails.DBName),
 	}, nil
 }
 
 func (r *RDSBrokerInfo) GetInstanceName(instanceInfo InstanceInfo) string {
 	return r.dbInstanceIdentifier(instanceInfo.GUID)
+}
+
+func stringValue(pointer *string) string {
+	if pointer == nil {
+		return ""
+	} else {
+		return *pointer
+	}
+}
+
+func int64Value(pointer *int64) int64 {
+	if pointer == nil {
+		return 0
+	} else {
+		return *pointer
+	}
+}
+
+func getEndpointPort(endpoint *rds.Endpoint) int64 {
+	if endpoint != nil {
+		return int64Value(endpoint.Port)
+	}
+	return 0
+}
+
+func getEndpointAddress(endpoint *rds.Endpoint) string {
+	if endpoint != nil {
+		return stringValue(endpoint.Address)
+	}
+	return ""
 }
 
 // FIXME: Following code has been copied from

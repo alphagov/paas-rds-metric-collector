@@ -3,7 +3,6 @@ package brokerinfo_test
 import (
 	"fmt"
 
-	"github.com/alphagov/paas-rds-broker/awsrds"
 	rdsfake "github.com/alphagov/paas-rds-broker/awsrds/fakes"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
@@ -12,6 +11,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/rds"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 )
@@ -19,11 +20,11 @@ import (
 var _ = Describe("RDSBrokerInfo", func() {
 	var (
 		brokerInfo     *brokerinfo.RDSBrokerInfo
-		fakeDBInstance *rdsfake.FakeDBInstance
+		fakeDBInstance *rdsfake.FakeRDSInstance
 	)
 
 	BeforeEach(func() {
-		fakeDBInstance = &rdsfake.FakeDBInstance{}
+		fakeDBInstance = &rdsfake.FakeRDSInstance{}
 		brokerInfo = brokerinfo.NewRDSBrokerInfo(
 			config.RDSBrokerInfoConfig{
 				BrokerName:         "broker_name",
@@ -37,36 +38,45 @@ var _ = Describe("RDSBrokerInfo", func() {
 
 	Context("ListInstances()", func() {
 		BeforeEach(func() {
-			fakeDBInstance.DescribeByTagDBInstanceDetails = []*awsrds.DBInstanceDetails{
-				&awsrds.DBInstanceDetails{
-					Identifier:     "dbprefix-instance-id-1",
-					Engine:         "postgres",
-					Address:        "endpoint-address-1.example.com",
-					Port:           5432,
-					DBName:         "dbprefix-db",
-					MasterUsername: "master-username",
+			fakeDBInstance.DescribeByTagReturns(
+				[]*rds.DBInstance{
+					{
+						DBInstanceIdentifier: aws.String("dbprefix-instance-id-1"),
+						Engine:               aws.String("postgres"),
+						Endpoint: &rds.Endpoint{
+							Address: aws.String("endpoint-address-1.example.com"),
+							Port:    aws.Int64(5432),
+						},
+						DBName:         aws.String("dbprefix-db"),
+						MasterUsername: aws.String("master-username"),
+					},
+					{
+						DBInstanceIdentifier: aws.String("dbprefix-instance-id-2"),
+						Engine:               aws.String("postgres"),
+						Endpoint: &rds.Endpoint{
+							Address: aws.String("endpoint-address-2.example.com"),
+							Port:    aws.Int64(5432),
+						},
+						DBName:         aws.String("dbprefix-db"),
+						MasterUsername: aws.String("master-username"),
+					},
+					{
+						DBInstanceIdentifier: aws.String("dbprefix-instance-id-3"),
+						Engine:               aws.String("mysql"),
+						Endpoint: &rds.Endpoint{
+							Address: aws.String("endpoint-address-3.example.com"),
+							Port:    aws.Int64(3306),
+						},
+						DBName:         aws.String("dbprefix-db"),
+						MasterUsername: aws.String("master-username"),
+					},
 				},
-				&awsrds.DBInstanceDetails{
-					Identifier:     "dbprefix-instance-id-2",
-					Engine:         "postgres",
-					Address:        "endpoint-address-2.example.com",
-					Port:           5432,
-					DBName:         "dbprefix-db",
-					MasterUsername: "master-username",
-				},
-				&awsrds.DBInstanceDetails{
-					Identifier:     "dbprefix-instance-id-3",
-					Engine:         "mysql",
-					Address:        "endpoint-address-3.example.com",
-					Port:           3306,
-					DBName:         "dbprefix-db",
-					MasterUsername: "master-username",
-				},
-			}
+				nil,
+			)
 		})
 
 		It("returns error if it fails retrieving existing instances in AWS", func() {
-			fakeDBInstance.DescribeByTagError = fmt.Errorf("Error calling rds.DescribeByTag(...)")
+			fakeDBInstance.DescribeByTagReturns(nil, fmt.Errorf("error calling rds.DescribeByTag(...)"))
 
 			_, err := brokerInfo.ListInstances()
 			Expect(err).To(HaveOccurred())
@@ -74,8 +84,9 @@ var _ = Describe("RDSBrokerInfo", func() {
 		It("lists the instances for the right tag", func() {
 			_, err := brokerInfo.ListInstances()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(fakeDBInstance.DescribeByTagKey).To(Equal("Broker Name"))
-			Expect(fakeDBInstance.DescribeByTagValue).To(Equal("broker_name"))
+			describeByTagTagNameArg, describeByTagTagValueArg, _ := fakeDBInstance.DescribeByTagArgsForCall(0)
+			Expect(describeByTagTagNameArg).To(Equal("Broker Name"))
+			Expect(describeByTagTagValueArg).To(Equal("broker_name"))
 		})
 		It("returns the list of instances", func() {
 			instances, err := brokerInfo.ListInstances()
@@ -90,17 +101,22 @@ var _ = Describe("RDSBrokerInfo", func() {
 
 	Context("GetInstanceConnectionDetails()", func() {
 		BeforeEach(func() {
-			fakeDBInstance.DescribeDBInstanceDetails = awsrds.DBInstanceDetails{
-				Identifier:     "dbprefix-instance-id",
-				Address:        "endpoint-address.example.com",
-				Port:           5432,
-				DBName:         "dbprefix-db",
-				MasterUsername: "master-username",
-			}
+			fakeDBInstance.DescribeReturns(
+				&rds.DBInstance{
+					DBInstanceIdentifier: aws.String("dbprefix-instance-id"),
+					Endpoint: &rds.Endpoint{
+						Address: aws.String("endpoint-address.example.com"),
+						Port:    aws.Int64(5432),
+					},
+					DBName:         aws.String("dbprefix-db"),
+					MasterUsername: aws.String("master-username"),
+				},
+				nil,
+			)
 		})
 
 		It("returns error if it fails retrieving existing instances in AWS", func() {
-			fakeDBInstance.DescribeError = fmt.Errorf("Error calling rds.Describe(...)")
+			fakeDBInstance.DescribeReturns(nil, fmt.Errorf("error calling rds.Describe(...)"))
 
 			_, err := brokerInfo.GetInstanceConnectionDetails(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "postgres"})
 			Expect(err).To(HaveOccurred())
@@ -112,11 +128,12 @@ var _ = Describe("RDSBrokerInfo", func() {
 		It("retrieves information of the right AWS RDS instance", func() {
 			_, err := brokerInfo.GetInstanceConnectionDetails(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "postgres"})
 			Expect(err).NotTo(HaveOccurred())
-			Expect(fakeDBInstance.DescribeCalled).To(BeTrue())
-			Expect(fakeDBInstance.DescribeID).To(Equal("dbprefix-instance-id"))
+
+			Expect(fakeDBInstance.DescribeCallCount()).To(BeNumerically(">=", 1))
+			describeIdArg := fakeDBInstance.DescribeArgsForCall(0)
+			Expect(describeIdArg).To(Equal("dbprefix-instance-id"))
 		})
 		It("returns the proper information of the instance", func() {
-			fakeDBInstance.DescribeDBInstanceDetails.Engine = "postgres"
 			details, err := brokerInfo.GetInstanceConnectionDetails(brokerinfo.InstanceInfo{GUID: "instance-id", Type: "postgres"})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(details.DBAddress).To(Equal("endpoint-address.example.com"))
