@@ -49,7 +49,7 @@ var _ = Describe("RDS Metrics Collector", func() {
 			loop:
 				for {
 					select {
-					case e := <-fakeLoggregator.ReceivedEnvelopes:
+					case e := <-fakeLoggregatorServer.ReceivedEnvelopes:
 						fmt.Fprintf(GinkgoWriter, "Received envelope: %v\n", e)
 						envelopes = append(envelopes, e)
 					case <-timer.C:
@@ -72,10 +72,10 @@ var _ = Describe("RDS Metrics Collector", func() {
 
 				By("not receiving more metrics in the fake loggregator server")
 				// Flush the channel
-				for len(fakeLoggregator.ReceivedEnvelopes) > 0 {
-					<-fakeLoggregator.ReceivedEnvelopes
+				for len(fakeLoggregatorServer.ReceivedEnvelopes) > 0 {
+					<-fakeLoggregatorServer.ReceivedEnvelopes
 				}
-				Consistently(fakeLoggregator.ReceivedEnvelopes, 30*time.Second).ShouldNot(Receive())
+				Consistently(fakeLoggregatorServer.ReceivedEnvelopes, 30*time.Second).ShouldNot(Receive())
 			})
 		}
 
@@ -88,22 +88,6 @@ var _ = Describe("RDS Metrics Collector", func() {
 		})
 	})
 })
-
-func filterEnvelopesBySourceAndMetric(
-	envelopes []*loggregator_v2.Envelope,
-	sourceId string,
-	metricKey string,
-) []*loggregator_v2.Envelope {
-	filteredEnvelopes := []*loggregator_v2.Envelope{}
-	for _, e := range envelopes {
-		if e.GetSourceId() == sourceId && e.GetGauge() != nil {
-			if _, ok := e.GetGauge().GetMetrics()[metricKey]; ok {
-				filteredEnvelopes = append(filteredEnvelopes, e)
-			}
-		}
-	}
-	return filteredEnvelopes
-}
 
 func filterEnvelopesBySourceAndTag(
 	envelopes []*loggregator_v2.Envelope,

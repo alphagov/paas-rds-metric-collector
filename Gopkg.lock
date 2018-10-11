@@ -69,7 +69,12 @@
   revision = "769e2ed6887e639e9a2b9492fad9844dd2846ca0"
 
 [[projects]]
-  digest = "1:93d0e7dc4e80a5319aca052bc1ef1f32b949ec7616d6b212529e09c17389271d"
+  branch = "master"
+  name = "github.com/alphagov/paas-go"
+  packages = ["testing/fakes/loggregator"]
+  revision = "bae663f579751253843d5763a56f2a7c4e59ee8c"
+
+[[projects]]
   name = "github.com/alphagov/paas-rds-broker"
   packages = [
     "awsrds",
@@ -506,6 +511,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cbf56488d0ca8a7c5a6d3459f026d5cc3bf54b25f91bd4f11d10c4d8f69963be"
+  inputs-digest = "20537303e6555eb59958d413827507280bb3cad48f50a7f6e6492f2a308fabca"
   solver-name = "gps-cdcl"
   solver-version = 1
