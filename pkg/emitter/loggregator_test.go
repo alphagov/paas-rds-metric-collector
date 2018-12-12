@@ -218,5 +218,6 @@ var _ = Describe("IngressClient", func() {
 
 		Expect(envelope.GetTags()).To(HaveKeyWithValue("key1", "val1"))
 		Expect(envelope.GetTags()).To(HaveKeyWithValue("key2", "val2"))
+		Expect(envelope.GetTags()).To(HaveKeyWithValue("guid", "instance-guid"))
 	})
 })
