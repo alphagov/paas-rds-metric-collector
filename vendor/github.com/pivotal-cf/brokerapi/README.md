@@ -2,32 +2,80 @@
 
 [![Build Status](https://travis-ci.org/pivotal-cf/brokerapi.svg?branch=master)](https://travis-ci.org/pivotal-cf/brokerapi)
 
-A Go package for building [V2 Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/) compliant Service Brokers.
+A go package for building V2 CF Service Brokers in Go. Depends on
+[lager](https://github.com/pivotal-golang/lager) and
+[gorilla/mux](https://github.com/gorilla/mux).
 
-## [Docs](https://godoc.org/github.com/pivotal-cf/brokerapi)
+Requires go 1.4 or greater.
 
-## Dependencies
+## usage
 
-- Go 1.7+
-- [lager](https://github.com/cloudfoundry/lager)
-- [gorilla/mux](https://github.com/gorilla/mux)
+`brokerapi` defines a `ServiceBroker` interface with 5 methods. Simply create
+a concrete type that implements these methods, and pass an instance of it to
+`brokerapi.New`, along with a `lager.Logger` for logging and a
+`brokerapi.BrokerCredentials` containing some HTTP basic auth credentials.
 
-We use [dep](https://github.com/golang/dep) to manager our dependencies. Use `dep ensure` in order to download the required packages.
+e.g.
 
-## Usage
+```
+package main
 
-`brokerapi` defines a [`ServiceBroker`](https://godoc.org/github.com/pivotal-cf/brokerapi#ServiceBroker) interface. Pass an implementation of this to [`brokerapi.New`](https://godoc.org/github.com/pivotal-cf/brokerapi#New), which returns an `http.Handler` that you can use to serve handle HTTP requests.
+import (
+    "github.com/pivotal-cf/brokerapi"
+    "github.com/pivotal-golang/lager"
+)
 
-Alternatively, if you already have a `*mux.Router` that you want to attach service broker routes to, you can use [`brokerapi.AttachRoutes`](https://godoc.org/github.com/pivotal-cf/brokerapi#AttachRoutes).
+type myServiceBroker struct {}
 
-## Error types
+func (*myServiceBroker) Services() []brokerapi.Service {
+    // Return a []brokerapi.Service here, describing your service(s) and plan(s)
+}
 
-`brokerapi` defines a handful of error types in `service_broker.go` for some common error cases that your service broker may encounter. Return these from your `ServiceBroker` methods where appropriate, and `brokerapi` will do the "right thing" (™), and give Cloud Foundry an appropriate status code, as per the [Service Broker API specification](https://docs.cloudfoundry.org/services/api.html).
+func (*myServiceBroker) Provision(instanceID string, serviceDetails brokerapi.ServiceDetails) error {
+    // Provision a new instance here
+}
 
-### Custom Errors
+func (*myServiceBroker) Deprovision(instanceID string) error {
+    // Deprovision instances here
+}
 
-`NewFailureResponse()` allows you to return a custom error from any of the `ServiceBroker` interface methods which return an error. Within this you must define an error, a HTTP response status code and a logging key. You can also use the `NewFailureResponseBuilder()` to add a custom `Error:` value in the response, or indicate that the broker should return an empty response rather than the error message.
+func (*myServiceBroker) Bind(instanceID, bindingID string) (interface{}, error) {
+    // Bind to instances here
+    // Return credentials which will be marshalled to JSON
+}
 
-## Example Service Broker
+func (*myServiceBroker) Unbind(instanceID, bindingID string) error {
+    // Unbind from instances here
+}
 
-You can see the [cf-redis](https://github.com/pivotal-cf/cf-redis-broker/blob/2f0e9a8ebb1012a9be74bbef2d411b0b3b60352f/broker/broker.go) service broker uses the BrokerAPI package to create a service broker for Redis.
+func main() {
+    serviceBroker := &myServiceBroker{}
+    logger := lager.NewLogger("my-service-broker")
+    credentials := brokerapi.BrokerCredentials{
+        Username: "username",
+        Password: "password",
+    }
+
+    brokerAPI := brokerapi.New(serviceBroker, logger, credentials)
+    http.Handle("/", brokerAPI)
+    http.ListenAndServe(":3000", nil)
+}
+```
+
+### errors
+
+`brokerapi` defines a handful of error types in `service_broker.go` for some
+common error cases that your service broker may encounter. Return these from
+your `ServiceBroker` methods where appropriate, and `brokerapi` will do the
+right thing, and give Cloud Foundry an appropriate status code, as per the V2
+Service Broker API specification.
+
+The error types are:
+
+```
+ErrInstanceAlreadyExists
+ErrInstanceDoesNotExist
+ErrInstanceLimitMet
+ErrBindingAlreadyExists
+ErrBindingDoesNotExist
+```
