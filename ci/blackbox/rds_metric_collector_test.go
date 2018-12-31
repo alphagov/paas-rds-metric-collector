@@ -36,7 +36,7 @@ var _ = Describe("RDS Metrics Collector", func() {
 				By("checking that collector discovers the instance and emits metrics")
 				Eventually(rdsMetricsCollectorSession, 60*time.Second).Should(
 					gbytes.Say(
-						fmt.Sprintf(`scheduler.started_worker.*"driver":"%s"`, serviceID),
+						fmt.Sprintf(`scheduler.start_worker.*"driver":"%s"`, serviceID),
 					),
 				)
 

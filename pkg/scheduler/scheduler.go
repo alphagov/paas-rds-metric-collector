@@ -1,11 +1,11 @@
 package scheduler
 
 import (
+	"context"
 	"sync"
 	"time"
 
 	"code.cloudfoundry.org/lager"
-	"github.com/carlescere/scheduler"
 
 	"os"
 
@@ -17,51 +17,8 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/utils"
 )
 
-type workerID struct {
-	Driver       string
-	InstanceGUID string
-}
-
-type collectorWorker struct {
-	collector collector.MetricsCollector
-	job       *scheduler.Job
-}
-
-type collectorWorkerMap struct {
-	workers     map[workerID]*collectorWorker
-	workersLock sync.Mutex
-}
-
-func (w *collectorWorkerMap) add(id workerID, worker *collectorWorker) {
-	w.workersLock.Lock()
-	defer w.workersLock.Unlock()
-	w.workers[id] = worker
-}
-
-func (w *collectorWorkerMap) delete(id workerID) (*collectorWorker, bool) {
-	w.workersLock.Lock()
-	defer w.workersLock.Unlock()
-	worker, ok := w.workers[id]
-	delete(w.workers, id)
-	return worker, ok
-}
-
-func (w *collectorWorkerMap) get(id workerID) (*collectorWorker, bool) {
-	w.workersLock.Lock()
-	defer w.workersLock.Unlock()
-	worker, ok := w.workers[id]
-	return worker, ok
-}
-
-func (w *collectorWorkerMap) keys() []workerID {
-	w.workersLock.Lock()
-	defer w.workersLock.Unlock()
-	keys := make([]workerID, 0, len(w.workers))
-	for k := range w.workers {
-		keys = append(keys, k)
-	}
-	return keys
-}
+const defaultRetryInterval = 1000
+const defaultMaxRetries = 3
 
 // Scheduler ...
 type Scheduler struct {
@@ -74,11 +31,10 @@ type Scheduler struct {
 
 	metricsCollectorDrivers map[string]collector.MetricsCollectorDriver
 
-	workers collectorWorkerMap
-
-	job             *scheduler.Job
-	workersStarting sync.WaitGroup
-	workersStopping sync.WaitGroup
+	workers        map[workerID]*collectorWorker
+	workersRunning sync.WaitGroup
+	stoppedWorker  chan workerID
+	cancel         context.CancelFunc
 }
 
 // NewScheduler ...
@@ -96,189 +52,206 @@ func NewScheduler(
 		instanceRefreshInterval: schedulerConfig.InstanceRefreshInterval,
 
 		metricsCollectorDrivers: map[string]collector.MetricsCollectorDriver{},
-		workers:                 collectorWorkerMap{workers: map[workerID]*collectorWorker{}},
+		workers:                 map[workerID]*collectorWorker{},
+		stoppedWorker:           make(chan workerID, 1),
 
 		logger: logger,
 	}
 }
 
 // WithDriver ...
-func (w *Scheduler) WithDriver(drivers ...collector.MetricsCollectorDriver) *Scheduler {
+func (s *Scheduler) WithDriver(drivers ...collector.MetricsCollectorDriver) *Scheduler {
 	for _, driver := range drivers {
-		w.metricsCollectorDrivers[driver.GetName()] = driver
-		w.logger.Debug("registered_driver", lager.Data{"name": driver.GetName()})
+		s.metricsCollectorDrivers[driver.GetName()] = driver
+		s.logger.Debug("registered_driver", lager.Data{"name": driver.GetName()})
 	}
 
-	return w
+	return s
 }
 
-func (w *Scheduler) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
-	var err error
-	w.job, err = scheduler.Every(w.instanceRefreshInterval).Seconds().Run(func() {
-		w.workersStarting.Add(1)
-		defer w.workersStarting.Done()
-
-		w.logger.Debug("refresh_instances")
-
-		instanceInfos, err := w.brokerinfo.ListInstances()
-		if err != nil {
-			w.logger.Error("unable to retreive instance guids", err)
-			return
-		}
-
-		w.logger.Debug("refresh_instances", lager.Data{"instances": instanceInfos})
-		for _, instanceInfo := range instanceInfos {
-			for driverName, driver := range w.metricsCollectorDrivers {
-				if utils.SliceContainsString(driver.SupportedTypes(), instanceInfo.Type) {
-					id := workerID{Driver: driverName, InstanceGUID: instanceInfo.GUID}
-					if _, ok := w.workers.get(id); !ok {
-						w.startWorker(id, instanceInfo)
-					}
-				}
-			}
-		}
-
-		// Stop any instance not returned by the brokerInfo which has a worker
-		for _, workerID := range w.workers.keys() {
-			stillExists := false
-			for _, instanceInfo := range instanceInfos {
-				if instanceInfo.GUID == workerID.InstanceGUID {
-					stillExists = true
-					break
-				}
-			}
-			if !stillExists {
-				w.stopWorker(workerID)
-			}
-		}
-	})
-	if err != nil {
-		w.logger.Debug("error-starting-scheduler")
-		return err
-	}
+func (s *Scheduler) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
+	var ctx context.Context
+	ctx, s.cancel = context.WithCancel(context.Background())
 	close(ready)
-	w.logger.Info("scheduler-started")
-	sig := <-signals
-	w.logger.Debug("received-signal", lager.Data{"signal": sig})
-	w.Stop()
+	s.mainLoop(ctx, signals)
+
 	return nil
 }
 
-// Stop ...
-func (w *Scheduler) Stop() {
-	w.job.Quit <- true
-	w.workersStarting.Wait()
-	for _, id := range w.workers.keys() {
-		w.logger.Debug("stopping-worker")
-		w.stopWorker(id)
-	}
-	w.workersStopping.Wait()
-}
+func (s *Scheduler) mainLoop(ctx context.Context, signals <-chan os.Signal) {
+	s.logger.Info("scheduler-started")
+	defer s.logger.Info("scheduler-stopped")
 
-func (w *Scheduler) startWorker(id workerID, instanceInfo brokerinfo.InstanceInfo) {
-	w.workersStarting.Add(1)
-	go func() {
-		defer w.workersStarting.Done()
+	timer := time.NewTimer(0)
 
-		w.logger.Info("start_worker", lager.Data{
-			"driver":       id.Driver,
-			"instanceGUID": id.InstanceGUID,
-		})
-		driver, ok := w.metricsCollectorDrivers[id.Driver]
-		if !ok {
-			w.logger.Error("driver doesn't exist", nil, lager.Data{
-				"driver": id.Driver,
-			})
-			return
-		}
-
-		collector, err := driver.NewCollector(instanceInfo)
-		if err != nil {
-			w.logger.Error("starting worker collector", err, lager.Data{
-				"driver":       id.Driver,
-				"instanceGUID": id.InstanceGUID,
-			})
-			return
-		}
-
-		w.logger.Info("started_worker", lager.Data{
-			"driver":       id.Driver,
-			"instanceGUID": id.InstanceGUID,
-		})
-
-		newJob, err := scheduler.Every(driver.GetCollectInterval()).Seconds().Run(func() {
-			w.logger.Debug("collecting metrics", lager.Data{
-				"driver":       id.Driver,
-				"instanceGUID": id.InstanceGUID,
-			})
-			collectedMetrics, err := collector.Collect()
-			if err != nil {
-				w.logger.Error("querying metrics", err, lager.Data{
-					"driver":       id.Driver,
-					"instanceGUID": id.InstanceGUID,
-				})
+	defer func() {
+		workersStoptimeout := time.NewTimer(30 * time.Second)
+		for {
+			if len(s.workers) == 0 {
 				return
 			}
+			select {
+			case id := <-s.stoppedWorker:
+				s.deleteWorker(id)
+			case <-workersStoptimeout.C:
+				s.logger.Info("timeout_waiting_for_workers", lager.Data{"instances": s.ListIntanceGUIDs()})
+			}
+		}
+	}()
+
+	for {
+		select {
+		case <-timer.C:
+			timer.Reset(time.Duration(s.instanceRefreshInterval) * time.Second)
+
+			instanceInfos, err := s.brokerinfo.ListInstances()
+			if err != nil {
+				s.logger.Error("unable to retreive instance guids", err)
+				continue
+			}
+
+			s.logger.Debug("refresh_instances", lager.Data{"instances": instanceInfos})
+
+			desiredWorkerIDs := map[workerID]brokerinfo.InstanceInfo{}
+			for _, instanceInfo := range instanceInfos {
+				for driverName, driver := range s.metricsCollectorDrivers {
+					if utils.SliceContainsString(driver.SupportedTypes(), instanceInfo.Type) {
+						id := workerID{Driver: driverName, InstanceGUID: instanceInfo.GUID}
+						desiredWorkerIDs[id] = instanceInfo
+					}
+				}
+			}
+
+			for id, instanceInfo := range desiredWorkerIDs {
+				if _, ok := s.workers[id]; !ok {
+					s.startWorker(ctx, id, instanceInfo)
+				}
+			}
+
+			for id, worker := range s.workers {
+				if _, ok := desiredWorkerIDs[id]; !ok {
+					worker.cancel()
+				}
+			}
+		case id := <-s.stoppedWorker:
+			s.deleteWorker(id)
+
+		case sig := <-signals:
+			s.logger.Debug("received-signal", lager.Data{"signal": sig})
+			s.cancel()
+			return
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+func (s *Scheduler) startWorker(ctx context.Context, id workerID, instanceInfo brokerinfo.InstanceInfo) {
+	workerContext, workerCancel := context.WithCancel(ctx)
+	worker := &collectorWorker{
+		id:             id,
+		instanceInfo:   instanceInfo,
+		driver:         s.metricsCollectorDrivers[id.Driver],
+		metricsEmitter: s.metricsEmitter,
+		retryInterval:  s.collectorRetryInterval,
+		maxRetries:     s.collectorMaxRetries,
+		cancel:         workerCancel,
+		logger:         s.logger,
+	}
+	s.workers[id] = worker
+	s.workersRunning.Add(1)
+	go worker.run(workerContext, s.stoppedWorker)
+}
+
+func (s *Scheduler) deleteWorker(id workerID) {
+	s.workersRunning.Done()
+	delete(s.workers, id)
+}
+
+// Stop...
+func (w *Scheduler) Stop() {
+	w.cancel()
+	w.workersRunning.Wait()
+}
+
+type workerID struct {
+	Driver       string
+	InstanceGUID string
+}
+
+type collectorWorker struct {
+	id             workerID
+	instanceInfo   brokerinfo.InstanceInfo
+	driver         collector.MetricsCollectorDriver
+	metricsEmitter emitter.MetricsEmitter
+	retryInterval  int
+	maxRetries     int
+	cancel         context.CancelFunc
+	logger         lager.Logger
+	collector      collector.MetricsCollector
+}
+
+func (w *collectorWorker) run(ctx context.Context, stopped chan<- workerID) {
+	defer func() { stopped <- w.id }()
+
+	w.logger.Info("start_worker", lager.Data{
+		"driver":       w.id.Driver,
+		"instanceGUID": w.id.InstanceGUID,
+	})
+
+	collector, err := w.driver.NewCollector(w.instanceInfo)
+	if err != nil {
+		w.logger.Error("failed_creating_collector", err, lager.Data{
+			"driver":       w.id.Driver,
+			"instanceGUID": w.id.InstanceGUID,
+		})
+		return
+	}
+
+	defer collector.Close()
+
+	defer w.logger.Info("stop_worker", lager.Data{
+		"driver":       w.id.Driver,
+		"instanceGUID": w.id.InstanceGUID,
+	})
+
+	timer := time.NewTimer(0)
+	for {
+		select {
+		case <-timer.C:
+			w.logger.Debug("collecting_metrics", lager.Data{
+				"driver":       w.id.Driver,
+				"instanceGUID": w.id.InstanceGUID,
+			})
+			collectedMetrics, err := collector.Collect()
+			timer.Reset(time.Duration(w.driver.GetCollectInterval()) * time.Second)
+			if err != nil {
+				w.logger.Error("querying metrics", err, lager.Data{
+					"driver":       w.id.Driver,
+					"instanceGUID": w.id.InstanceGUID,
+				})
+				continue
+			}
 			w.logger.Debug("collected metrics", lager.Data{
-				"driver":       id.Driver,
-				"instanceGUID": id.InstanceGUID,
+				"driver":       w.id.Driver,
+				"instanceGUID": w.id.InstanceGUID,
 				"metrics":      collectedMetrics,
 			})
 			for _, metric := range collectedMetrics {
 				w.metricsEmitter.Emit(
-					metrics.MetricEnvelope{InstanceGUID: id.InstanceGUID, Metric: metric},
+					metrics.MetricEnvelope{InstanceGUID: w.id.InstanceGUID, Metric: metric},
 				)
 			}
-		})
-		if err != nil {
-			w.logger.Error("cannot schedule the worker", err, lager.Data{
-				"driver":       id.Driver,
-				"instanceGUID": id.InstanceGUID,
-			})
+		case <-ctx.Done():
 			return
 		}
-		w.workers.add(id, &collectorWorker{
-			collector: collector,
-			job:       newJob,
-		})
-	}()
-}
-
-func (w *Scheduler) stopWorker(id workerID) {
-	w.workersStopping.Add(1)
-	go func() {
-		defer w.workersStopping.Done()
-
-		w.logger.Info("stop_worker", lager.Data{
-			"driver":       id.Driver,
-			"instanceGUID": id.InstanceGUID,
-		})
-
-		if worker, ok := w.workers.delete(id); ok {
-			err := worker.collector.Close()
-			if err != nil {
-				w.logger.Error("close_collector", err, lager.Data{
-					"driver":       id.Driver,
-					"instanceGUID": id.InstanceGUID,
-				})
-			}
-			if worker.job != nil {
-				worker.job.Quit <- true
-				for {
-					if !worker.job.IsRunning() {
-						break
-					}
-					time.Sleep(10 * time.Millisecond)
-				}
-			}
-		}
-	}()
+	}
 }
 
 // ListIntanceGUIDs ...
 func (w *Scheduler) ListIntanceGUIDs() []string {
 	instanceGUIDMap := map[string]bool{}
-	for _, k := range w.workers.keys() {
+	for k, _ := range w.workers {
 		instanceGUIDMap[k.InstanceGUID] = true
 	}
 	instanceGUIDs := []string{}
