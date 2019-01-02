@@ -100,7 +100,7 @@ func TestSuite(t *testing.T) {
 
 		// Update config
 		rdsMetricCollectorConfig := collectorconfig.Config{
-			LogLevel: "debug",
+			LogLevel: "info",
 			AWS: collectorconfig.AWSConfig{
 				Region:       "eu-west-1",
 				AWSPartition: "aws",
