@@ -99,7 +99,9 @@ var _ = Describe("collector scheduler", func() {
 
 		scheduler = NewScheduler(
 			config.SchedulerConfig{
-				InstanceRefreshInterval: 1,
+				InstanceRefreshInterval:  1,
+				CollectorRetryIntervalMs: 10,
+				CollectorMaxRetries:      2,
 			},
 			brokerInfo,
 			metricsEmitter,
@@ -190,13 +192,96 @@ var _ = Describe("collector scheduler", func() {
 		)
 
 		go scheduler.Run(signals, ready)
+		defer scheduler.Stop()
 
 		Consistently(func() []metrics.MetricEnvelope {
 			return metricsEmitter.envelopesReceived
 		}, 2*time.Second).Should(
 			HaveLen(0),
 		)
+	})
 
+	Context("with collector retry", func() {
+		BeforeEach(func() {
+			brokerInfo.On(
+				"ListInstances", mock.Anything,
+			).Return(
+				[]brokerinfo.InstanceInfo{
+					{GUID: "instance-guid1", Type: "fake"},
+				}, nil,
+			).Times(3)
+			brokerInfo.On(
+				"ListInstances", mock.Anything,
+			).Return(
+				[]brokerinfo.InstanceInfo{}, nil,
+			)
+		})
+
+		It("should retry to collect the metrics", func() {
+			metricsCollectorDriver.On(
+				"NewCollector", mock.Anything,
+			).Return(
+				metricsCollector, nil,
+			)
+
+			metricsCollector.On(
+				"Collect",
+			).Return(
+				[]metrics.Metric{},
+				fmt.Errorf("error collecting metrics"),
+			).Once()
+			metricsCollector.On(
+				"Collect",
+			).Return(
+				[]metrics.Metric{
+					metrics.Metric{Key: "foo", Value: 3, Unit: "b"},
+				},
+				nil,
+			)
+			go scheduler.Run(signals, ready)
+			defer scheduler.Stop()
+
+			Eventually(func() []metrics.MetricEnvelope {
+				return metricsEmitter.envelopesReceived
+			}, 2*time.Second).Should(
+				ContainElement(
+					metrics.MetricEnvelope{
+						InstanceGUID: "instance-guid1",
+						Metric:       metrics.Metric{Key: "foo", Value: 3.0, Unit: "b"},
+					},
+				),
+			)
+		})
+
+		It("should stop the worker if collector keeps failing", func() {
+			metricsCollectorDriver.On(
+				"NewCollector", mock.Anything,
+			).Return(
+				metricsCollector, nil,
+			)
+
+			metricsCollector.On(
+				"Collect",
+			).Return(
+				[]metrics.Metric{},
+				fmt.Errorf("error collecting metrics"),
+			)
+
+			go scheduler.Run(signals, ready)
+			defer scheduler.Stop()
+
+			Eventually(func() []string {
+				return scheduler.ListIntanceGUIDs()
+			}, 1*time.Second).Should(
+				HaveLen(1),
+			)
+
+			Eventually(func() []string {
+				return scheduler.ListIntanceGUIDs()
+			}, 2*time.Second).Should(
+				HaveLen(0),
+			)
+		})
 	})
 
 	Context("with working collector driver", func() {

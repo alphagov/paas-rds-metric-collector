@@ -32,9 +32,11 @@ type RDSBrokerInfoConfig struct {
 }
 
 type SchedulerConfig struct {
-	InstanceRefreshInterval    int `json:"instance_refresh_interval" validate:"required,gte=1,lte=3600"`
-	SQLMetricCollectorInterval int `json:"sql_metrics_collector_interval" validate:"required,gte=0,lte=3600"`
-	CWMetricCollectorInterval  int `json:"cloudwatch_metrics_collector_interval" validate:"required,gte=0,lte=3600"`
+	InstanceRefreshInterval    int  `json:"instance_refresh_interval" validate:"required,gte=1,lte=3600"`
+	CollectorRetryIntervalMs   *int `json:"collector_retry_interval_ms" validate:"isdefault,gte=0,lte=10000"`
+	CollectorMaxRetries        *int `json:"collector_max_retries" validate:"isdefault,gte=0,lte=10"`
+	SQLMetricCollectorInterval int  `json:"sql_metrics_collector_interval" validate:"required,gte=0,lte=3600"`
+	CWMetricCollectorInterval  int  `json:"cloudwatch_metrics_collector_interval" validate:"required,gte=0,lte=3600"`
 }
 
 type LoggregatorEmitterConfig struct {

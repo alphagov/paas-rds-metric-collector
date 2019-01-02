@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"context"
+	"math"
 	"sync"
 	"time"
 
@@ -26,6 +27,8 @@ type Scheduler struct {
 	metricsEmitter emitter.MetricsEmitter
 
 	instanceRefreshInterval int
+	collectorRetryInterval  int
+	collectorMaxRetries     int
 
 	logger lager.Logger
 
@@ -44,12 +47,22 @@ func NewScheduler(
 	metricsEmitter emitter.MetricsEmitter,
 	logger lager.Logger,
 ) *Scheduler {
+	retryInterval := defaultRetryInterval
+	if schedulerConfig.CollectorRetryIntervalMs != nil {
+		retryInterval = *schedulerConfig.CollectorRetryIntervalMs
+	}
+	maxRetries := defaultMaxRetries
+	if schedulerConfig.CollectorMaxRetries != nil {
+		maxRetries = *schedulerConfig.CollectorMaxRetries
+	}
 
 	return &Scheduler{
 		brokerinfo:     brokerInfo,
 		metricsEmitter: metricsEmitter,
 
 		instanceRefreshInterval: schedulerConfig.InstanceRefreshInterval,
+		collectorRetryInterval:  retryInterval,
+		collectorMaxRetries:     maxRetries,
 
 		metricsCollectorDrivers: map[string]collector.MetricsCollectorDriver{},
 		workers:                 map[workerID]*collectorWorker{},
@@ -216,6 +229,7 @@ func (w *collectorWorker) run(ctx context.Context, stopped chan<- workerID) {
 	})
 
 	timer := time.NewTimer(0)
+	errorCount := 0
 	for {
 		select {
 		case <-timer.C:
@@ -224,23 +238,42 @@ func (w *collectorWorker) run(ctx context.Context, stopped chan<- workerID) {
 				"instanceGUID": w.id.InstanceGUID,
 			})
 			collectedMetrics, err := collector.Collect()
-			timer.Reset(time.Duration(w.driver.GetCollectInterval()) * time.Second)
 			if err != nil {
-				w.logger.Error("querying metrics", err, lager.Data{
+				errorCount = errorCount + 1
+				if errorCount <= w.maxRetries {
+					waitTime := int(math.Pow(4, float64(errorCount))) * w.retryInterval
+					w.logger.Error("collect_retry",
+						err, lager.Data{
+							"errorCount":   errorCount,
+							"maxRetries":   w.maxRetries,
+							"waitTime":     waitTime,
+							"driver":       w.id.Driver,
+							"instanceGUID": w.id.InstanceGUID,
+						})
+					timer.Reset(time.Duration(waitTime) * time.Millisecond)
+				} else {
+					w.logger.Error("collect_error",
+						err, lager.Data{
+							"errorCount":   errorCount,
+							"maxRetries":   w.maxRetries,
+							"driver":       w.id.Driver,
+							"instanceGUID": w.id.InstanceGUID,
+						})
+					return
+				}
+			} else {
+				w.logger.Debug("collected metrics", lager.Data{
 					"driver":       w.id.Driver,
 					"instanceGUID": w.id.InstanceGUID,
+					"metrics":      collectedMetrics,
 				})
-				continue
-			}
-			w.logger.Debug("collected metrics", lager.Data{
-				"driver":       w.id.Driver,
-				"instanceGUID": w.id.InstanceGUID,
-				"metrics":      collectedMetrics,
-			})
-			for _, metric := range collectedMetrics {
-				w.metricsEmitter.Emit(
-					metrics.MetricEnvelope{InstanceGUID: w.id.InstanceGUID, Metric: metric},
-				)
+				for _, metric := range collectedMetrics {
+					w.metricsEmitter.Emit(
+						metrics.MetricEnvelope{InstanceGUID: w.id.InstanceGUID, Metric: metric},
+					)
+				}
+				errorCount = 0
+				timer.Reset(time.Duration(w.driver.GetCollectInterval()) * time.Second)
 			}
 		case <-ctx.Done():
 			return
