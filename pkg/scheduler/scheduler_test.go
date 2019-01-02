@@ -97,11 +97,13 @@ var _ = Describe("collector scheduler", func() {
 		signals = make(chan os.Signal)
 		ready = make(chan struct{})
 
+		retryIntervalMs := 10
+		collectorMaxRetries := 2
 		scheduler = NewScheduler(
 			config.SchedulerConfig{
 				InstanceRefreshInterval:  1,
-				CollectorRetryIntervalMs: 10,
-				CollectorMaxRetries:      2,
+				CollectorRetryIntervalMs: &retryIntervalMs,
+				CollectorMaxRetries:      &collectorMaxRetries,
 			},
 			brokerInfo,
 			metricsEmitter,

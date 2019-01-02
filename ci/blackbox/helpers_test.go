@@ -112,6 +112,14 @@ func deprovisionInstance(instanceID, serviceID, planID string) {
 	}
 }
 
+func rebootInstance(instanceID, serviceID, planID string) {
+	code, operation, err := brokerAPIClient.UpdateInstance(instanceID, serviceID, planID, planID, `{ "reboot": true }`)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(code).To(Equal(202))
+	pollForOperationCompletion(brokerAPIClient, instanceID, serviceID, planID, operation)
+	provisionedInstances[instanceID] = true
+}
+
 func pollForOperationCompletion(brokerAPIClient *BrokerAPIClient, instanceID, serviceID, planID, operation string) string {
 	var state string
 	var err error
