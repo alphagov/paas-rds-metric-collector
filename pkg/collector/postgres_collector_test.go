@@ -140,7 +140,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		By("Retrieving initial metrics")
-		collectedMetrics, err = metricsCollector.Collect()
+		collectedMetrics, err = metricsCollector.Collect(context.Background())
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -175,7 +175,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		Eventually(func() float64 {
-			collectedMetrics, err = metricsCollector.Collect()
+			collectedMetrics, err = metricsCollector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			metric = getMetricByKey(collectedMetrics, "connections")
 			Expect(metric).ToNot(BeNil())
@@ -189,7 +189,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		cancel()
 
 		Eventually(func() float64 {
-			collectedMetrics, err = metricsCollector.Collect()
+			collectedMetrics, err = metricsCollector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			metric = getMetricByKey(collectedMetrics, "connections")
 			Expect(metric).ToNot(BeNil())
@@ -258,7 +258,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 
 			By("detecting the locked connection")
 			Eventually(func() float64 {
-				collectedMetrics, err := metricsCollector.Collect()
+				collectedMetrics, err := metricsCollector.Collect(context.Background())
 				Expect(err).NotTo(HaveOccurred())
 
 				metric = getMetricByKey(collectedMetrics, "blocked_connections")
@@ -279,7 +279,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 
 			By("increasing the deadlock counter")
 			Eventually(func() float64 {
-				collectedMetrics, err := metricsCollector.Collect()
+				collectedMetrics, err := metricsCollector.Collect(context.Background())
 				Expect(err).NotTo(HaveOccurred())
 
 				metric = getMetricByKey(collectedMetrics, "deadlocks")
@@ -371,7 +371,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 
 		// Wait for the stat collector to write the value down
 		Eventually(func() float64 {
-			collectedMetrics, err = metricsCollector.Collect()
+			collectedMetrics, err = metricsCollector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 
 			metric = getMetricByKey(collectedMetrics, "seq_scan")
@@ -395,7 +395,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 
 		time.Sleep(1 * time.Second)
 
-		collectedMetrics, err = metricsCollector.Collect()
+		collectedMetrics, err = metricsCollector.Collect(context.Background())
 		metric := getMetricByKey(collectedMetrics, "max_tx_age")
 		Expect(metric).ToNot(BeNil())
 		Expect(metric.Value).To(BeNumerically(">=", 1))

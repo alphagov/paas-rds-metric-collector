@@ -20,6 +20,7 @@ import (
 
 const defaultRetryInterval = 1000
 const defaultMaxRetries = 3
+const defaultCollectorTimeout = 15000
 
 // Scheduler ...
 type Scheduler struct {
@@ -29,6 +30,7 @@ type Scheduler struct {
 	instanceRefreshInterval int
 	collectorRetryInterval  int
 	collectorMaxRetries     int
+	collectorTimeout        int
 
 	logger lager.Logger
 
@@ -55,6 +57,10 @@ func NewScheduler(
 	if schedulerConfig.CollectorMaxRetries != nil {
 		maxRetries = *schedulerConfig.CollectorMaxRetries
 	}
+	collectorTimeout := defaultCollectorTimeout
+	if schedulerConfig.CollectorTimeoutMs != nil {
+		collectorTimeout = *schedulerConfig.CollectorTimeoutMs
+	}
 
 	return &Scheduler{
 		brokerinfo:     brokerInfo,
@@ -63,6 +69,7 @@ func NewScheduler(
 		instanceRefreshInterval: schedulerConfig.InstanceRefreshInterval,
 		collectorRetryInterval:  retryInterval,
 		collectorMaxRetries:     maxRetries,
+		collectorTimeout:        collectorTimeout,
 
 		metricsCollectorDrivers: map[string]collector.MetricsCollectorDriver{},
 		workers:                 map[workerID]*collectorWorker{},
@@ -168,6 +175,7 @@ func (s *Scheduler) startWorker(ctx context.Context, id workerID, instanceInfo b
 		metricsEmitter: s.metricsEmitter,
 		retryInterval:  s.collectorRetryInterval,
 		maxRetries:     s.collectorMaxRetries,
+		timeout:        s.collectorTimeout,
 		cancel:         workerCancel,
 		logger:         s.logger,
 	}
@@ -202,6 +210,7 @@ type collectorWorker struct {
 	cancel         context.CancelFunc
 	logger         lager.Logger
 	collector      collector.MetricsCollector
+	timeout        int
 }
 
 func (w *collectorWorker) run(ctx context.Context, stopped chan<- workerID) {
@@ -237,7 +246,13 @@ func (w *collectorWorker) run(ctx context.Context, stopped chan<- workerID) {
 				"driver":       w.id.Driver,
 				"instanceGUID": w.id.InstanceGUID,
 			})
-			collectedMetrics, err := collector.Collect()
+
+			collectedMetrics, err := func() ([]metrics.Metric, error) {
+				collectCtx, cancel := context.WithTimeout(ctx, time.Duration(w.timeout)*time.Millisecond)
+				defer cancel()
+				return collector.Collect(collectCtx)
+			}()
+
 			if err != nil {
 				errorCount = errorCount + 1
 				if errorCount <= w.maxRetries {

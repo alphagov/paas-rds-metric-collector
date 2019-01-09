@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -13,7 +14,7 @@ import (
 
 // MetricQuery has a method to get the metrics for a query
 type metricQuery interface {
-	getMetrics(db *sql.DB) ([]metrics.Metric, error)
+	getMetrics(ctx context.Context, db *sql.DB) ([]metrics.Metric, error)
 }
 
 // Used to get the right connection string for each DB type
@@ -80,15 +81,15 @@ type sqlMetricsCollector struct {
 	logger  lager.Logger
 }
 
-func (mc *sqlMetricsCollector) Collect() ([]metrics.Metric, error) {
+func (mc *sqlMetricsCollector) Collect(ctx context.Context) ([]metrics.Metric, error) {
 	var metrics []metrics.Metric
-	err := mc.dbConn.Ping()
+	err := mc.dbConn.PingContext(ctx)
 	if err != nil {
 		mc.logger.Error("connecting to db", err)
 		return metrics, err
 	}
 	for _, q := range mc.queries {
-		newMetrics, err := q.getMetrics(mc.dbConn)
+		newMetrics, err := q.getMetrics(ctx, mc.dbConn)
 		if err != nil {
 			mc.logger.Error("querying metrics", err, lager.Data{"query": q})
 		}
@@ -129,8 +130,8 @@ type columnMetricQuery struct {
 
 // queryToMetrics Executes the given query and retunrs the result as
 // a list of Metric[]
-func (q *columnMetricQuery) getMetrics(db *sql.DB) ([]metrics.Metric, error) {
-	rows, err := db.Query(q.Query)
+func (q *columnMetricQuery) getMetrics(ctx context.Context, db *sql.DB) ([]metrics.Metric, error) {
+	rows, err := db.QueryContext(ctx, q.Query)
 	if err != nil {
 		return nil, fmt.Errorf("unable to execute query: %s", err)
 	}
@@ -177,10 +178,10 @@ type rowMetricQuery struct {
 	Metrics []metricQueryMeta
 }
 
-// queryToMetrics Executes the given query and retunrs the result as
+// queryToMetrics Executes the given query and returns the result as
 // a list of Metric[]
-func (q *rowMetricQuery) getMetrics(db *sql.DB) (resultMetrics []metrics.Metric, err error) {
-	rows, err := db.Query(q.Query)
+func (q *rowMetricQuery) getMetrics(ctx context.Context, db *sql.DB) (resultMetrics []metrics.Metric, err error) {
+	rows, err := db.QueryContext(ctx, q.Query)
 	if err != nil {
 		return nil, fmt.Errorf("unable to execute query: %s", err)
 	}

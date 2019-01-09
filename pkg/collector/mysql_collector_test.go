@@ -93,7 +93,7 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		By("Retrieving initial metrics")
-		collectedMetrics, err = metricsCollector.Collect()
+		collectedMetrics, err = metricsCollector.Collect(context.Background())
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -185,7 +185,7 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		Eventually(func() float64 {
-			collectedMetrics, err = metricsCollector.Collect()
+			collectedMetrics, err = metricsCollector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			metric = getMetricByKey(collectedMetrics, "threads_connected")
 			Expect(metric).ToNot(BeNil())
@@ -199,7 +199,7 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		execQueryFunc("select sleep(1);")
 
 		Eventually(func() float64 {
-			collectedMetrics, err = metricsCollector.Collect()
+			collectedMetrics, err = metricsCollector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			metric = getMetricByKey(collectedMetrics, "threads_running")
 			Expect(metric).ToNot(BeNil())
@@ -213,7 +213,7 @@ var _ = Describe("NewMysqlMetricsCollectorDriver", func() {
 		cancel()
 
 		Eventually(func() float64 {
-			collectedMetrics, err = metricsCollector.Collect()
+			collectedMetrics, err = metricsCollector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			metric = getMetricByKey(collectedMetrics, "threads_connected")
 			Expect(metric).ToNot(BeNil())

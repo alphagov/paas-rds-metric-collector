@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -63,7 +64,7 @@ var _ = Describe("cloudwatch_collector", func() {
 
 		It("should Collect metrics successfully", func() {
 			now := time.Now()
-			fakeClient.GetMetricStatisticsReturns(&cloudwatch.GetMetricStatisticsOutput{
+			fakeClient.GetMetricStatisticsWithContextReturns(&cloudwatch.GetMetricStatisticsOutput{
 				Label: aws.String("test"),
 				Datapoints: []*cloudwatch.Datapoint{
 					&cloudwatch.Datapoint{
@@ -84,7 +85,7 @@ var _ = Describe("cloudwatch_collector", func() {
 				},
 			}, nil)
 
-			data, err := collector.Collect()
+			data, err := collector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			Expect(data).NotTo(BeNil())
 			Expect(data).NotTo(BeEmpty())
@@ -96,7 +97,7 @@ var _ = Describe("cloudwatch_collector", func() {
 		It("should preserve the timestamp", func() {
 			metricTime := time.Now().Add(-1 * time.Hour)
 
-			fakeClient.GetMetricStatisticsReturns(&cloudwatch.GetMetricStatisticsOutput{
+			fakeClient.GetMetricStatisticsWithContextReturns(&cloudwatch.GetMetricStatisticsOutput{
 				Label: aws.String("test"),
 				Datapoints: []*cloudwatch.Datapoint{
 					&cloudwatch.Datapoint{
@@ -107,7 +108,7 @@ var _ = Describe("cloudwatch_collector", func() {
 				},
 			}, nil)
 
-			data, err := collector.Collect()
+			data, err := collector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			Expect(data).NotTo(BeNil())
 			Expect(data).NotTo(BeEmpty())
@@ -115,8 +116,8 @@ var _ = Describe("cloudwatch_collector", func() {
 		})
 
 		It("should continue to collect metrics when it hits an error", func() {
-			fakeClient.GetMetricStatisticsReturnsOnCall(0, nil, fmt.Errorf("__CONTROLLED_ERROR__"))
-			fakeClient.GetMetricStatisticsReturns(&cloudwatch.GetMetricStatisticsOutput{
+			fakeClient.GetMetricStatisticsWithContextReturnsOnCall(0, nil, fmt.Errorf("__CONTROLLED_ERROR__"))
+			fakeClient.GetMetricStatisticsWithContextReturns(&cloudwatch.GetMetricStatisticsOutput{
 				Label: aws.String("test"),
 				Datapoints: []*cloudwatch.Datapoint{
 					&cloudwatch.Datapoint{
@@ -126,7 +127,7 @@ var _ = Describe("cloudwatch_collector", func() {
 					},
 				},
 			}, nil)
-			data, err := collector.Collect()
+			data, err := collector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			Expect(data).NotTo(BeNil())
 			Expect(data).NotTo(BeEmpty())
@@ -136,12 +137,12 @@ var _ = Describe("cloudwatch_collector", func() {
 		})
 
 		It("should not fail if there are no datapoints", func() {
-			fakeClient.GetMetricStatisticsReturns(&cloudwatch.GetMetricStatisticsOutput{
+			fakeClient.GetMetricStatisticsWithContextReturns(&cloudwatch.GetMetricStatisticsOutput{
 				Label:      aws.String("test"),
 				Datapoints: []*cloudwatch.Datapoint{},
 			}, nil)
 
-			_, err := collector.Collect()
+			_, err := collector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})
