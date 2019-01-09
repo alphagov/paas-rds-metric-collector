@@ -53,14 +53,6 @@ func (d *sqlMetricsCollectorDriver) NewCollector(instanceInfo brokerinfo.Instanc
 		return nil, err
 	}
 
-	err = dbConn.Ping()
-	if err != nil {
-		d.logger.Error("cannot ping the database", err, lager.Data{
-			"instanceInfo": instanceInfo,
-		})
-		return nil, err
-	}
-
 	sqlMetricsCollector := &sqlMetricsCollector{
 		logger:  d.logger,
 		queries: d.queries,

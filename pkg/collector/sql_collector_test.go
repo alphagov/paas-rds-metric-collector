@@ -227,27 +227,6 @@ var _ = Describe("sql_collector", func() {
 			Expect(err).To(MatchError(MatchRegexp("sql: unknown driver")))
 		})
 
-		It("should fail to start the collector due to database being unavailable", func() {
-			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
-			).Return(
-				[]string{"instance-guid1"}, nil,
-			)
-			brokerInfo.On(
-				"GetInstanceConnectionDetails", mock.Anything,
-			).Return(
-				brokerinfo.InstanceConnectionDetails{}, nil,
-			)
-
-			metricsCollectorDriver.connectionStringBuilder = &fakeSqlConnectionStringBuilder{
-				connectionString: "postgresql://postgres@localhost:3000?sslmode=disable",
-			}
-
-			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-			Expect(err).To(HaveOccurred())
-			Expect(err).To(MatchError(MatchRegexp("connect")))
-		})
-
 		It("can create a new sqlMetricsCollector", func() {
 			brokerInfo.On(
 				"ListInstanceGUIDs", mock.Anything,
