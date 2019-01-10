@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	_ "github.com/Kount/pq-timeouts"
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/mock"
 
 	. "github.com/onsi/ginkgo"

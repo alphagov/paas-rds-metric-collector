@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/Kount/pq-timeouts"
 	"github.com/stretchr/testify/mock"
 
 	. "github.com/onsi/ginkgo"
@@ -39,13 +39,13 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		testDBName = utils.RandomString(10)
 		testDBConnectionString = injectDBName(postgresTestDatabaseConnectionURL, testDBName)
 
-		mainDBConn, err := sql.Open("postgres", postgresTestDatabaseConnectionURL)
+		mainDBConn, err := sql.Open("pq-timeouts", postgresTestDatabaseConnectionURL)
 		defer mainDBConn.Close()
 		Expect(err).NotTo(HaveOccurred())
 		_, err = mainDBConn.Exec(fmt.Sprintf("CREATE DATABASE %s", testDBName))
 		Expect(err).NotTo(HaveOccurred())
 
-		testDBConn, err = sql.Open("postgres", testDBConnectionString)
+		testDBConn, err = sql.Open("pq-timeouts", testDBConnectionString)
 		Expect(err).NotTo(HaveOccurred())
 		_, err = testDBConn.Exec(`
 			CREATE TABLE films (
@@ -80,7 +80,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 
 	AfterEach(func() {
 		testDBConn.Close()
-		dbConn, err := sql.Open("postgres", postgresTestDatabaseConnectionURL)
+		dbConn, err := sql.Open("pq-timeouts", postgresTestDatabaseConnectionURL)
 		defer dbConn.Close()
 		Expect(err).NotTo(HaveOccurred())
 		// Kill all connections to this DB, as sql.DB keeps a pool and it
@@ -171,7 +171,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		By("Creating multiple new connections")
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		err, _ = openMultipleDBConns(ctx, 20, "postgres", postgresTestDatabaseConnectionURL)
+		err, _ = openMultipleDBConns(ctx, 20, "pq-timeouts", postgresTestDatabaseConnectionURL)
 		Expect(err).NotTo(HaveOccurred())
 
 		Eventually(func() float64 {
@@ -361,7 +361,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 
 		initialIdxScanValue := metric.Value
 
-		dbConn, err := sql.Open("postgres", testDBConnectionString)
+		dbConn, err := sql.Open("pq-timeouts", testDBConnectionString)
 		defer dbConn.Close()
 		_, err = dbConn.Exec("SELECT * from films")
 		Expect(err).NotTo(HaveOccurred())
@@ -414,10 +414,12 @@ var _ = Describe("postgresConnectionStringBuilder.ConnectionString()", func() {
 		}
 		builder := postgresConnectionStringBuilder{
 			ConnectionTimeout: 10,
+			ReadTimeout:       11,
+			WriteTimeout:      12,
 			SSLMode:           "require",
 		}
 		connectionString := builder.ConnectionString(details)
-		Expect(connectionString).To(Equal("postgresql://master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@endpoint-address.example.com:5432/dbprefix-db?sslmode=require&connect_timeout=10"))
+		Expect(connectionString).To(Equal("postgresql://master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@endpoint-address.example.com:5432/dbprefix-db?sslmode=require&connect_timeout=10&read_timeout=11000&write_timeout=12000"))
 	})
 
 	It("should timeout postgres connection", func() {
@@ -433,7 +435,7 @@ var _ = Describe("postgresConnectionStringBuilder.ConnectionString()", func() {
 
 		startTime := time.Now()
 
-		dbConn, err := sql.Open("postgres", connectionString)
+		dbConn, err := sql.Open("pq-timeouts", connectionString)
 		defer dbConn.Close()
 		Expect(err).NotTo(HaveOccurred())
 

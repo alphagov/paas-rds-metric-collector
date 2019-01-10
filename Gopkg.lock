@@ -85,6 +85,14 @@
   revision = "769e2ed6887e639e9a2b9492fad9844dd2846ca0"
 
 [[projects]]
+  digest = "1:db68af2043b5de50b5dde7953a212d47efa299e1bef79379ac6ebcd243f34f99"
+  name = "github.com/Kount/pq-timeouts"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "079ba81f56daf25f2c22b7b2c224f5a9ba38840c"
+  version = "v1.0.0"
+
+[[projects]]
   branch = "master"
   digest = "1:2288e12dafcdd5f10263a6411ff3fd8cc125cb0d3d485d24eca7e3a2df6849f5"
   name = "github.com/alphagov/paas-go"
@@ -615,6 +623,7 @@
     "code.cloudfoundry.org/locket/grpcserver",
     "code.cloudfoundry.org/locket/lock",
     "code.cloudfoundry.org/locket/models",
+    "github.com/Kount/pq-timeouts",
     "github.com/alphagov/paas-go/testing/fakes/loggregator",
     "github.com/alphagov/paas-rds-broker/awsrds",
     "github.com/alphagov/paas-rds-broker/awsrds/fakes",

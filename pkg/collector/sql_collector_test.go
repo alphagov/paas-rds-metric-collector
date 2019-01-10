@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/Kount/pq-timeouts"
 	"github.com/stretchr/testify/mock"
 
 	. "github.com/onsi/ginkgo"
@@ -197,7 +197,7 @@ var _ = Describe("sql_collector", func() {
 			testColumnQueriesSlice = append(testColumnQueriesSlice, v)
 		}
 
-		driver = "postgres"
+		driver = "pq-timeouts"
 
 		connectionStringBuilder = &fakeSqlConnectionStringBuilder{
 			connectionString: postgresTestDatabaseConnectionURL,
@@ -313,7 +313,7 @@ var _ = Describe("metricQuery", func() {
 
 	BeforeEach(func() {
 		var err error
-		dbConn, err = sql.Open("postgres", postgresTestDatabaseConnectionURL)
+		dbConn, err = sql.Open("pq-timeouts", postgresTestDatabaseConnectionURL)
 		Expect(err).NotTo(HaveOccurred())
 	})
 

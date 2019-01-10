@@ -6,7 +6,7 @@ import (
 	"code.cloudfoundry.org/lager"
 
 	// Used in the SQL driver.
-	_ "github.com/lib/pq"
+	_ "github.com/Kount/pq-timeouts"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 )
@@ -155,6 +155,8 @@ var postgresMetricQueries = []metricQuery{
 
 type postgresConnectionStringBuilder struct {
 	ConnectionTimeout int
+	ReadTimeout       int
+	WriteTimeout      int
 	SSLMode           string
 }
 
@@ -164,7 +166,7 @@ func (m *postgresConnectionStringBuilder) ConnectionString(details brokerinfo.In
 		sslMode = m.SSLMode
 	}
 	return fmt.Sprintf(
-		"postgresql://%s:%s@%s:%d/%s?sslmode=%s&connect_timeout=%d",
+		"postgresql://%s:%s@%s:%d/%s?sslmode=%s&connect_timeout=%d&read_timeout=%d&write_timeout=%d",
 		details.MasterUsername,
 		details.MasterPassword,
 		details.DBAddress,
@@ -172,6 +174,8 @@ func (m *postgresConnectionStringBuilder) ConnectionString(details brokerinfo.In
 		details.DBName,
 		sslMode,
 		m.ConnectionTimeout,
+		m.ReadTimeout*1000,
+		m.WriteTimeout*1000,
 	)
 }
 
@@ -187,11 +191,13 @@ func NewPostgresMetricsCollectorDriver(
 		collectInterval: intervalSeconds,
 		logger:          logger,
 		queries:         postgresMetricQueries,
-		driver:          "postgres",
+		driver:          "pq-timeouts",
 		brokerInfo:      brokerInfo,
 		name:            "postgres",
 		connectionStringBuilder: &postgresConnectionStringBuilder{
 			ConnectionTimeout: timeout,
+			ReadTimeout:       timeout,
+			WriteTimeout:      timeout,
 			SSLMode:           SSLMode,
 		},
 	}
