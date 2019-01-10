@@ -402,23 +402,14 @@
   version = "1.0.2"
 
 [[projects]]
-  branch = "arbitrary_params"
-  digest = "1:33de84bf13c40886bfd4236baf8fb4192644cc3041c456d5d8f68acea75d94ad"
+  digest = "1:3d01977b0bc0ef11e81d670dbfa5e09185a033863e89b364e26b0f6a6f167798"
   name = "github.com/pivotal-cf/brokerapi"
   packages = [
     ".",
     "auth",
   ]
   pruneopts = "UT"
-  revision = "3c6889259b98dc489f552cd5a0ebeec117620219"
-
-[[projects]]
-  branch = "fix-large-token"
-  digest = "1:ed3ad17730f9bcd039b3509870e7f59830ca2494f163bdff61bc7d7e563c91ad"
-  name = "github.com/pivotal-golang/lager"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "ce912f1f6e007e955045546229ae42ba5ac66fa7"
+  revision = "b90ba3f93800e6618e6f06280fba6466726f1e9a"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
