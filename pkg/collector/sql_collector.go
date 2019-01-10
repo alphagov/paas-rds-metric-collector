@@ -92,6 +92,7 @@ func (mc *sqlMetricsCollector) Collect(ctx context.Context) ([]metrics.Metric, e
 		newMetrics, err := q.getMetrics(ctx, mc.dbConn)
 		if err != nil {
 			mc.logger.Error("querying metrics", err, lager.Data{"query": q})
+			return nil, err
 		}
 
 		metrics = append(metrics, newMetrics...)

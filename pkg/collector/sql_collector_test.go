@@ -172,78 +172,78 @@ var badRowQueries = map[string]metricQuery{
 var _ = Describe("sql_collector", func() {
 
 	var (
-		brokerInfo             *fakebrokerinfo.FakeBrokerInfo
-		metricsCollectorDriver *sqlMetricsCollectorDriver
+		brokerInfo              *fakebrokerinfo.FakeBrokerInfo
+		metricsCollectorDriver  *sqlMetricsCollectorDriver
+		testColumnQueriesSlice  []metricQuery
+		collector               MetricsCollector
+		collectorErr            error
+		connectionStringBuilder sqlConnectionStringBuilder
+		driver                  string
 	)
 	BeforeEach(func() {
 		brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
+		brokerInfo.On(
+			"ListInstanceGUIDs", mock.Anything,
+		).Return([]string{"instance-guid1"}, nil)
+		brokerInfo.On(
+			"GetInstanceConnectionDetails", mock.Anything,
+		).Return(
+			brokerinfo.InstanceConnectionDetails{},
+			nil,
+		)
 
-		testColumnQueriesSlice := []metricQuery{}
+		testColumnQueriesSlice = []metricQuery{}
 		for _, v := range testColumnQueries {
 			testColumnQueriesSlice = append(testColumnQueriesSlice, v)
 		}
-		metricsCollectorDriver = &sqlMetricsCollectorDriver{
-			queries:    testColumnQueriesSlice,
-			driver:     "postgres", // valid driver for testing
-			brokerInfo: brokerInfo,
-			name:       "sql",
-			logger:     logger,
-			connectionStringBuilder: &fakeSqlConnectionStringBuilder{
-				connectionString: postgresTestDatabaseConnectionURL,
-			},
+
+		driver = "postgres"
+
+		connectionStringBuilder = &fakeSqlConnectionStringBuilder{
+			connectionString: postgresTestDatabaseConnectionURL,
 		}
 	})
 
+	JustBeforeEach(func() {
+		metricsCollectorDriver = &sqlMetricsCollectorDriver{
+			queries:                 testColumnQueriesSlice,
+			driver:                  driver,
+			brokerInfo:              brokerInfo,
+			name:                    "sql",
+			logger:                  logger,
+			connectionStringBuilder: connectionStringBuilder,
+		}
+
+		collector, collectorErr = metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
+	})
+
 	Context("sqlMetricsCollectorDriver", func() {
-		It("fails on error creating the connection string", func() {
-			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
-			).Return(
-				[]string{"instance-guid1"}, nil,
-			)
-			brokerInfo.On(
-				"GetInstanceConnectionDetails", mock.Anything,
-			).Return(
-				brokerinfo.InstanceConnectionDetails{}, fmt.Errorf("failure"),
-			)
-
-			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-			Expect(err).To(HaveOccurred())
-		})
-
-		It("should fail to start the collector due to invalid sql driver", func() {
-			metricsCollectorDriver.driver = "invalid"
-			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
-			).Return(
-				[]string{"instance-guid1"}, nil,
-			)
-			brokerInfo.On(
-				"GetInstanceConnectionDetails", mock.Anything,
-			).Return(
-				brokerinfo.InstanceConnectionDetails{}, nil,
-			)
-
-			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-			Expect(err).To(HaveOccurred())
-			Expect(err).To(MatchError(MatchRegexp("sql: unknown driver")))
-		})
-
 		It("can create a new sqlMetricsCollector", func() {
-			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
-			).Return(
-				[]string{"instance-guid1"}, nil,
-			)
-			brokerInfo.On(
-				"GetInstanceConnectionDetails", mock.Anything,
-			).Return(
-				brokerinfo.InstanceConnectionDetails{},
-				nil,
-			)
+			Expect(collectorErr).NotTo(HaveOccurred())
+		})
 
-			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-			Expect(err).NotTo(HaveOccurred())
+		Context("when GetInstanceConnectionDetails returns an error", func() {
+			BeforeEach(func() {
+				brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
+				brokerInfo.On(
+					"GetInstanceConnectionDetails", mock.Anything,
+				).Return(
+					brokerinfo.InstanceConnectionDetails{}, fmt.Errorf("failure"),
+				)
+			})
+			It("fails on error creating the connection string", func() {
+				Expect(collectorErr).To(HaveOccurred())
+			})
+		})
+
+		Context("when the driver is invalid", func() {
+			BeforeEach(func() {
+				driver = "invalid"
+			})
+
+			It("should fail to start the collector due to invalid sql driver", func() {
+				Expect(collectorErr).To(MatchError(MatchRegexp("sql: unknown driver")))
+			})
 		})
 
 		It("shall return the name", func() {
@@ -253,12 +253,7 @@ var _ = Describe("sql_collector", func() {
 
 	Context("sqlMetricsCollector", func() {
 
-		var collector MetricsCollector
-
 		BeforeEach(func() {
-			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
-			).Return([]string{"instance-guid1"}, nil)
 			brokerInfo.On(
 				"GetInstanceConnectionDetails", mock.Anything,
 			).Return(
@@ -266,44 +261,42 @@ var _ = Describe("sql_collector", func() {
 			)
 		})
 
-		Context("when the database is available", func() {
+		It("can collect all metrics from multiple queries", func() {
+			collectedMetrics, err := collector.Collect(context.Background())
+			Expect(err).NotTo(HaveOccurred())
+			expectedTags1 := map[string]string{"source": "sql", "tag1": "val1", "tag2": "val2"}
+			expectedTags2 := map[string]string{"source": "sql"}
+			Expect(collectedMetrics).To(ConsistOf(
+				metrics.Metric{Key: "foo", Value: 1, Unit: "b", Tags: expectedTags1},
+				metrics.Metric{Key: "bar", Value: 2, Unit: "s", Tags: expectedTags1},
+				metrics.Metric{Key: "baz", Value: 3, Unit: "conn", Tags: expectedTags1},
+				metrics.Metric{Key: "foo2", Value: 1, Unit: "gauge", Tags: expectedTags2},
+			))
+		})
 
+		Context("given a bad query", func() {
 			BeforeEach(func() {
-				var err error
-				collector, err = metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-				Expect(err).NotTo(HaveOccurred())
+				testColumnQueriesSlice = []metricQuery{badColumnQueries["invalid_query"]}
 			})
-
-			It("can collect all metrics from multiple queries", func() {
-				collectedMetrics, err := collector.Collect(context.Background())
-				Expect(err).NotTo(HaveOccurred())
-				expectedTags1 := map[string]string{"source": "sql", "tag1": "val1", "tag2": "val2"}
-				expectedTags2 := map[string]string{"source": "sql"}
-				Expect(collectedMetrics).To(ConsistOf(
-					metrics.Metric{Key: "foo", Value: 1, Unit: "b", Tags: expectedTags1},
-					metrics.Metric{Key: "bar", Value: 2, Unit: "s", Tags: expectedTags1},
-					metrics.Metric{Key: "baz", Value: 3, Unit: "conn", Tags: expectedTags1},
-					metrics.Metric{Key: "foo2", Value: 1, Unit: "gauge", Tags: expectedTags2},
-				))
-			})
-
-			It("closes the connection and retuns error after", func() {
-				err := collector.Close()
-				Expect(err).ToNot(HaveOccurred())
-				_, err = collector.Collect(context.Background())
+			It("returns with an error", func() {
+				_, err := collector.Collect(context.Background())
 				Expect(err).To(HaveOccurred())
 			})
+		})
+
+		It("closes the connection and retuns error after", func() {
+			err := collector.Close()
+			Expect(err).ToNot(HaveOccurred())
+			_, err = collector.Collect(context.Background())
+			Expect(err).To(HaveOccurred())
 		})
 
 		Context("when the database is not available", func() {
 
 			BeforeEach(func() {
-				metricsCollectorDriver.connectionStringBuilder = &fakeSqlConnectionStringBuilder{
+				connectionStringBuilder = &fakeSqlConnectionStringBuilder{
 					connectionString: "postgresql://postgres@localhost:3000?sslmode=disable",
 				}
-				var err error
-				collector, err = metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-				Expect(err).NotTo(HaveOccurred())
 			})
 
 			It("should fail", func() {
