@@ -237,10 +237,12 @@ var _ = Describe("mysqlConnectionStringBuilder.ConnectionString()", func() {
 		}
 		builder := mysqlConnectionStringBuilder{
 			ConnectionTimeout: 10,
+			ReadTimeout:       11,
+			WriteTimeout:      12,
 			TLS:               "skip-verify",
 		}
 		connectionString := builder.ConnectionString(details)
-		Expect(connectionString).To(Equal("master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@tcp(endpoint-address.example.com:5432)/dbprefix-db?tls=skip-verify&timeout=10s"))
+		Expect(connectionString).To(Equal("master-username:9Fs6CWnuwf0BAY3rDFAels3OXANSo0-M@tcp(endpoint-address.example.com:5432)/dbprefix-db?tls=skip-verify&timeout=10s&readTimeout=11s&writeTimeout=12s"))
 	})
 
 	It("should timeout mysql connection", func() {
