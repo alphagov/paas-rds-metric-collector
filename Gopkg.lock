@@ -113,8 +113,8 @@
     "utils",
   ]
   pruneopts = "UT"
-  revision = "62363a5951a1fcb4c95bc45190da731453f7d33d"
-  version = "v0.24.0"
+  revision = "804e8af54be1ad582ffc5391539c3eda3644672a"
+  version = "v0.25.0"
 
 [[projects]]
   digest = "1:15849f91ea575c8505ba4ea3a1538dcd42433be7ad929bcaaf6acd8c17a1fdaf"
