@@ -12,7 +12,7 @@ var logger lager.Logger
 
 var _ = BeforeSuite(func() {
 	logger = lager.NewLogger("tests")
-	logger.RegisterSink(lager.NewWriterSink(GinkgoWriter, lager.INFO))
+	logger.RegisterSink(lager.NewWriterSink(GinkgoWriter, lager.DEBUG))
 })
 
 func TestCollector(t *testing.T) {

@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"context"
 	"sort"
 	"strings"
 	"time"
@@ -75,7 +76,7 @@ type CloudWatchCollector struct {
 }
 
 // Collect ...
-func (cw *CloudWatchCollector) Collect() ([]metrics.Metric, error) {
+func (cw *CloudWatchCollector) Collect(ctx context.Context) ([]metrics.Metric, error) {
 	m := []metrics.Metric{}
 
 	for metricName, label := range metricNamesToLabels {
@@ -97,7 +98,7 @@ func (cw *CloudWatchCollector) Collect() ([]metrics.Metric, error) {
 		cw.logger.Debug("GetMetricStatistics", lager.Data{
 			"GetMetricStatisticsInput": *input,
 		})
-		data, err := cw.client.GetMetricStatistics(input)
+		data, err := cw.client.GetMetricStatisticsWithContext(ctx, input)
 		if err != nil {
 			cw.logger.Error("querying cloudwatch metrics", err, lager.Data{
 				"metricName":   metricName,

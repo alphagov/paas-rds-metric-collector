@@ -63,7 +63,7 @@ func NewLoggregatorEmitter(
 
 	return &LoggregatorEmitter{
 		loggregatorIngressClient: client,
-		logger: logger,
+		logger:                   logger,
 	}, nil
 }
 

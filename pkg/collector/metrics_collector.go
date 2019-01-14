@@ -1,6 +1,8 @@
 package collector
 
 import (
+	"context"
+
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 )
@@ -15,6 +17,6 @@ type MetricsCollectorDriver interface {
 
 // MetricsCollector ...
 type MetricsCollector interface {
-	Collect() ([]metrics.Metric, error)
+	Collect(ctx context.Context) ([]metrics.Metric, error)
 	Close() error
 }

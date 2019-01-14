@@ -195,6 +195,8 @@ var mysqlMetricQueries = []metricQuery{
 
 type mysqlConnectionStringBuilder struct {
 	ConnectionTimeout int
+	ReadTimeout       int
+	WriteTimeout      int
 	TLS               string
 }
 
@@ -205,7 +207,7 @@ func (m *mysqlConnectionStringBuilder) ConnectionString(details brokerinfo.Insta
 	}
 
 	return fmt.Sprintf(
-		"%s:%s@tcp(%s:%d)/%s?tls=%s&timeout=%ds",
+		"%s:%s@tcp(%s:%d)/%s?tls=%s&timeout=%ds&readTimeout=%ds&writeTimeout=%ds",
 		details.MasterUsername,
 		details.MasterPassword,
 		details.DBAddress,
@@ -213,6 +215,8 @@ func (m *mysqlConnectionStringBuilder) ConnectionString(details brokerinfo.Insta
 		details.DBName,
 		tls,
 		m.ConnectionTimeout,
+		m.ReadTimeout,
+		m.WriteTimeout,
 	)
 }
 
@@ -233,6 +237,8 @@ func NewMysqlMetricsCollectorDriver(
 		name:            "mysql",
 		connectionStringBuilder: &mysqlConnectionStringBuilder{
 			ConnectionTimeout: timeout,
+			ReadTimeout:       timeout,
+			WriteTimeout:      timeout,
 			TLS:               TLS,
 		},
 	}

@@ -1,10 +1,12 @@
 package collector
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/Kount/pq-timeouts"
 	"github.com/stretchr/testify/mock"
 
 	. "github.com/onsi/ginkgo"
@@ -70,6 +72,9 @@ var badColumnQueries = map[string]metricQuery{
 		Metrics: []metricQueryMeta{
 			{Key: "foo", Unit: "gauge"},
 		},
+	},
+	"long_query": &columnMetricQuery{
+		Query: "SELECT pg_sleep(10)",
 	},
 }
 
@@ -150,119 +155,95 @@ var badRowQueries = map[string]metricQuery{
 			{Key: "powah", Unit: "gauge"},
 		},
 	},
-	"invalid_query": &columnMetricQuery{
+	"invalid_query": &rowMetricQuery{
 		Query: "SELECT * FROM hell",
 	},
-	"not_a_number": &columnMetricQuery{
+	"not_a_number": &rowMetricQuery{
 		Query: "SELECT 'foo' as key, 'Hello World' as value",
 		Metrics: []metricQueryMeta{
 			{Key: "foo2", Unit: "gauge"},
 		},
 	},
-	"empty_query": &columnMetricQuery{
-		Query: "SELECT 'foo' as key, 1 as value WHERE 1 = 2",
-		Metrics: []metricQueryMeta{
-			{Key: "foo", Unit: "gauge"},
-		},
+	"long_query": &rowMetricQuery{
+		Query: "SELECT pg_sleep(10)",
 	},
 }
 
 var _ = Describe("sql_collector", func() {
 
 	var (
-		brokerInfo             *fakebrokerinfo.FakeBrokerInfo
-		metricsCollectorDriver *sqlMetricsCollectorDriver
+		brokerInfo              *fakebrokerinfo.FakeBrokerInfo
+		metricsCollectorDriver  *sqlMetricsCollectorDriver
+		testColumnQueriesSlice  []metricQuery
+		collector               MetricsCollector
+		collectorErr            error
+		connectionStringBuilder sqlConnectionStringBuilder
+		driver                  string
 	)
 	BeforeEach(func() {
 		brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
+		brokerInfo.On(
+			"ListInstanceGUIDs", mock.Anything,
+		).Return([]string{"instance-guid1"}, nil)
+		brokerInfo.On(
+			"GetInstanceConnectionDetails", mock.Anything,
+		).Return(
+			brokerinfo.InstanceConnectionDetails{},
+			nil,
+		)
 
-		testColumnQueriesSlice := []metricQuery{}
+		testColumnQueriesSlice = []metricQuery{}
 		for _, v := range testColumnQueries {
 			testColumnQueriesSlice = append(testColumnQueriesSlice, v)
 		}
-		metricsCollectorDriver = &sqlMetricsCollectorDriver{
-			queries:    testColumnQueriesSlice,
-			driver:     "postgres", // valid driver for testing
-			brokerInfo: brokerInfo,
-			name:       "sql",
-			logger:     logger,
-			connectionStringBuilder: &fakeSqlConnectionStringBuilder{
-				connectionString: postgresTestDatabaseConnectionURL,
-			},
+
+		driver = "pq-timeouts"
+
+		connectionStringBuilder = &fakeSqlConnectionStringBuilder{
+			connectionString: postgresTestDatabaseConnectionURL,
 		}
 	})
 
+	JustBeforeEach(func() {
+		metricsCollectorDriver = &sqlMetricsCollectorDriver{
+			queries:                 testColumnQueriesSlice,
+			driver:                  driver,
+			brokerInfo:              brokerInfo,
+			name:                    "sql",
+			logger:                  logger,
+			connectionStringBuilder: connectionStringBuilder,
+		}
+
+		collector, collectorErr = metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
+	})
+
 	Context("sqlMetricsCollectorDriver", func() {
-		It("fails on error creating the connection string", func() {
-			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
-			).Return(
-				[]string{"instance-guid1"}, nil,
-			)
-			brokerInfo.On(
-				"GetInstanceConnectionDetails", mock.Anything,
-			).Return(
-				brokerinfo.InstanceConnectionDetails{}, fmt.Errorf("failure"),
-			)
-
-			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-			Expect(err).To(HaveOccurred())
-		})
-
-		It("should fail to start the collector due to invalid sql driver", func() {
-			metricsCollectorDriver.driver = "invalid"
-			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
-			).Return(
-				[]string{"instance-guid1"}, nil,
-			)
-			brokerInfo.On(
-				"GetInstanceConnectionDetails", mock.Anything,
-			).Return(
-				brokerinfo.InstanceConnectionDetails{}, nil,
-			)
-
-			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-			Expect(err).To(HaveOccurred())
-			Expect(err).To(MatchError(MatchRegexp("sql: unknown driver")))
-		})
-
-		It("should fail to start the collector due to database being unavailable", func() {
-			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
-			).Return(
-				[]string{"instance-guid1"}, nil,
-			)
-			brokerInfo.On(
-				"GetInstanceConnectionDetails", mock.Anything,
-			).Return(
-				brokerinfo.InstanceConnectionDetails{}, nil,
-			)
-
-			metricsCollectorDriver.connectionStringBuilder = &fakeSqlConnectionStringBuilder{
-				connectionString: "postgresql://postgres@localhost:3000?sslmode=disable",
-			}
-
-			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-			Expect(err).To(HaveOccurred())
-			Expect(err).To(MatchError(MatchRegexp("connect")))
-		})
-
 		It("can create a new sqlMetricsCollector", func() {
-			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
-			).Return(
-				[]string{"instance-guid1"}, nil,
-			)
-			brokerInfo.On(
-				"GetInstanceConnectionDetails", mock.Anything,
-			).Return(
-				brokerinfo.InstanceConnectionDetails{},
-				nil,
-			)
+			Expect(collectorErr).NotTo(HaveOccurred())
+		})
 
-			_, err := metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-			Expect(err).NotTo(HaveOccurred())
+		Context("when GetInstanceConnectionDetails returns an error", func() {
+			BeforeEach(func() {
+				brokerInfo = &fakebrokerinfo.FakeBrokerInfo{}
+				brokerInfo.On(
+					"GetInstanceConnectionDetails", mock.Anything,
+				).Return(
+					brokerinfo.InstanceConnectionDetails{}, fmt.Errorf("failure"),
+				)
+			})
+			It("fails on error creating the connection string", func() {
+				Expect(collectorErr).To(HaveOccurred())
+			})
+		})
+
+		Context("when the driver is invalid", func() {
+			BeforeEach(func() {
+				driver = "invalid"
+			})
+
+			It("should fail to start the collector due to invalid sql driver", func() {
+				Expect(collectorErr).To(MatchError(MatchRegexp("sql: unknown driver")))
+			})
 		})
 
 		It("shall return the name", func() {
@@ -272,25 +253,16 @@ var _ = Describe("sql_collector", func() {
 
 	Context("sqlMetricsCollector", func() {
 
-		var collector MetricsCollector
-
 		BeforeEach(func() {
-			var err error
-			brokerInfo.On(
-				"ListInstanceGUIDs", mock.Anything,
-			).Return([]string{"instance-guid1"}, nil)
 			brokerInfo.On(
 				"GetInstanceConnectionDetails", mock.Anything,
 			).Return(
 				brokerinfo.InstanceConnectionDetails{}, nil,
 			)
-
-			collector, err = metricsCollectorDriver.NewCollector(brokerinfo.InstanceInfo{GUID: "instance-guid1"})
-			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("can collect all metrics from multiple queries", func() {
-			collectedMetrics, err := collector.Collect()
+			collectedMetrics, err := collector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			expectedTags1 := map[string]string{"source": "sql", "tag1": "val1", "tag2": "val2"}
 			expectedTags2 := map[string]string{"source": "sql"}
@@ -302,11 +274,35 @@ var _ = Describe("sql_collector", func() {
 			))
 		})
 
+		Context("given a bad query", func() {
+			BeforeEach(func() {
+				testColumnQueriesSlice = []metricQuery{badColumnQueries["invalid_query"]}
+			})
+			It("returns with an error", func() {
+				_, err := collector.Collect(context.Background())
+				Expect(err).To(HaveOccurred())
+			})
+		})
+
 		It("closes the connection and retuns error after", func() {
 			err := collector.Close()
 			Expect(err).ToNot(HaveOccurred())
-			_, err = collector.Collect()
+			_, err = collector.Collect(context.Background())
 			Expect(err).To(HaveOccurred())
+		})
+
+		Context("when the database is not available", func() {
+
+			BeforeEach(func() {
+				connectionStringBuilder = &fakeSqlConnectionStringBuilder{
+					connectionString: "postgresql://postgres@localhost:3000?sslmode=disable",
+				}
+			})
+
+			It("should fail", func() {
+				_, err := collector.Collect(context.Background())
+				Expect(err).To(MatchError(MatchRegexp("connect")))
+			})
 		})
 	})
 })
@@ -317,7 +313,7 @@ var _ = Describe("metricQuery", func() {
 
 	BeforeEach(func() {
 		var err error
-		dbConn, err = sql.Open("postgres", postgresTestDatabaseConnectionURL)
+		dbConn, err = sql.Open("pq-timeouts", postgresTestDatabaseConnectionURL)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -327,34 +323,43 @@ var _ = Describe("metricQuery", func() {
 
 	Context("columnMetricQuery.getMetrics()", func() {
 		It("should error when query is missing a required key", func() {
-			_, err := badColumnQueries["missing_key"].getMetrics(dbConn)
+			_, err := badColumnQueries["missing_key"].getMetrics(context.Background(), dbConn)
 
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("unable to find key")))
 		})
 
 		It("should error when query has syntax error", func() {
-			_, err := badColumnQueries["invalid_query"].getMetrics(dbConn)
+			_, err := badColumnQueries["invalid_query"].getMetrics(context.Background(), dbConn)
 
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("unable to execute query")))
 		})
 
 		It("should error when query doesn't record float", func() {
-			_, err := badColumnQueries["not_a_number"].getMetrics(dbConn)
+			_, err := badColumnQueries["not_a_number"].getMetrics(context.Background(), dbConn)
 
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("converting driver.Value type")))
 		})
 
 		It("should not error when query doesn't return any row", func() {
-			_, err := badColumnQueries["empty_query"].getMetrics(dbConn)
+			_, err := badColumnQueries["empty_query"].getMetrics(context.Background(), dbConn)
 
 			Expect(err).NotTo(HaveOccurred())
 		})
 
+		It("should timeout", func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+			defer cancel()
+
+			_, err := badColumnQueries["long_query"].getMetrics(ctx, dbConn)
+
+			Expect(err).To(MatchError(MatchRegexp("canceling")))
+		})
+
 		It("should succeed to obtain metrics from query", func() {
-			rowMetrics, err := testColumnQueries["multi_value"].getMetrics(dbConn)
+			rowMetrics, err := testColumnQueries["multi_value"].getMetrics(context.Background(), dbConn)
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(len(rowMetrics)).To(Equal(3))
@@ -369,37 +374,40 @@ var _ = Describe("metricQuery", func() {
 
 	Context("rowMetricQuery.getMetrics()", func() {
 		It("should error when query is missing a required key", func() {
-			_, err := badRowQueries["missing_key"].getMetrics(dbConn)
+			_, err := badRowQueries["missing_key"].getMetrics(context.Background(), dbConn)
 
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("unable to find key")))
 		})
 
 		It("should error when query has syntax error", func() {
-			_, err := badRowQueries["invalid_query"].getMetrics(dbConn)
+			_, err := badRowQueries["invalid_query"].getMetrics(context.Background(), dbConn)
 
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("unable to execute query")))
 		})
 
 		It("should error when query doesn't record float", func() {
-			_, err := badRowQueries["not_a_number"].getMetrics(dbConn)
+			_, err := badRowQueries["not_a_number"].getMetrics(context.Background(), dbConn)
 
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(MatchRegexp("converting driver.Value type")))
 		})
 
-		It("should not error when query doesn't return any row", func() {
-			_, err := badRowQueries["empty_query"].getMetrics(dbConn)
+		It("should timeout", func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+			defer cancel()
 
-			Expect(err).NotTo(HaveOccurred())
+			_, err := badRowQueries["long_query"].getMetrics(ctx, dbConn)
+
+			Expect(err).To(MatchError(MatchRegexp("canceling")))
 		})
 
 		It("should succeed to obtain metrics from query", func() {
 			for _, t := range []string{"integer_value", "varchar_value", "double_value"} {
 				By(fmt.Sprintf("Running a query that returns a %s typed value", t))
 
-				rowMetrics, err := testRowQueries[t].getMetrics(dbConn)
+				rowMetrics, err := testRowQueries[t].getMetrics(context.Background(), dbConn)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(len(rowMetrics)).To(Equal(2))

@@ -29,8 +29,8 @@
   version = "1.7.3"
 
 [[constraint]]
-  name = "github.com/carlescere/scheduler"
-  revision = "ee74d2f83d82cd1d2e92ed3ec3dbaf162ca5ece5"
+  name = "github.com/alphagov/paas-rds-broker"
+  version = "v0.25.0"
 
 # Workaround for dep panic issue - https://github.com/golang/dep/issues/1799
 [[override]]
