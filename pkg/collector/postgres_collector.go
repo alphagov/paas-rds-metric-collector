@@ -140,9 +140,13 @@ var postgresMetricQueries = []metricQuery{
 	&columnMetricQuery{
 		Query: `
 			SELECT
-				EXTRACT(epoch FROM MAX(now() - xact_start))::INT as max_tx_age
-			FROM pg_stat_activity
-      WHERE state IN ('idle in transaction', 'active')
+				COALESCE(EXTRACT(epoch FROM MAX(now() - a.xact_start))::INT, 0) as max_tx_age
+			FROM pg_stat_activity a
+			INNER JOIN pg_roles r ON r.rolname = a.usename
+			INNER JOIN pg_group g ON r.oid = ANY (g.grolist)
+			WHERE
+				g.groname LIKE '%_manager'
+			AND state IN ('idle in transaction', 'active')
 		`,
 		Metrics: []metricQueryMeta{
 			{
