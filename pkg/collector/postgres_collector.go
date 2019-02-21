@@ -145,12 +145,30 @@ var postgresMetricQueries = []metricQuery{
 			INNER JOIN pg_roles r ON r.rolname = a.usename
 			INNER JOIN pg_group g ON r.oid = ANY (g.grolist)
 			WHERE
-				g.groname LIKE '%_manager'
+				g.groname LIKE 'rdsbroker_%_manager'
 			AND state IN ('idle in transaction', 'active')
 		`,
 		Metrics: []metricQueryMeta{
 			{
 				Key:  "max_tx_age",
+				Unit: "s",
+			},
+		},
+	},
+	&columnMetricQuery{
+		Query: `
+			SELECT
+				COALESCE(EXTRACT(epoch FROM MAX(now() - xact_start))::INT, 0) as max_system_tx_age
+			FROM pg_stat_activity a
+			INNER JOIN pg_roles r ON r.rolname = a.usename
+			LEFT JOIN pg_group g ON r.oid = ANY (g.grolist)
+			WHERE
+				(g.groname NOT LIKE 'rdsbroker_%_manager' OR g.groname IS NULL)
+			AND state IN ('idle in transaction', 'active')
+		`,
+		Metrics: []metricQueryMeta{
+			{
+				Key:  "max_system_tx_age",
 				Unit: "s",
 			},
 		},
