@@ -101,7 +101,7 @@
   revision = "0065fc706364937d9cc5e17c36e9491926c5ab17"
 
 [[projects]]
-  digest = "1:e275bc15dd4b98798d42525fc17bde33bb5be2c084be129ac2f5524fcc40ac5f"
+  digest = "1:ec2f0da520b042e05a71aa0064f6ae5d77ffad481661629c8e7acd03cc38f6fa"
   name = "github.com/alphagov/paas-rds-broker"
   packages = [
     "awsrds",
@@ -112,9 +112,9 @@
     "sqlengine",
     "utils",
   ]
-  pruneopts = "UT"
-  revision = "a16b5d627ff8c9de068abc49be247c5181cb475c"
-  version = "v0.27.0"
+  pruneopts = "T"
+  revision = "b83629aebe3db3e4b7d1b4026e14c1e76de037bf"
+  version = "v0.28.0"
 
 [[projects]]
   digest = "1:f49397d19c20b1b09b48f87f375e2610597110736c7fdd0696c799b53115071d"
