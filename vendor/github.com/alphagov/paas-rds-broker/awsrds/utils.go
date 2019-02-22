@@ -67,17 +67,15 @@ func RemoveTagsFromResource(resourceARN string, tagKeys []*string, rdssvc *rds.R
 func HandleAWSError(err error, logger lager.Logger) error {
 	logger.Error("aws-rds-error", err)
 	if awsErr, ok := err.(awserr.Error); ok {
-		if reqErr, ok := err.(awserr.RequestFailure); ok {
-			if reqErr.StatusCode() == 404 {
-				return ErrDBInstanceDoesNotExist
-			}
+		if awsErr.Code() == rds.ErrCodeDBInstanceNotFoundFault {
+			return ErrDBInstanceDoesNotExist
 		}
 		return errors.New(awsErr.Code() + ": " + awsErr.Message())
 	}
 	return err
 }
 
-func GetDBPort(endpoint *rds.Endpoint) (int64) {
+func GetDBPort(endpoint *rds.Endpoint) int64 {
 	if endpoint == nil {
 		return 0
 	} else {
@@ -92,4 +90,3 @@ func GetDBAddress(endpoint *rds.Endpoint) (dbAddress string) {
 		return aws.StringValue(endpoint.Address)
 	}
 }
-

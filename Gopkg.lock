@@ -101,7 +101,7 @@
   revision = "0065fc706364937d9cc5e17c36e9491926c5ab17"
 
 [[projects]]
-  digest = "1:93d0e7dc4e80a5319aca052bc1ef1f32b949ec7616d6b212529e09c17389271d"
+  digest = "1:e275bc15dd4b98798d42525fc17bde33bb5be2c084be129ac2f5524fcc40ac5f"
   name = "github.com/alphagov/paas-rds-broker"
   packages = [
     "awsrds",
@@ -113,11 +113,11 @@
     "utils",
   ]
   pruneopts = "UT"
-  revision = "804e8af54be1ad582ffc5391539c3eda3644672a"
-  version = "v0.25.0"
+  revision = "a16b5d627ff8c9de068abc49be247c5181cb475c"
+  version = "v0.27.0"
 
 [[projects]]
-  digest = "1:15849f91ea575c8505ba4ea3a1538dcd42433be7ad929bcaaf6acd8c17a1fdaf"
+  digest = "1:f49397d19c20b1b09b48f87f375e2610597110736c7fdd0696c799b53115071d"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -129,6 +129,7 @@
     "aws/credentials",
     "aws/credentials/ec2rolecreds",
     "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
     "aws/credentials/stscreds",
     "aws/csm",
     "aws/defaults",
@@ -137,6 +138,7 @@
     "aws/request",
     "aws/session",
     "aws/signer/v4",
+    "internal/ini",
     "internal/sdkio",
     "internal/sdkrand",
     "internal/sdkuri",
@@ -154,8 +156,8 @@
     "service/sts",
   ]
   pruneopts = "UT"
-  revision = "468b9714c11f10b22e533253b35eb9c28f4be691"
-  version = "v1.14.32"
+  revision = "416a7057457ed9af569ea3682f7319ec3466044d"
+  version = "v1.17.3"
 
 [[projects]]
   branch = "master"
@@ -172,14 +174,6 @@
   pruneopts = "UT"
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
-
-[[projects]]
-  digest = "1:fe8a03a8222d5b913f256972933d26d24ad7c8286692a42943bc01633cc8fce3"
-  name = "github.com/go-ini/ini"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "358ee7663966325963d4e8b2e1fbd570c5195153"
-  version = "v1.38.1"
 
 [[projects]]
   digest = "1:e1ff887e232b2d8f4f7c7db15a5fac7be418025afc4dda53c59c765dbb5aa6b4"
@@ -297,11 +291,11 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:e22af8c7518e1eab6f2eab2b7d7558927f816262586cd6ed9f349c97a6c285c4"
+  digest = "1:bb81097a5b62634f3e9fec1014657855610c82d19b9a40c17612e32651e35dca"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   pruneopts = "UT"
-  revision = "0b12d6b5"
+  revision = "c2b33e84"
 
 [[projects]]
   branch = "master"
@@ -352,7 +346,7 @@
   revision = "179d4d0c4d8d407a32af483c2354df1d2c91e6c3"
 
 [[projects]]
-  digest = "1:42e29deef12327a69123b9cb2cb45fee4af5c12c2a23c6e477338279a052703f"
+  digest = "1:5f4b78246f0bcb105b1e3b2b9e22b52a57cd02f57a8078572fe27c62f4a75ff7"
   name = "github.com/onsi/ginkgo"
   packages = [
     ".",
@@ -375,8 +369,8 @@
     "types",
   ]
   pruneopts = "UT"
-  revision = "3774a09d95489ccaa16032e0770d08ea77ba6184"
-  version = "v1.6.0"
+  revision = "2e1be8f7d90e9d3e3e58b0ce470f2f14d075406f"
+  version = "v1.7.0"
 
 [[projects]]
   digest = "1:58418daa018f162c520512737c19ecd42582524b0f900f2eee7c212ce55cf0da"
