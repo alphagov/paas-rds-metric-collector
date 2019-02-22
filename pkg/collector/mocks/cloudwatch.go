@@ -2,9 +2,9 @@
 package mocks
 
 import (
+	"context"
 	"sync"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/aws/aws-sdk-go/service/cloudwatch/cloudwatchiface"
@@ -24,21 +24,6 @@ type FakeCloudWatchAPI struct {
 		result1 *cloudwatch.DeleteAlarmsOutput
 		result2 error
 	}
-	DeleteAlarmsWithContextStub        func(aws.Context, *cloudwatch.DeleteAlarmsInput, ...request.Option) (*cloudwatch.DeleteAlarmsOutput, error)
-	deleteAlarmsWithContextMutex       sync.RWMutex
-	deleteAlarmsWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DeleteAlarmsInput
-		arg3 []request.Option
-	}
-	deleteAlarmsWithContextReturns struct {
-		result1 *cloudwatch.DeleteAlarmsOutput
-		result2 error
-	}
-	deleteAlarmsWithContextReturnsOnCall map[int]struct {
-		result1 *cloudwatch.DeleteAlarmsOutput
-		result2 error
-	}
 	DeleteAlarmsRequestStub        func(*cloudwatch.DeleteAlarmsInput) (*request.Request, *cloudwatch.DeleteAlarmsOutput)
 	deleteAlarmsRequestMutex       sync.RWMutex
 	deleteAlarmsRequestArgsForCall []struct {
@@ -52,6 +37,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.DeleteAlarmsOutput
 	}
+	DeleteAlarmsWithContextStub        func(context.Context, *cloudwatch.DeleteAlarmsInput, ...request.Option) (*cloudwatch.DeleteAlarmsOutput, error)
+	deleteAlarmsWithContextMutex       sync.RWMutex
+	deleteAlarmsWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DeleteAlarmsInput
+		arg3 []request.Option
+	}
+	deleteAlarmsWithContextReturns struct {
+		result1 *cloudwatch.DeleteAlarmsOutput
+		result2 error
+	}
+	deleteAlarmsWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.DeleteAlarmsOutput
+		result2 error
+	}
 	DeleteDashboardsStub        func(*cloudwatch.DeleteDashboardsInput) (*cloudwatch.DeleteDashboardsOutput, error)
 	deleteDashboardsMutex       sync.RWMutex
 	deleteDashboardsArgsForCall []struct {
@@ -62,21 +62,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	deleteDashboardsReturnsOnCall map[int]struct {
-		result1 *cloudwatch.DeleteDashboardsOutput
-		result2 error
-	}
-	DeleteDashboardsWithContextStub        func(aws.Context, *cloudwatch.DeleteDashboardsInput, ...request.Option) (*cloudwatch.DeleteDashboardsOutput, error)
-	deleteDashboardsWithContextMutex       sync.RWMutex
-	deleteDashboardsWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DeleteDashboardsInput
-		arg3 []request.Option
-	}
-	deleteDashboardsWithContextReturns struct {
-		result1 *cloudwatch.DeleteDashboardsOutput
-		result2 error
-	}
-	deleteDashboardsWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.DeleteDashboardsOutput
 		result2 error
 	}
@@ -93,6 +78,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.DeleteDashboardsOutput
 	}
+	DeleteDashboardsWithContextStub        func(context.Context, *cloudwatch.DeleteDashboardsInput, ...request.Option) (*cloudwatch.DeleteDashboardsOutput, error)
+	deleteDashboardsWithContextMutex       sync.RWMutex
+	deleteDashboardsWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DeleteDashboardsInput
+		arg3 []request.Option
+	}
+	deleteDashboardsWithContextReturns struct {
+		result1 *cloudwatch.DeleteDashboardsOutput
+		result2 error
+	}
+	deleteDashboardsWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.DeleteDashboardsOutput
+		result2 error
+	}
 	DescribeAlarmHistoryStub        func(*cloudwatch.DescribeAlarmHistoryInput) (*cloudwatch.DescribeAlarmHistoryOutput, error)
 	describeAlarmHistoryMutex       sync.RWMutex
 	describeAlarmHistoryArgsForCall []struct {
@@ -106,20 +106,31 @@ type FakeCloudWatchAPI struct {
 		result1 *cloudwatch.DescribeAlarmHistoryOutput
 		result2 error
 	}
-	DescribeAlarmHistoryWithContextStub        func(aws.Context, *cloudwatch.DescribeAlarmHistoryInput, ...request.Option) (*cloudwatch.DescribeAlarmHistoryOutput, error)
-	describeAlarmHistoryWithContextMutex       sync.RWMutex
-	describeAlarmHistoryWithContextArgsForCall []struct {
-		arg1 aws.Context
+	DescribeAlarmHistoryPagesStub        func(*cloudwatch.DescribeAlarmHistoryInput, func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool) error
+	describeAlarmHistoryPagesMutex       sync.RWMutex
+	describeAlarmHistoryPagesArgsForCall []struct {
+		arg1 *cloudwatch.DescribeAlarmHistoryInput
+		arg2 func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool
+	}
+	describeAlarmHistoryPagesReturns struct {
+		result1 error
+	}
+	describeAlarmHistoryPagesReturnsOnCall map[int]struct {
+		result1 error
+	}
+	DescribeAlarmHistoryPagesWithContextStub        func(context.Context, *cloudwatch.DescribeAlarmHistoryInput, func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool, ...request.Option) error
+	describeAlarmHistoryPagesWithContextMutex       sync.RWMutex
+	describeAlarmHistoryPagesWithContextArgsForCall []struct {
+		arg1 context.Context
 		arg2 *cloudwatch.DescribeAlarmHistoryInput
-		arg3 []request.Option
+		arg3 func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool
+		arg4 []request.Option
 	}
-	describeAlarmHistoryWithContextReturns struct {
-		result1 *cloudwatch.DescribeAlarmHistoryOutput
-		result2 error
+	describeAlarmHistoryPagesWithContextReturns struct {
+		result1 error
 	}
-	describeAlarmHistoryWithContextReturnsOnCall map[int]struct {
-		result1 *cloudwatch.DescribeAlarmHistoryOutput
-		result2 error
+	describeAlarmHistoryPagesWithContextReturnsOnCall map[int]struct {
+		result1 error
 	}
 	DescribeAlarmHistoryRequestStub        func(*cloudwatch.DescribeAlarmHistoryInput) (*request.Request, *cloudwatch.DescribeAlarmHistoryOutput)
 	describeAlarmHistoryRequestMutex       sync.RWMutex
@@ -134,31 +145,20 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.DescribeAlarmHistoryOutput
 	}
-	DescribeAlarmHistoryPagesStub        func(*cloudwatch.DescribeAlarmHistoryInput, func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool) error
-	describeAlarmHistoryPagesMutex       sync.RWMutex
-	describeAlarmHistoryPagesArgsForCall []struct {
-		arg1 *cloudwatch.DescribeAlarmHistoryInput
-		arg2 func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool
-	}
-	describeAlarmHistoryPagesReturns struct {
-		result1 error
-	}
-	describeAlarmHistoryPagesReturnsOnCall map[int]struct {
-		result1 error
-	}
-	DescribeAlarmHistoryPagesWithContextStub        func(aws.Context, *cloudwatch.DescribeAlarmHistoryInput, func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool, ...request.Option) error
-	describeAlarmHistoryPagesWithContextMutex       sync.RWMutex
-	describeAlarmHistoryPagesWithContextArgsForCall []struct {
-		arg1 aws.Context
+	DescribeAlarmHistoryWithContextStub        func(context.Context, *cloudwatch.DescribeAlarmHistoryInput, ...request.Option) (*cloudwatch.DescribeAlarmHistoryOutput, error)
+	describeAlarmHistoryWithContextMutex       sync.RWMutex
+	describeAlarmHistoryWithContextArgsForCall []struct {
+		arg1 context.Context
 		arg2 *cloudwatch.DescribeAlarmHistoryInput
-		arg3 func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool
-		arg4 []request.Option
+		arg3 []request.Option
 	}
-	describeAlarmHistoryPagesWithContextReturns struct {
-		result1 error
+	describeAlarmHistoryWithContextReturns struct {
+		result1 *cloudwatch.DescribeAlarmHistoryOutput
+		result2 error
 	}
-	describeAlarmHistoryPagesWithContextReturnsOnCall map[int]struct {
-		result1 error
+	describeAlarmHistoryWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.DescribeAlarmHistoryOutput
+		result2 error
 	}
 	DescribeAlarmsStub        func(*cloudwatch.DescribeAlarmsInput) (*cloudwatch.DescribeAlarmsOutput, error)
 	describeAlarmsMutex       sync.RWMutex
@@ -173,60 +173,6 @@ type FakeCloudWatchAPI struct {
 		result1 *cloudwatch.DescribeAlarmsOutput
 		result2 error
 	}
-	DescribeAlarmsWithContextStub        func(aws.Context, *cloudwatch.DescribeAlarmsInput, ...request.Option) (*cloudwatch.DescribeAlarmsOutput, error)
-	describeAlarmsWithContextMutex       sync.RWMutex
-	describeAlarmsWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DescribeAlarmsInput
-		arg3 []request.Option
-	}
-	describeAlarmsWithContextReturns struct {
-		result1 *cloudwatch.DescribeAlarmsOutput
-		result2 error
-	}
-	describeAlarmsWithContextReturnsOnCall map[int]struct {
-		result1 *cloudwatch.DescribeAlarmsOutput
-		result2 error
-	}
-	DescribeAlarmsRequestStub        func(*cloudwatch.DescribeAlarmsInput) (*request.Request, *cloudwatch.DescribeAlarmsOutput)
-	describeAlarmsRequestMutex       sync.RWMutex
-	describeAlarmsRequestArgsForCall []struct {
-		arg1 *cloudwatch.DescribeAlarmsInput
-	}
-	describeAlarmsRequestReturns struct {
-		result1 *request.Request
-		result2 *cloudwatch.DescribeAlarmsOutput
-	}
-	describeAlarmsRequestReturnsOnCall map[int]struct {
-		result1 *request.Request
-		result2 *cloudwatch.DescribeAlarmsOutput
-	}
-	DescribeAlarmsPagesStub        func(*cloudwatch.DescribeAlarmsInput, func(*cloudwatch.DescribeAlarmsOutput, bool) bool) error
-	describeAlarmsPagesMutex       sync.RWMutex
-	describeAlarmsPagesArgsForCall []struct {
-		arg1 *cloudwatch.DescribeAlarmsInput
-		arg2 func(*cloudwatch.DescribeAlarmsOutput, bool) bool
-	}
-	describeAlarmsPagesReturns struct {
-		result1 error
-	}
-	describeAlarmsPagesReturnsOnCall map[int]struct {
-		result1 error
-	}
-	DescribeAlarmsPagesWithContextStub        func(aws.Context, *cloudwatch.DescribeAlarmsInput, func(*cloudwatch.DescribeAlarmsOutput, bool) bool, ...request.Option) error
-	describeAlarmsPagesWithContextMutex       sync.RWMutex
-	describeAlarmsPagesWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DescribeAlarmsInput
-		arg3 func(*cloudwatch.DescribeAlarmsOutput, bool) bool
-		arg4 []request.Option
-	}
-	describeAlarmsPagesWithContextReturns struct {
-		result1 error
-	}
-	describeAlarmsPagesWithContextReturnsOnCall map[int]struct {
-		result1 error
-	}
 	DescribeAlarmsForMetricStub        func(*cloudwatch.DescribeAlarmsForMetricInput) (*cloudwatch.DescribeAlarmsForMetricOutput, error)
 	describeAlarmsForMetricMutex       sync.RWMutex
 	describeAlarmsForMetricArgsForCall []struct {
@@ -237,21 +183,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	describeAlarmsForMetricReturnsOnCall map[int]struct {
-		result1 *cloudwatch.DescribeAlarmsForMetricOutput
-		result2 error
-	}
-	DescribeAlarmsForMetricWithContextStub        func(aws.Context, *cloudwatch.DescribeAlarmsForMetricInput, ...request.Option) (*cloudwatch.DescribeAlarmsForMetricOutput, error)
-	describeAlarmsForMetricWithContextMutex       sync.RWMutex
-	describeAlarmsForMetricWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DescribeAlarmsForMetricInput
-		arg3 []request.Option
-	}
-	describeAlarmsForMetricWithContextReturns struct {
-		result1 *cloudwatch.DescribeAlarmsForMetricOutput
-		result2 error
-	}
-	describeAlarmsForMetricWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.DescribeAlarmsForMetricOutput
 		result2 error
 	}
@@ -268,6 +199,75 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.DescribeAlarmsForMetricOutput
 	}
+	DescribeAlarmsForMetricWithContextStub        func(context.Context, *cloudwatch.DescribeAlarmsForMetricInput, ...request.Option) (*cloudwatch.DescribeAlarmsForMetricOutput, error)
+	describeAlarmsForMetricWithContextMutex       sync.RWMutex
+	describeAlarmsForMetricWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DescribeAlarmsForMetricInput
+		arg3 []request.Option
+	}
+	describeAlarmsForMetricWithContextReturns struct {
+		result1 *cloudwatch.DescribeAlarmsForMetricOutput
+		result2 error
+	}
+	describeAlarmsForMetricWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.DescribeAlarmsForMetricOutput
+		result2 error
+	}
+	DescribeAlarmsPagesStub        func(*cloudwatch.DescribeAlarmsInput, func(*cloudwatch.DescribeAlarmsOutput, bool) bool) error
+	describeAlarmsPagesMutex       sync.RWMutex
+	describeAlarmsPagesArgsForCall []struct {
+		arg1 *cloudwatch.DescribeAlarmsInput
+		arg2 func(*cloudwatch.DescribeAlarmsOutput, bool) bool
+	}
+	describeAlarmsPagesReturns struct {
+		result1 error
+	}
+	describeAlarmsPagesReturnsOnCall map[int]struct {
+		result1 error
+	}
+	DescribeAlarmsPagesWithContextStub        func(context.Context, *cloudwatch.DescribeAlarmsInput, func(*cloudwatch.DescribeAlarmsOutput, bool) bool, ...request.Option) error
+	describeAlarmsPagesWithContextMutex       sync.RWMutex
+	describeAlarmsPagesWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DescribeAlarmsInput
+		arg3 func(*cloudwatch.DescribeAlarmsOutput, bool) bool
+		arg4 []request.Option
+	}
+	describeAlarmsPagesWithContextReturns struct {
+		result1 error
+	}
+	describeAlarmsPagesWithContextReturnsOnCall map[int]struct {
+		result1 error
+	}
+	DescribeAlarmsRequestStub        func(*cloudwatch.DescribeAlarmsInput) (*request.Request, *cloudwatch.DescribeAlarmsOutput)
+	describeAlarmsRequestMutex       sync.RWMutex
+	describeAlarmsRequestArgsForCall []struct {
+		arg1 *cloudwatch.DescribeAlarmsInput
+	}
+	describeAlarmsRequestReturns struct {
+		result1 *request.Request
+		result2 *cloudwatch.DescribeAlarmsOutput
+	}
+	describeAlarmsRequestReturnsOnCall map[int]struct {
+		result1 *request.Request
+		result2 *cloudwatch.DescribeAlarmsOutput
+	}
+	DescribeAlarmsWithContextStub        func(context.Context, *cloudwatch.DescribeAlarmsInput, ...request.Option) (*cloudwatch.DescribeAlarmsOutput, error)
+	describeAlarmsWithContextMutex       sync.RWMutex
+	describeAlarmsWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DescribeAlarmsInput
+		arg3 []request.Option
+	}
+	describeAlarmsWithContextReturns struct {
+		result1 *cloudwatch.DescribeAlarmsOutput
+		result2 error
+	}
+	describeAlarmsWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.DescribeAlarmsOutput
+		result2 error
+	}
 	DisableAlarmActionsStub        func(*cloudwatch.DisableAlarmActionsInput) (*cloudwatch.DisableAlarmActionsOutput, error)
 	disableAlarmActionsMutex       sync.RWMutex
 	disableAlarmActionsArgsForCall []struct {
@@ -278,21 +278,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	disableAlarmActionsReturnsOnCall map[int]struct {
-		result1 *cloudwatch.DisableAlarmActionsOutput
-		result2 error
-	}
-	DisableAlarmActionsWithContextStub        func(aws.Context, *cloudwatch.DisableAlarmActionsInput, ...request.Option) (*cloudwatch.DisableAlarmActionsOutput, error)
-	disableAlarmActionsWithContextMutex       sync.RWMutex
-	disableAlarmActionsWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DisableAlarmActionsInput
-		arg3 []request.Option
-	}
-	disableAlarmActionsWithContextReturns struct {
-		result1 *cloudwatch.DisableAlarmActionsOutput
-		result2 error
-	}
-	disableAlarmActionsWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.DisableAlarmActionsOutput
 		result2 error
 	}
@@ -309,6 +294,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.DisableAlarmActionsOutput
 	}
+	DisableAlarmActionsWithContextStub        func(context.Context, *cloudwatch.DisableAlarmActionsInput, ...request.Option) (*cloudwatch.DisableAlarmActionsOutput, error)
+	disableAlarmActionsWithContextMutex       sync.RWMutex
+	disableAlarmActionsWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DisableAlarmActionsInput
+		arg3 []request.Option
+	}
+	disableAlarmActionsWithContextReturns struct {
+		result1 *cloudwatch.DisableAlarmActionsOutput
+		result2 error
+	}
+	disableAlarmActionsWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.DisableAlarmActionsOutput
+		result2 error
+	}
 	EnableAlarmActionsStub        func(*cloudwatch.EnableAlarmActionsInput) (*cloudwatch.EnableAlarmActionsOutput, error)
 	enableAlarmActionsMutex       sync.RWMutex
 	enableAlarmActionsArgsForCall []struct {
@@ -319,21 +319,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	enableAlarmActionsReturnsOnCall map[int]struct {
-		result1 *cloudwatch.EnableAlarmActionsOutput
-		result2 error
-	}
-	EnableAlarmActionsWithContextStub        func(aws.Context, *cloudwatch.EnableAlarmActionsInput, ...request.Option) (*cloudwatch.EnableAlarmActionsOutput, error)
-	enableAlarmActionsWithContextMutex       sync.RWMutex
-	enableAlarmActionsWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.EnableAlarmActionsInput
-		arg3 []request.Option
-	}
-	enableAlarmActionsWithContextReturns struct {
-		result1 *cloudwatch.EnableAlarmActionsOutput
-		result2 error
-	}
-	enableAlarmActionsWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.EnableAlarmActionsOutput
 		result2 error
 	}
@@ -350,6 +335,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.EnableAlarmActionsOutput
 	}
+	EnableAlarmActionsWithContextStub        func(context.Context, *cloudwatch.EnableAlarmActionsInput, ...request.Option) (*cloudwatch.EnableAlarmActionsOutput, error)
+	enableAlarmActionsWithContextMutex       sync.RWMutex
+	enableAlarmActionsWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.EnableAlarmActionsInput
+		arg3 []request.Option
+	}
+	enableAlarmActionsWithContextReturns struct {
+		result1 *cloudwatch.EnableAlarmActionsOutput
+		result2 error
+	}
+	enableAlarmActionsWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.EnableAlarmActionsOutput
+		result2 error
+	}
 	GetDashboardStub        func(*cloudwatch.GetDashboardInput) (*cloudwatch.GetDashboardOutput, error)
 	getDashboardMutex       sync.RWMutex
 	getDashboardArgsForCall []struct {
@@ -360,21 +360,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	getDashboardReturnsOnCall map[int]struct {
-		result1 *cloudwatch.GetDashboardOutput
-		result2 error
-	}
-	GetDashboardWithContextStub        func(aws.Context, *cloudwatch.GetDashboardInput, ...request.Option) (*cloudwatch.GetDashboardOutput, error)
-	getDashboardWithContextMutex       sync.RWMutex
-	getDashboardWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.GetDashboardInput
-		arg3 []request.Option
-	}
-	getDashboardWithContextReturns struct {
-		result1 *cloudwatch.GetDashboardOutput
-		result2 error
-	}
-	getDashboardWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.GetDashboardOutput
 		result2 error
 	}
@@ -391,6 +376,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.GetDashboardOutput
 	}
+	GetDashboardWithContextStub        func(context.Context, *cloudwatch.GetDashboardInput, ...request.Option) (*cloudwatch.GetDashboardOutput, error)
+	getDashboardWithContextMutex       sync.RWMutex
+	getDashboardWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.GetDashboardInput
+		arg3 []request.Option
+	}
+	getDashboardWithContextReturns struct {
+		result1 *cloudwatch.GetDashboardOutput
+		result2 error
+	}
+	getDashboardWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.GetDashboardOutput
+		result2 error
+	}
 	GetMetricDataStub        func(*cloudwatch.GetMetricDataInput) (*cloudwatch.GetMetricDataOutput, error)
 	getMetricDataMutex       sync.RWMutex
 	getMetricDataArgsForCall []struct {
@@ -401,21 +401,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	getMetricDataReturnsOnCall map[int]struct {
-		result1 *cloudwatch.GetMetricDataOutput
-		result2 error
-	}
-	GetMetricDataWithContextStub        func(aws.Context, *cloudwatch.GetMetricDataInput, ...request.Option) (*cloudwatch.GetMetricDataOutput, error)
-	getMetricDataWithContextMutex       sync.RWMutex
-	getMetricDataWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.GetMetricDataInput
-		arg3 []request.Option
-	}
-	getMetricDataWithContextReturns struct {
-		result1 *cloudwatch.GetMetricDataOutput
-		result2 error
-	}
-	getMetricDataWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.GetMetricDataOutput
 		result2 error
 	}
@@ -432,6 +417,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.GetMetricDataOutput
 	}
+	GetMetricDataWithContextStub        func(context.Context, *cloudwatch.GetMetricDataInput, ...request.Option) (*cloudwatch.GetMetricDataOutput, error)
+	getMetricDataWithContextMutex       sync.RWMutex
+	getMetricDataWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.GetMetricDataInput
+		arg3 []request.Option
+	}
+	getMetricDataWithContextReturns struct {
+		result1 *cloudwatch.GetMetricDataOutput
+		result2 error
+	}
+	getMetricDataWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.GetMetricDataOutput
+		result2 error
+	}
 	GetMetricStatisticsStub        func(*cloudwatch.GetMetricStatisticsInput) (*cloudwatch.GetMetricStatisticsOutput, error)
 	getMetricStatisticsMutex       sync.RWMutex
 	getMetricStatisticsArgsForCall []struct {
@@ -442,21 +442,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	getMetricStatisticsReturnsOnCall map[int]struct {
-		result1 *cloudwatch.GetMetricStatisticsOutput
-		result2 error
-	}
-	GetMetricStatisticsWithContextStub        func(aws.Context, *cloudwatch.GetMetricStatisticsInput, ...request.Option) (*cloudwatch.GetMetricStatisticsOutput, error)
-	getMetricStatisticsWithContextMutex       sync.RWMutex
-	getMetricStatisticsWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.GetMetricStatisticsInput
-		arg3 []request.Option
-	}
-	getMetricStatisticsWithContextReturns struct {
-		result1 *cloudwatch.GetMetricStatisticsOutput
-		result2 error
-	}
-	getMetricStatisticsWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.GetMetricStatisticsOutput
 		result2 error
 	}
@@ -473,6 +458,62 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.GetMetricStatisticsOutput
 	}
+	GetMetricStatisticsWithContextStub        func(context.Context, *cloudwatch.GetMetricStatisticsInput, ...request.Option) (*cloudwatch.GetMetricStatisticsOutput, error)
+	getMetricStatisticsWithContextMutex       sync.RWMutex
+	getMetricStatisticsWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.GetMetricStatisticsInput
+		arg3 []request.Option
+	}
+	getMetricStatisticsWithContextReturns struct {
+		result1 *cloudwatch.GetMetricStatisticsOutput
+		result2 error
+	}
+	getMetricStatisticsWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.GetMetricStatisticsOutput
+		result2 error
+	}
+	GetMetricWidgetImageStub        func(*cloudwatch.GetMetricWidgetImageInput) (*cloudwatch.GetMetricWidgetImageOutput, error)
+	getMetricWidgetImageMutex       sync.RWMutex
+	getMetricWidgetImageArgsForCall []struct {
+		arg1 *cloudwatch.GetMetricWidgetImageInput
+	}
+	getMetricWidgetImageReturns struct {
+		result1 *cloudwatch.GetMetricWidgetImageOutput
+		result2 error
+	}
+	getMetricWidgetImageReturnsOnCall map[int]struct {
+		result1 *cloudwatch.GetMetricWidgetImageOutput
+		result2 error
+	}
+	GetMetricWidgetImageRequestStub        func(*cloudwatch.GetMetricWidgetImageInput) (*request.Request, *cloudwatch.GetMetricWidgetImageOutput)
+	getMetricWidgetImageRequestMutex       sync.RWMutex
+	getMetricWidgetImageRequestArgsForCall []struct {
+		arg1 *cloudwatch.GetMetricWidgetImageInput
+	}
+	getMetricWidgetImageRequestReturns struct {
+		result1 *request.Request
+		result2 *cloudwatch.GetMetricWidgetImageOutput
+	}
+	getMetricWidgetImageRequestReturnsOnCall map[int]struct {
+		result1 *request.Request
+		result2 *cloudwatch.GetMetricWidgetImageOutput
+	}
+	GetMetricWidgetImageWithContextStub        func(context.Context, *cloudwatch.GetMetricWidgetImageInput, ...request.Option) (*cloudwatch.GetMetricWidgetImageOutput, error)
+	getMetricWidgetImageWithContextMutex       sync.RWMutex
+	getMetricWidgetImageWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.GetMetricWidgetImageInput
+		arg3 []request.Option
+	}
+	getMetricWidgetImageWithContextReturns struct {
+		result1 *cloudwatch.GetMetricWidgetImageOutput
+		result2 error
+	}
+	getMetricWidgetImageWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.GetMetricWidgetImageOutput
+		result2 error
+	}
 	ListDashboardsStub        func(*cloudwatch.ListDashboardsInput) (*cloudwatch.ListDashboardsOutput, error)
 	listDashboardsMutex       sync.RWMutex
 	listDashboardsArgsForCall []struct {
@@ -483,21 +524,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	listDashboardsReturnsOnCall map[int]struct {
-		result1 *cloudwatch.ListDashboardsOutput
-		result2 error
-	}
-	ListDashboardsWithContextStub        func(aws.Context, *cloudwatch.ListDashboardsInput, ...request.Option) (*cloudwatch.ListDashboardsOutput, error)
-	listDashboardsWithContextMutex       sync.RWMutex
-	listDashboardsWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.ListDashboardsInput
-		arg3 []request.Option
-	}
-	listDashboardsWithContextReturns struct {
-		result1 *cloudwatch.ListDashboardsOutput
-		result2 error
-	}
-	listDashboardsWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.ListDashboardsOutput
 		result2 error
 	}
@@ -514,6 +540,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.ListDashboardsOutput
 	}
+	ListDashboardsWithContextStub        func(context.Context, *cloudwatch.ListDashboardsInput, ...request.Option) (*cloudwatch.ListDashboardsOutput, error)
+	listDashboardsWithContextMutex       sync.RWMutex
+	listDashboardsWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.ListDashboardsInput
+		arg3 []request.Option
+	}
+	listDashboardsWithContextReturns struct {
+		result1 *cloudwatch.ListDashboardsOutput
+		result2 error
+	}
+	listDashboardsWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.ListDashboardsOutput
+		result2 error
+	}
 	ListMetricsStub        func(*cloudwatch.ListMetricsInput) (*cloudwatch.ListMetricsOutput, error)
 	listMetricsMutex       sync.RWMutex
 	listMetricsArgsForCall []struct {
@@ -527,20 +568,31 @@ type FakeCloudWatchAPI struct {
 		result1 *cloudwatch.ListMetricsOutput
 		result2 error
 	}
-	ListMetricsWithContextStub        func(aws.Context, *cloudwatch.ListMetricsInput, ...request.Option) (*cloudwatch.ListMetricsOutput, error)
-	listMetricsWithContextMutex       sync.RWMutex
-	listMetricsWithContextArgsForCall []struct {
-		arg1 aws.Context
+	ListMetricsPagesStub        func(*cloudwatch.ListMetricsInput, func(*cloudwatch.ListMetricsOutput, bool) bool) error
+	listMetricsPagesMutex       sync.RWMutex
+	listMetricsPagesArgsForCall []struct {
+		arg1 *cloudwatch.ListMetricsInput
+		arg2 func(*cloudwatch.ListMetricsOutput, bool) bool
+	}
+	listMetricsPagesReturns struct {
+		result1 error
+	}
+	listMetricsPagesReturnsOnCall map[int]struct {
+		result1 error
+	}
+	ListMetricsPagesWithContextStub        func(context.Context, *cloudwatch.ListMetricsInput, func(*cloudwatch.ListMetricsOutput, bool) bool, ...request.Option) error
+	listMetricsPagesWithContextMutex       sync.RWMutex
+	listMetricsPagesWithContextArgsForCall []struct {
+		arg1 context.Context
 		arg2 *cloudwatch.ListMetricsInput
-		arg3 []request.Option
+		arg3 func(*cloudwatch.ListMetricsOutput, bool) bool
+		arg4 []request.Option
 	}
-	listMetricsWithContextReturns struct {
-		result1 *cloudwatch.ListMetricsOutput
-		result2 error
+	listMetricsPagesWithContextReturns struct {
+		result1 error
 	}
-	listMetricsWithContextReturnsOnCall map[int]struct {
-		result1 *cloudwatch.ListMetricsOutput
-		result2 error
+	listMetricsPagesWithContextReturnsOnCall map[int]struct {
+		result1 error
 	}
 	ListMetricsRequestStub        func(*cloudwatch.ListMetricsInput) (*request.Request, *cloudwatch.ListMetricsOutput)
 	listMetricsRequestMutex       sync.RWMutex
@@ -555,31 +607,20 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.ListMetricsOutput
 	}
-	ListMetricsPagesStub        func(*cloudwatch.ListMetricsInput, func(*cloudwatch.ListMetricsOutput, bool) bool) error
-	listMetricsPagesMutex       sync.RWMutex
-	listMetricsPagesArgsForCall []struct {
-		arg1 *cloudwatch.ListMetricsInput
-		arg2 func(*cloudwatch.ListMetricsOutput, bool) bool
-	}
-	listMetricsPagesReturns struct {
-		result1 error
-	}
-	listMetricsPagesReturnsOnCall map[int]struct {
-		result1 error
-	}
-	ListMetricsPagesWithContextStub        func(aws.Context, *cloudwatch.ListMetricsInput, func(*cloudwatch.ListMetricsOutput, bool) bool, ...request.Option) error
-	listMetricsPagesWithContextMutex       sync.RWMutex
-	listMetricsPagesWithContextArgsForCall []struct {
-		arg1 aws.Context
+	ListMetricsWithContextStub        func(context.Context, *cloudwatch.ListMetricsInput, ...request.Option) (*cloudwatch.ListMetricsOutput, error)
+	listMetricsWithContextMutex       sync.RWMutex
+	listMetricsWithContextArgsForCall []struct {
+		arg1 context.Context
 		arg2 *cloudwatch.ListMetricsInput
-		arg3 func(*cloudwatch.ListMetricsOutput, bool) bool
-		arg4 []request.Option
+		arg3 []request.Option
 	}
-	listMetricsPagesWithContextReturns struct {
-		result1 error
+	listMetricsWithContextReturns struct {
+		result1 *cloudwatch.ListMetricsOutput
+		result2 error
 	}
-	listMetricsPagesWithContextReturnsOnCall map[int]struct {
-		result1 error
+	listMetricsWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.ListMetricsOutput
+		result2 error
 	}
 	PutDashboardStub        func(*cloudwatch.PutDashboardInput) (*cloudwatch.PutDashboardOutput, error)
 	putDashboardMutex       sync.RWMutex
@@ -591,21 +632,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	putDashboardReturnsOnCall map[int]struct {
-		result1 *cloudwatch.PutDashboardOutput
-		result2 error
-	}
-	PutDashboardWithContextStub        func(aws.Context, *cloudwatch.PutDashboardInput, ...request.Option) (*cloudwatch.PutDashboardOutput, error)
-	putDashboardWithContextMutex       sync.RWMutex
-	putDashboardWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.PutDashboardInput
-		arg3 []request.Option
-	}
-	putDashboardWithContextReturns struct {
-		result1 *cloudwatch.PutDashboardOutput
-		result2 error
-	}
-	putDashboardWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.PutDashboardOutput
 		result2 error
 	}
@@ -622,6 +648,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.PutDashboardOutput
 	}
+	PutDashboardWithContextStub        func(context.Context, *cloudwatch.PutDashboardInput, ...request.Option) (*cloudwatch.PutDashboardOutput, error)
+	putDashboardWithContextMutex       sync.RWMutex
+	putDashboardWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.PutDashboardInput
+		arg3 []request.Option
+	}
+	putDashboardWithContextReturns struct {
+		result1 *cloudwatch.PutDashboardOutput
+		result2 error
+	}
+	putDashboardWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.PutDashboardOutput
+		result2 error
+	}
 	PutMetricAlarmStub        func(*cloudwatch.PutMetricAlarmInput) (*cloudwatch.PutMetricAlarmOutput, error)
 	putMetricAlarmMutex       sync.RWMutex
 	putMetricAlarmArgsForCall []struct {
@@ -632,21 +673,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	putMetricAlarmReturnsOnCall map[int]struct {
-		result1 *cloudwatch.PutMetricAlarmOutput
-		result2 error
-	}
-	PutMetricAlarmWithContextStub        func(aws.Context, *cloudwatch.PutMetricAlarmInput, ...request.Option) (*cloudwatch.PutMetricAlarmOutput, error)
-	putMetricAlarmWithContextMutex       sync.RWMutex
-	putMetricAlarmWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.PutMetricAlarmInput
-		arg3 []request.Option
-	}
-	putMetricAlarmWithContextReturns struct {
-		result1 *cloudwatch.PutMetricAlarmOutput
-		result2 error
-	}
-	putMetricAlarmWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.PutMetricAlarmOutput
 		result2 error
 	}
@@ -663,6 +689,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.PutMetricAlarmOutput
 	}
+	PutMetricAlarmWithContextStub        func(context.Context, *cloudwatch.PutMetricAlarmInput, ...request.Option) (*cloudwatch.PutMetricAlarmOutput, error)
+	putMetricAlarmWithContextMutex       sync.RWMutex
+	putMetricAlarmWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.PutMetricAlarmInput
+		arg3 []request.Option
+	}
+	putMetricAlarmWithContextReturns struct {
+		result1 *cloudwatch.PutMetricAlarmOutput
+		result2 error
+	}
+	putMetricAlarmWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.PutMetricAlarmOutput
+		result2 error
+	}
 	PutMetricDataStub        func(*cloudwatch.PutMetricDataInput) (*cloudwatch.PutMetricDataOutput, error)
 	putMetricDataMutex       sync.RWMutex
 	putMetricDataArgsForCall []struct {
@@ -673,21 +714,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	putMetricDataReturnsOnCall map[int]struct {
-		result1 *cloudwatch.PutMetricDataOutput
-		result2 error
-	}
-	PutMetricDataWithContextStub        func(aws.Context, *cloudwatch.PutMetricDataInput, ...request.Option) (*cloudwatch.PutMetricDataOutput, error)
-	putMetricDataWithContextMutex       sync.RWMutex
-	putMetricDataWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.PutMetricDataInput
-		arg3 []request.Option
-	}
-	putMetricDataWithContextReturns struct {
-		result1 *cloudwatch.PutMetricDataOutput
-		result2 error
-	}
-	putMetricDataWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.PutMetricDataOutput
 		result2 error
 	}
@@ -704,6 +730,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.PutMetricDataOutput
 	}
+	PutMetricDataWithContextStub        func(context.Context, *cloudwatch.PutMetricDataInput, ...request.Option) (*cloudwatch.PutMetricDataOutput, error)
+	putMetricDataWithContextMutex       sync.RWMutex
+	putMetricDataWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.PutMetricDataInput
+		arg3 []request.Option
+	}
+	putMetricDataWithContextReturns struct {
+		result1 *cloudwatch.PutMetricDataOutput
+		result2 error
+	}
+	putMetricDataWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.PutMetricDataOutput
+		result2 error
+	}
 	SetAlarmStateStub        func(*cloudwatch.SetAlarmStateInput) (*cloudwatch.SetAlarmStateOutput, error)
 	setAlarmStateMutex       sync.RWMutex
 	setAlarmStateArgsForCall []struct {
@@ -714,21 +755,6 @@ type FakeCloudWatchAPI struct {
 		result2 error
 	}
 	setAlarmStateReturnsOnCall map[int]struct {
-		result1 *cloudwatch.SetAlarmStateOutput
-		result2 error
-	}
-	SetAlarmStateWithContextStub        func(aws.Context, *cloudwatch.SetAlarmStateInput, ...request.Option) (*cloudwatch.SetAlarmStateOutput, error)
-	setAlarmStateWithContextMutex       sync.RWMutex
-	setAlarmStateWithContextArgsForCall []struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.SetAlarmStateInput
-		arg3 []request.Option
-	}
-	setAlarmStateWithContextReturns struct {
-		result1 *cloudwatch.SetAlarmStateOutput
-		result2 error
-	}
-	setAlarmStateWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.SetAlarmStateOutput
 		result2 error
 	}
@@ -745,6 +771,21 @@ type FakeCloudWatchAPI struct {
 		result1 *request.Request
 		result2 *cloudwatch.SetAlarmStateOutput
 	}
+	SetAlarmStateWithContextStub        func(context.Context, *cloudwatch.SetAlarmStateInput, ...request.Option) (*cloudwatch.SetAlarmStateOutput, error)
+	setAlarmStateWithContextMutex       sync.RWMutex
+	setAlarmStateWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.SetAlarmStateInput
+		arg3 []request.Option
+	}
+	setAlarmStateWithContextReturns struct {
+		result1 *cloudwatch.SetAlarmStateOutput
+		result2 error
+	}
+	setAlarmStateWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.SetAlarmStateOutput
+		result2 error
+	}
 	WaitUntilAlarmExistsStub        func(*cloudwatch.DescribeAlarmsInput) error
 	waitUntilAlarmExistsMutex       sync.RWMutex
 	waitUntilAlarmExistsArgsForCall []struct {
@@ -756,10 +797,10 @@ type FakeCloudWatchAPI struct {
 	waitUntilAlarmExistsReturnsOnCall map[int]struct {
 		result1 error
 	}
-	WaitUntilAlarmExistsWithContextStub        func(aws.Context, *cloudwatch.DescribeAlarmsInput, ...request.WaiterOption) error
+	WaitUntilAlarmExistsWithContextStub        func(context.Context, *cloudwatch.DescribeAlarmsInput, ...request.WaiterOption) error
 	waitUntilAlarmExistsWithContextMutex       sync.RWMutex
 	waitUntilAlarmExistsWithContextArgsForCall []struct {
-		arg1 aws.Context
+		arg1 context.Context
 		arg2 *cloudwatch.DescribeAlarmsInput
 		arg3 []request.WaiterOption
 	}
@@ -787,7 +828,8 @@ func (fake *FakeCloudWatchAPI) DeleteAlarms(arg1 *cloudwatch.DeleteAlarmsInput) 
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.deleteAlarmsReturns.result1, fake.deleteAlarmsReturns.result2
+	fakeReturns := fake.deleteAlarmsReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) DeleteAlarmsCallCount() int {
@@ -796,13 +838,22 @@ func (fake *FakeCloudWatchAPI) DeleteAlarmsCallCount() int {
 	return len(fake.deleteAlarmsArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DeleteAlarmsCalls(stub func(*cloudwatch.DeleteAlarmsInput) (*cloudwatch.DeleteAlarmsOutput, error)) {
+	fake.deleteAlarmsMutex.Lock()
+	defer fake.deleteAlarmsMutex.Unlock()
+	fake.DeleteAlarmsStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DeleteAlarmsArgsForCall(i int) *cloudwatch.DeleteAlarmsInput {
 	fake.deleteAlarmsMutex.RLock()
 	defer fake.deleteAlarmsMutex.RUnlock()
-	return fake.deleteAlarmsArgsForCall[i].arg1
+	argsForCall := fake.deleteAlarmsArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) DeleteAlarmsReturns(result1 *cloudwatch.DeleteAlarmsOutput, result2 error) {
+	fake.deleteAlarmsMutex.Lock()
+	defer fake.deleteAlarmsMutex.Unlock()
 	fake.DeleteAlarmsStub = nil
 	fake.deleteAlarmsReturns = struct {
 		result1 *cloudwatch.DeleteAlarmsOutput
@@ -811,6 +862,8 @@ func (fake *FakeCloudWatchAPI) DeleteAlarmsReturns(result1 *cloudwatch.DeleteAla
 }
 
 func (fake *FakeCloudWatchAPI) DeleteAlarmsReturnsOnCall(i int, result1 *cloudwatch.DeleteAlarmsOutput, result2 error) {
+	fake.deleteAlarmsMutex.Lock()
+	defer fake.deleteAlarmsMutex.Unlock()
 	fake.DeleteAlarmsStub = nil
 	if fake.deleteAlarmsReturnsOnCall == nil {
 		fake.deleteAlarmsReturnsOnCall = make(map[int]struct {
@@ -819,59 +872,6 @@ func (fake *FakeCloudWatchAPI) DeleteAlarmsReturnsOnCall(i int, result1 *cloudwa
 		})
 	}
 	fake.deleteAlarmsReturnsOnCall[i] = struct {
-		result1 *cloudwatch.DeleteAlarmsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContext(arg1 aws.Context, arg2 *cloudwatch.DeleteAlarmsInput, arg3 ...request.Option) (*cloudwatch.DeleteAlarmsOutput, error) {
-	fake.deleteAlarmsWithContextMutex.Lock()
-	ret, specificReturn := fake.deleteAlarmsWithContextReturnsOnCall[len(fake.deleteAlarmsWithContextArgsForCall)]
-	fake.deleteAlarmsWithContextArgsForCall = append(fake.deleteAlarmsWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DeleteAlarmsInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("DeleteAlarmsWithContext", []interface{}{arg1, arg2, arg3})
-	fake.deleteAlarmsWithContextMutex.Unlock()
-	if fake.DeleteAlarmsWithContextStub != nil {
-		return fake.DeleteAlarmsWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.deleteAlarmsWithContextReturns.result1, fake.deleteAlarmsWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContextCallCount() int {
-	fake.deleteAlarmsWithContextMutex.RLock()
-	defer fake.deleteAlarmsWithContextMutex.RUnlock()
-	return len(fake.deleteAlarmsWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContextArgsForCall(i int) (aws.Context, *cloudwatch.DeleteAlarmsInput, []request.Option) {
-	fake.deleteAlarmsWithContextMutex.RLock()
-	defer fake.deleteAlarmsWithContextMutex.RUnlock()
-	return fake.deleteAlarmsWithContextArgsForCall[i].arg1, fake.deleteAlarmsWithContextArgsForCall[i].arg2, fake.deleteAlarmsWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContextReturns(result1 *cloudwatch.DeleteAlarmsOutput, result2 error) {
-	fake.DeleteAlarmsWithContextStub = nil
-	fake.deleteAlarmsWithContextReturns = struct {
-		result1 *cloudwatch.DeleteAlarmsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContextReturnsOnCall(i int, result1 *cloudwatch.DeleteAlarmsOutput, result2 error) {
-	fake.DeleteAlarmsWithContextStub = nil
-	if fake.deleteAlarmsWithContextReturnsOnCall == nil {
-		fake.deleteAlarmsWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.DeleteAlarmsOutput
-			result2 error
-		})
-	}
-	fake.deleteAlarmsWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.DeleteAlarmsOutput
 		result2 error
 	}{result1, result2}
@@ -891,7 +891,8 @@ func (fake *FakeCloudWatchAPI) DeleteAlarmsRequest(arg1 *cloudwatch.DeleteAlarms
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.deleteAlarmsRequestReturns.result1, fake.deleteAlarmsRequestReturns.result2
+	fakeReturns := fake.deleteAlarmsRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) DeleteAlarmsRequestCallCount() int {
@@ -900,13 +901,22 @@ func (fake *FakeCloudWatchAPI) DeleteAlarmsRequestCallCount() int {
 	return len(fake.deleteAlarmsRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DeleteAlarmsRequestCalls(stub func(*cloudwatch.DeleteAlarmsInput) (*request.Request, *cloudwatch.DeleteAlarmsOutput)) {
+	fake.deleteAlarmsRequestMutex.Lock()
+	defer fake.deleteAlarmsRequestMutex.Unlock()
+	fake.DeleteAlarmsRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DeleteAlarmsRequestArgsForCall(i int) *cloudwatch.DeleteAlarmsInput {
 	fake.deleteAlarmsRequestMutex.RLock()
 	defer fake.deleteAlarmsRequestMutex.RUnlock()
-	return fake.deleteAlarmsRequestArgsForCall[i].arg1
+	argsForCall := fake.deleteAlarmsRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) DeleteAlarmsRequestReturns(result1 *request.Request, result2 *cloudwatch.DeleteAlarmsOutput) {
+	fake.deleteAlarmsRequestMutex.Lock()
+	defer fake.deleteAlarmsRequestMutex.Unlock()
 	fake.DeleteAlarmsRequestStub = nil
 	fake.deleteAlarmsRequestReturns = struct {
 		result1 *request.Request
@@ -915,6 +925,8 @@ func (fake *FakeCloudWatchAPI) DeleteAlarmsRequestReturns(result1 *request.Reque
 }
 
 func (fake *FakeCloudWatchAPI) DeleteAlarmsRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.DeleteAlarmsOutput) {
+	fake.deleteAlarmsRequestMutex.Lock()
+	defer fake.deleteAlarmsRequestMutex.Unlock()
 	fake.DeleteAlarmsRequestStub = nil
 	if fake.deleteAlarmsRequestReturnsOnCall == nil {
 		fake.deleteAlarmsRequestReturnsOnCall = make(map[int]struct {
@@ -925,6 +937,71 @@ func (fake *FakeCloudWatchAPI) DeleteAlarmsRequestReturnsOnCall(i int, result1 *
 	fake.deleteAlarmsRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.DeleteAlarmsOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContext(arg1 context.Context, arg2 *cloudwatch.DeleteAlarmsInput, arg3 ...request.Option) (*cloudwatch.DeleteAlarmsOutput, error) {
+	fake.deleteAlarmsWithContextMutex.Lock()
+	ret, specificReturn := fake.deleteAlarmsWithContextReturnsOnCall[len(fake.deleteAlarmsWithContextArgsForCall)]
+	fake.deleteAlarmsWithContextArgsForCall = append(fake.deleteAlarmsWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DeleteAlarmsInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("DeleteAlarmsWithContext", []interface{}{arg1, arg2, arg3})
+	fake.deleteAlarmsWithContextMutex.Unlock()
+	if fake.DeleteAlarmsWithContextStub != nil {
+		return fake.DeleteAlarmsWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.deleteAlarmsWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContextCallCount() int {
+	fake.deleteAlarmsWithContextMutex.RLock()
+	defer fake.deleteAlarmsWithContextMutex.RUnlock()
+	return len(fake.deleteAlarmsWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContextCalls(stub func(context.Context, *cloudwatch.DeleteAlarmsInput, ...request.Option) (*cloudwatch.DeleteAlarmsOutput, error)) {
+	fake.deleteAlarmsWithContextMutex.Lock()
+	defer fake.deleteAlarmsWithContextMutex.Unlock()
+	fake.DeleteAlarmsWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContextArgsForCall(i int) (context.Context, *cloudwatch.DeleteAlarmsInput, []request.Option) {
+	fake.deleteAlarmsWithContextMutex.RLock()
+	defer fake.deleteAlarmsWithContextMutex.RUnlock()
+	argsForCall := fake.deleteAlarmsWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContextReturns(result1 *cloudwatch.DeleteAlarmsOutput, result2 error) {
+	fake.deleteAlarmsWithContextMutex.Lock()
+	defer fake.deleteAlarmsWithContextMutex.Unlock()
+	fake.DeleteAlarmsWithContextStub = nil
+	fake.deleteAlarmsWithContextReturns = struct {
+		result1 *cloudwatch.DeleteAlarmsOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DeleteAlarmsWithContextReturnsOnCall(i int, result1 *cloudwatch.DeleteAlarmsOutput, result2 error) {
+	fake.deleteAlarmsWithContextMutex.Lock()
+	defer fake.deleteAlarmsWithContextMutex.Unlock()
+	fake.DeleteAlarmsWithContextStub = nil
+	if fake.deleteAlarmsWithContextReturnsOnCall == nil {
+		fake.deleteAlarmsWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.DeleteAlarmsOutput
+			result2 error
+		})
+	}
+	fake.deleteAlarmsWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.DeleteAlarmsOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -942,7 +1019,8 @@ func (fake *FakeCloudWatchAPI) DeleteDashboards(arg1 *cloudwatch.DeleteDashboard
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.deleteDashboardsReturns.result1, fake.deleteDashboardsReturns.result2
+	fakeReturns := fake.deleteDashboardsReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) DeleteDashboardsCallCount() int {
@@ -951,13 +1029,22 @@ func (fake *FakeCloudWatchAPI) DeleteDashboardsCallCount() int {
 	return len(fake.deleteDashboardsArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DeleteDashboardsCalls(stub func(*cloudwatch.DeleteDashboardsInput) (*cloudwatch.DeleteDashboardsOutput, error)) {
+	fake.deleteDashboardsMutex.Lock()
+	defer fake.deleteDashboardsMutex.Unlock()
+	fake.DeleteDashboardsStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DeleteDashboardsArgsForCall(i int) *cloudwatch.DeleteDashboardsInput {
 	fake.deleteDashboardsMutex.RLock()
 	defer fake.deleteDashboardsMutex.RUnlock()
-	return fake.deleteDashboardsArgsForCall[i].arg1
+	argsForCall := fake.deleteDashboardsArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) DeleteDashboardsReturns(result1 *cloudwatch.DeleteDashboardsOutput, result2 error) {
+	fake.deleteDashboardsMutex.Lock()
+	defer fake.deleteDashboardsMutex.Unlock()
 	fake.DeleteDashboardsStub = nil
 	fake.deleteDashboardsReturns = struct {
 		result1 *cloudwatch.DeleteDashboardsOutput
@@ -966,6 +1053,8 @@ func (fake *FakeCloudWatchAPI) DeleteDashboardsReturns(result1 *cloudwatch.Delet
 }
 
 func (fake *FakeCloudWatchAPI) DeleteDashboardsReturnsOnCall(i int, result1 *cloudwatch.DeleteDashboardsOutput, result2 error) {
+	fake.deleteDashboardsMutex.Lock()
+	defer fake.deleteDashboardsMutex.Unlock()
 	fake.DeleteDashboardsStub = nil
 	if fake.deleteDashboardsReturnsOnCall == nil {
 		fake.deleteDashboardsReturnsOnCall = make(map[int]struct {
@@ -974,59 +1063,6 @@ func (fake *FakeCloudWatchAPI) DeleteDashboardsReturnsOnCall(i int, result1 *clo
 		})
 	}
 	fake.deleteDashboardsReturnsOnCall[i] = struct {
-		result1 *cloudwatch.DeleteDashboardsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContext(arg1 aws.Context, arg2 *cloudwatch.DeleteDashboardsInput, arg3 ...request.Option) (*cloudwatch.DeleteDashboardsOutput, error) {
-	fake.deleteDashboardsWithContextMutex.Lock()
-	ret, specificReturn := fake.deleteDashboardsWithContextReturnsOnCall[len(fake.deleteDashboardsWithContextArgsForCall)]
-	fake.deleteDashboardsWithContextArgsForCall = append(fake.deleteDashboardsWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DeleteDashboardsInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("DeleteDashboardsWithContext", []interface{}{arg1, arg2, arg3})
-	fake.deleteDashboardsWithContextMutex.Unlock()
-	if fake.DeleteDashboardsWithContextStub != nil {
-		return fake.DeleteDashboardsWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.deleteDashboardsWithContextReturns.result1, fake.deleteDashboardsWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContextCallCount() int {
-	fake.deleteDashboardsWithContextMutex.RLock()
-	defer fake.deleteDashboardsWithContextMutex.RUnlock()
-	return len(fake.deleteDashboardsWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContextArgsForCall(i int) (aws.Context, *cloudwatch.DeleteDashboardsInput, []request.Option) {
-	fake.deleteDashboardsWithContextMutex.RLock()
-	defer fake.deleteDashboardsWithContextMutex.RUnlock()
-	return fake.deleteDashboardsWithContextArgsForCall[i].arg1, fake.deleteDashboardsWithContextArgsForCall[i].arg2, fake.deleteDashboardsWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContextReturns(result1 *cloudwatch.DeleteDashboardsOutput, result2 error) {
-	fake.DeleteDashboardsWithContextStub = nil
-	fake.deleteDashboardsWithContextReturns = struct {
-		result1 *cloudwatch.DeleteDashboardsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContextReturnsOnCall(i int, result1 *cloudwatch.DeleteDashboardsOutput, result2 error) {
-	fake.DeleteDashboardsWithContextStub = nil
-	if fake.deleteDashboardsWithContextReturnsOnCall == nil {
-		fake.deleteDashboardsWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.DeleteDashboardsOutput
-			result2 error
-		})
-	}
-	fake.deleteDashboardsWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.DeleteDashboardsOutput
 		result2 error
 	}{result1, result2}
@@ -1046,7 +1082,8 @@ func (fake *FakeCloudWatchAPI) DeleteDashboardsRequest(arg1 *cloudwatch.DeleteDa
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.deleteDashboardsRequestReturns.result1, fake.deleteDashboardsRequestReturns.result2
+	fakeReturns := fake.deleteDashboardsRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) DeleteDashboardsRequestCallCount() int {
@@ -1055,13 +1092,22 @@ func (fake *FakeCloudWatchAPI) DeleteDashboardsRequestCallCount() int {
 	return len(fake.deleteDashboardsRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DeleteDashboardsRequestCalls(stub func(*cloudwatch.DeleteDashboardsInput) (*request.Request, *cloudwatch.DeleteDashboardsOutput)) {
+	fake.deleteDashboardsRequestMutex.Lock()
+	defer fake.deleteDashboardsRequestMutex.Unlock()
+	fake.DeleteDashboardsRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DeleteDashboardsRequestArgsForCall(i int) *cloudwatch.DeleteDashboardsInput {
 	fake.deleteDashboardsRequestMutex.RLock()
 	defer fake.deleteDashboardsRequestMutex.RUnlock()
-	return fake.deleteDashboardsRequestArgsForCall[i].arg1
+	argsForCall := fake.deleteDashboardsRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) DeleteDashboardsRequestReturns(result1 *request.Request, result2 *cloudwatch.DeleteDashboardsOutput) {
+	fake.deleteDashboardsRequestMutex.Lock()
+	defer fake.deleteDashboardsRequestMutex.Unlock()
 	fake.DeleteDashboardsRequestStub = nil
 	fake.deleteDashboardsRequestReturns = struct {
 		result1 *request.Request
@@ -1070,6 +1116,8 @@ func (fake *FakeCloudWatchAPI) DeleteDashboardsRequestReturns(result1 *request.R
 }
 
 func (fake *FakeCloudWatchAPI) DeleteDashboardsRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.DeleteDashboardsOutput) {
+	fake.deleteDashboardsRequestMutex.Lock()
+	defer fake.deleteDashboardsRequestMutex.Unlock()
 	fake.DeleteDashboardsRequestStub = nil
 	if fake.deleteDashboardsRequestReturnsOnCall == nil {
 		fake.deleteDashboardsRequestReturnsOnCall = make(map[int]struct {
@@ -1080,6 +1128,71 @@ func (fake *FakeCloudWatchAPI) DeleteDashboardsRequestReturnsOnCall(i int, resul
 	fake.deleteDashboardsRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.DeleteDashboardsOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContext(arg1 context.Context, arg2 *cloudwatch.DeleteDashboardsInput, arg3 ...request.Option) (*cloudwatch.DeleteDashboardsOutput, error) {
+	fake.deleteDashboardsWithContextMutex.Lock()
+	ret, specificReturn := fake.deleteDashboardsWithContextReturnsOnCall[len(fake.deleteDashboardsWithContextArgsForCall)]
+	fake.deleteDashboardsWithContextArgsForCall = append(fake.deleteDashboardsWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DeleteDashboardsInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("DeleteDashboardsWithContext", []interface{}{arg1, arg2, arg3})
+	fake.deleteDashboardsWithContextMutex.Unlock()
+	if fake.DeleteDashboardsWithContextStub != nil {
+		return fake.DeleteDashboardsWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.deleteDashboardsWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContextCallCount() int {
+	fake.deleteDashboardsWithContextMutex.RLock()
+	defer fake.deleteDashboardsWithContextMutex.RUnlock()
+	return len(fake.deleteDashboardsWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContextCalls(stub func(context.Context, *cloudwatch.DeleteDashboardsInput, ...request.Option) (*cloudwatch.DeleteDashboardsOutput, error)) {
+	fake.deleteDashboardsWithContextMutex.Lock()
+	defer fake.deleteDashboardsWithContextMutex.Unlock()
+	fake.DeleteDashboardsWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContextArgsForCall(i int) (context.Context, *cloudwatch.DeleteDashboardsInput, []request.Option) {
+	fake.deleteDashboardsWithContextMutex.RLock()
+	defer fake.deleteDashboardsWithContextMutex.RUnlock()
+	argsForCall := fake.deleteDashboardsWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContextReturns(result1 *cloudwatch.DeleteDashboardsOutput, result2 error) {
+	fake.deleteDashboardsWithContextMutex.Lock()
+	defer fake.deleteDashboardsWithContextMutex.Unlock()
+	fake.DeleteDashboardsWithContextStub = nil
+	fake.deleteDashboardsWithContextReturns = struct {
+		result1 *cloudwatch.DeleteDashboardsOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DeleteDashboardsWithContextReturnsOnCall(i int, result1 *cloudwatch.DeleteDashboardsOutput, result2 error) {
+	fake.deleteDashboardsWithContextMutex.Lock()
+	defer fake.deleteDashboardsWithContextMutex.Unlock()
+	fake.DeleteDashboardsWithContextStub = nil
+	if fake.deleteDashboardsWithContextReturnsOnCall == nil {
+		fake.deleteDashboardsWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.DeleteDashboardsOutput
+			result2 error
+		})
+	}
+	fake.deleteDashboardsWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.DeleteDashboardsOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -1097,7 +1210,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistory(arg1 *cloudwatch.DescribeAla
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.describeAlarmHistoryReturns.result1, fake.describeAlarmHistoryReturns.result2
+	fakeReturns := fake.describeAlarmHistoryReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryCallCount() int {
@@ -1106,13 +1220,22 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryCallCount() int {
 	return len(fake.describeAlarmHistoryArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryCalls(stub func(*cloudwatch.DescribeAlarmHistoryInput) (*cloudwatch.DescribeAlarmHistoryOutput, error)) {
+	fake.describeAlarmHistoryMutex.Lock()
+	defer fake.describeAlarmHistoryMutex.Unlock()
+	fake.DescribeAlarmHistoryStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryArgsForCall(i int) *cloudwatch.DescribeAlarmHistoryInput {
 	fake.describeAlarmHistoryMutex.RLock()
 	defer fake.describeAlarmHistoryMutex.RUnlock()
-	return fake.describeAlarmHistoryArgsForCall[i].arg1
+	argsForCall := fake.describeAlarmHistoryArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryReturns(result1 *cloudwatch.DescribeAlarmHistoryOutput, result2 error) {
+	fake.describeAlarmHistoryMutex.Lock()
+	defer fake.describeAlarmHistoryMutex.Unlock()
 	fake.DescribeAlarmHistoryStub = nil
 	fake.describeAlarmHistoryReturns = struct {
 		result1 *cloudwatch.DescribeAlarmHistoryOutput
@@ -1121,6 +1244,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryReturns(result1 *cloudwatch.D
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryReturnsOnCall(i int, result1 *cloudwatch.DescribeAlarmHistoryOutput, result2 error) {
+	fake.describeAlarmHistoryMutex.Lock()
+	defer fake.describeAlarmHistoryMutex.Unlock()
 	fake.DescribeAlarmHistoryStub = nil
 	if fake.describeAlarmHistoryReturnsOnCall == nil {
 		fake.describeAlarmHistoryReturnsOnCall = make(map[int]struct {
@@ -1131,110 +1256,6 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryReturnsOnCall(i int, result1 
 	fake.describeAlarmHistoryReturnsOnCall[i] = struct {
 		result1 *cloudwatch.DescribeAlarmHistoryOutput
 		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContext(arg1 aws.Context, arg2 *cloudwatch.DescribeAlarmHistoryInput, arg3 ...request.Option) (*cloudwatch.DescribeAlarmHistoryOutput, error) {
-	fake.describeAlarmHistoryWithContextMutex.Lock()
-	ret, specificReturn := fake.describeAlarmHistoryWithContextReturnsOnCall[len(fake.describeAlarmHistoryWithContextArgsForCall)]
-	fake.describeAlarmHistoryWithContextArgsForCall = append(fake.describeAlarmHistoryWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DescribeAlarmHistoryInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("DescribeAlarmHistoryWithContext", []interface{}{arg1, arg2, arg3})
-	fake.describeAlarmHistoryWithContextMutex.Unlock()
-	if fake.DescribeAlarmHistoryWithContextStub != nil {
-		return fake.DescribeAlarmHistoryWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.describeAlarmHistoryWithContextReturns.result1, fake.describeAlarmHistoryWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContextCallCount() int {
-	fake.describeAlarmHistoryWithContextMutex.RLock()
-	defer fake.describeAlarmHistoryWithContextMutex.RUnlock()
-	return len(fake.describeAlarmHistoryWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContextArgsForCall(i int) (aws.Context, *cloudwatch.DescribeAlarmHistoryInput, []request.Option) {
-	fake.describeAlarmHistoryWithContextMutex.RLock()
-	defer fake.describeAlarmHistoryWithContextMutex.RUnlock()
-	return fake.describeAlarmHistoryWithContextArgsForCall[i].arg1, fake.describeAlarmHistoryWithContextArgsForCall[i].arg2, fake.describeAlarmHistoryWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContextReturns(result1 *cloudwatch.DescribeAlarmHistoryOutput, result2 error) {
-	fake.DescribeAlarmHistoryWithContextStub = nil
-	fake.describeAlarmHistoryWithContextReturns = struct {
-		result1 *cloudwatch.DescribeAlarmHistoryOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContextReturnsOnCall(i int, result1 *cloudwatch.DescribeAlarmHistoryOutput, result2 error) {
-	fake.DescribeAlarmHistoryWithContextStub = nil
-	if fake.describeAlarmHistoryWithContextReturnsOnCall == nil {
-		fake.describeAlarmHistoryWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.DescribeAlarmHistoryOutput
-			result2 error
-		})
-	}
-	fake.describeAlarmHistoryWithContextReturnsOnCall[i] = struct {
-		result1 *cloudwatch.DescribeAlarmHistoryOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequest(arg1 *cloudwatch.DescribeAlarmHistoryInput) (*request.Request, *cloudwatch.DescribeAlarmHistoryOutput) {
-	fake.describeAlarmHistoryRequestMutex.Lock()
-	ret, specificReturn := fake.describeAlarmHistoryRequestReturnsOnCall[len(fake.describeAlarmHistoryRequestArgsForCall)]
-	fake.describeAlarmHistoryRequestArgsForCall = append(fake.describeAlarmHistoryRequestArgsForCall, struct {
-		arg1 *cloudwatch.DescribeAlarmHistoryInput
-	}{arg1})
-	fake.recordInvocation("DescribeAlarmHistoryRequest", []interface{}{arg1})
-	fake.describeAlarmHistoryRequestMutex.Unlock()
-	if fake.DescribeAlarmHistoryRequestStub != nil {
-		return fake.DescribeAlarmHistoryRequestStub(arg1)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.describeAlarmHistoryRequestReturns.result1, fake.describeAlarmHistoryRequestReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequestCallCount() int {
-	fake.describeAlarmHistoryRequestMutex.RLock()
-	defer fake.describeAlarmHistoryRequestMutex.RUnlock()
-	return len(fake.describeAlarmHistoryRequestArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequestArgsForCall(i int) *cloudwatch.DescribeAlarmHistoryInput {
-	fake.describeAlarmHistoryRequestMutex.RLock()
-	defer fake.describeAlarmHistoryRequestMutex.RUnlock()
-	return fake.describeAlarmHistoryRequestArgsForCall[i].arg1
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequestReturns(result1 *request.Request, result2 *cloudwatch.DescribeAlarmHistoryOutput) {
-	fake.DescribeAlarmHistoryRequestStub = nil
-	fake.describeAlarmHistoryRequestReturns = struct {
-		result1 *request.Request
-		result2 *cloudwatch.DescribeAlarmHistoryOutput
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.DescribeAlarmHistoryOutput) {
-	fake.DescribeAlarmHistoryRequestStub = nil
-	if fake.describeAlarmHistoryRequestReturnsOnCall == nil {
-		fake.describeAlarmHistoryRequestReturnsOnCall = make(map[int]struct {
-			result1 *request.Request
-			result2 *cloudwatch.DescribeAlarmHistoryOutput
-		})
-	}
-	fake.describeAlarmHistoryRequestReturnsOnCall[i] = struct {
-		result1 *request.Request
-		result2 *cloudwatch.DescribeAlarmHistoryOutput
 	}{result1, result2}
 }
 
@@ -1253,7 +1274,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPages(arg1 *cloudwatch.Descri
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.describeAlarmHistoryPagesReturns.result1
+	fakeReturns := fake.describeAlarmHistoryPagesReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesCallCount() int {
@@ -1262,13 +1284,22 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesCallCount() int {
 	return len(fake.describeAlarmHistoryPagesArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesCalls(stub func(*cloudwatch.DescribeAlarmHistoryInput, func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool) error) {
+	fake.describeAlarmHistoryPagesMutex.Lock()
+	defer fake.describeAlarmHistoryPagesMutex.Unlock()
+	fake.DescribeAlarmHistoryPagesStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesArgsForCall(i int) (*cloudwatch.DescribeAlarmHistoryInput, func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool) {
 	fake.describeAlarmHistoryPagesMutex.RLock()
 	defer fake.describeAlarmHistoryPagesMutex.RUnlock()
-	return fake.describeAlarmHistoryPagesArgsForCall[i].arg1, fake.describeAlarmHistoryPagesArgsForCall[i].arg2
+	argsForCall := fake.describeAlarmHistoryPagesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesReturns(result1 error) {
+	fake.describeAlarmHistoryPagesMutex.Lock()
+	defer fake.describeAlarmHistoryPagesMutex.Unlock()
 	fake.DescribeAlarmHistoryPagesStub = nil
 	fake.describeAlarmHistoryPagesReturns = struct {
 		result1 error
@@ -1276,6 +1307,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesReturns(result1 error) {
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesReturnsOnCall(i int, result1 error) {
+	fake.describeAlarmHistoryPagesMutex.Lock()
+	defer fake.describeAlarmHistoryPagesMutex.Unlock()
 	fake.DescribeAlarmHistoryPagesStub = nil
 	if fake.describeAlarmHistoryPagesReturnsOnCall == nil {
 		fake.describeAlarmHistoryPagesReturnsOnCall = make(map[int]struct {
@@ -1287,11 +1320,11 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesReturnsOnCall(i int, res
 	}{result1}
 }
 
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContext(arg1 aws.Context, arg2 *cloudwatch.DescribeAlarmHistoryInput, arg3 func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool, arg4 ...request.Option) error {
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContext(arg1 context.Context, arg2 *cloudwatch.DescribeAlarmHistoryInput, arg3 func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool, arg4 ...request.Option) error {
 	fake.describeAlarmHistoryPagesWithContextMutex.Lock()
 	ret, specificReturn := fake.describeAlarmHistoryPagesWithContextReturnsOnCall[len(fake.describeAlarmHistoryPagesWithContextArgsForCall)]
 	fake.describeAlarmHistoryPagesWithContextArgsForCall = append(fake.describeAlarmHistoryPagesWithContextArgsForCall, struct {
-		arg1 aws.Context
+		arg1 context.Context
 		arg2 *cloudwatch.DescribeAlarmHistoryInput
 		arg3 func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool
 		arg4 []request.Option
@@ -1304,7 +1337,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContext(arg1 aws.Con
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.describeAlarmHistoryPagesWithContextReturns.result1
+	fakeReturns := fake.describeAlarmHistoryPagesWithContextReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContextCallCount() int {
@@ -1313,13 +1347,22 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContextCallCount() i
 	return len(fake.describeAlarmHistoryPagesWithContextArgsForCall)
 }
 
-func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContextArgsForCall(i int) (aws.Context, *cloudwatch.DescribeAlarmHistoryInput, func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool, []request.Option) {
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContextCalls(stub func(context.Context, *cloudwatch.DescribeAlarmHistoryInput, func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool, ...request.Option) error) {
+	fake.describeAlarmHistoryPagesWithContextMutex.Lock()
+	defer fake.describeAlarmHistoryPagesWithContextMutex.Unlock()
+	fake.DescribeAlarmHistoryPagesWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContextArgsForCall(i int) (context.Context, *cloudwatch.DescribeAlarmHistoryInput, func(*cloudwatch.DescribeAlarmHistoryOutput, bool) bool, []request.Option) {
 	fake.describeAlarmHistoryPagesWithContextMutex.RLock()
 	defer fake.describeAlarmHistoryPagesWithContextMutex.RUnlock()
-	return fake.describeAlarmHistoryPagesWithContextArgsForCall[i].arg1, fake.describeAlarmHistoryPagesWithContextArgsForCall[i].arg2, fake.describeAlarmHistoryPagesWithContextArgsForCall[i].arg3, fake.describeAlarmHistoryPagesWithContextArgsForCall[i].arg4
+	argsForCall := fake.describeAlarmHistoryPagesWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContextReturns(result1 error) {
+	fake.describeAlarmHistoryPagesWithContextMutex.Lock()
+	defer fake.describeAlarmHistoryPagesWithContextMutex.Unlock()
 	fake.DescribeAlarmHistoryPagesWithContextStub = nil
 	fake.describeAlarmHistoryPagesWithContextReturns = struct {
 		result1 error
@@ -1327,6 +1370,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContextReturns(resul
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContextReturnsOnCall(i int, result1 error) {
+	fake.describeAlarmHistoryPagesWithContextMutex.Lock()
+	defer fake.describeAlarmHistoryPagesWithContextMutex.Unlock()
 	fake.DescribeAlarmHistoryPagesWithContextStub = nil
 	if fake.describeAlarmHistoryPagesWithContextReturnsOnCall == nil {
 		fake.describeAlarmHistoryPagesWithContextReturnsOnCall = make(map[int]struct {
@@ -1336,6 +1381,134 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryPagesWithContextReturnsOnCall
 	fake.describeAlarmHistoryPagesWithContextReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequest(arg1 *cloudwatch.DescribeAlarmHistoryInput) (*request.Request, *cloudwatch.DescribeAlarmHistoryOutput) {
+	fake.describeAlarmHistoryRequestMutex.Lock()
+	ret, specificReturn := fake.describeAlarmHistoryRequestReturnsOnCall[len(fake.describeAlarmHistoryRequestArgsForCall)]
+	fake.describeAlarmHistoryRequestArgsForCall = append(fake.describeAlarmHistoryRequestArgsForCall, struct {
+		arg1 *cloudwatch.DescribeAlarmHistoryInput
+	}{arg1})
+	fake.recordInvocation("DescribeAlarmHistoryRequest", []interface{}{arg1})
+	fake.describeAlarmHistoryRequestMutex.Unlock()
+	if fake.DescribeAlarmHistoryRequestStub != nil {
+		return fake.DescribeAlarmHistoryRequestStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.describeAlarmHistoryRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequestCallCount() int {
+	fake.describeAlarmHistoryRequestMutex.RLock()
+	defer fake.describeAlarmHistoryRequestMutex.RUnlock()
+	return len(fake.describeAlarmHistoryRequestArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequestCalls(stub func(*cloudwatch.DescribeAlarmHistoryInput) (*request.Request, *cloudwatch.DescribeAlarmHistoryOutput)) {
+	fake.describeAlarmHistoryRequestMutex.Lock()
+	defer fake.describeAlarmHistoryRequestMutex.Unlock()
+	fake.DescribeAlarmHistoryRequestStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequestArgsForCall(i int) *cloudwatch.DescribeAlarmHistoryInput {
+	fake.describeAlarmHistoryRequestMutex.RLock()
+	defer fake.describeAlarmHistoryRequestMutex.RUnlock()
+	argsForCall := fake.describeAlarmHistoryRequestArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequestReturns(result1 *request.Request, result2 *cloudwatch.DescribeAlarmHistoryOutput) {
+	fake.describeAlarmHistoryRequestMutex.Lock()
+	defer fake.describeAlarmHistoryRequestMutex.Unlock()
+	fake.DescribeAlarmHistoryRequestStub = nil
+	fake.describeAlarmHistoryRequestReturns = struct {
+		result1 *request.Request
+		result2 *cloudwatch.DescribeAlarmHistoryOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.DescribeAlarmHistoryOutput) {
+	fake.describeAlarmHistoryRequestMutex.Lock()
+	defer fake.describeAlarmHistoryRequestMutex.Unlock()
+	fake.DescribeAlarmHistoryRequestStub = nil
+	if fake.describeAlarmHistoryRequestReturnsOnCall == nil {
+		fake.describeAlarmHistoryRequestReturnsOnCall = make(map[int]struct {
+			result1 *request.Request
+			result2 *cloudwatch.DescribeAlarmHistoryOutput
+		})
+	}
+	fake.describeAlarmHistoryRequestReturnsOnCall[i] = struct {
+		result1 *request.Request
+		result2 *cloudwatch.DescribeAlarmHistoryOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContext(arg1 context.Context, arg2 *cloudwatch.DescribeAlarmHistoryInput, arg3 ...request.Option) (*cloudwatch.DescribeAlarmHistoryOutput, error) {
+	fake.describeAlarmHistoryWithContextMutex.Lock()
+	ret, specificReturn := fake.describeAlarmHistoryWithContextReturnsOnCall[len(fake.describeAlarmHistoryWithContextArgsForCall)]
+	fake.describeAlarmHistoryWithContextArgsForCall = append(fake.describeAlarmHistoryWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DescribeAlarmHistoryInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("DescribeAlarmHistoryWithContext", []interface{}{arg1, arg2, arg3})
+	fake.describeAlarmHistoryWithContextMutex.Unlock()
+	if fake.DescribeAlarmHistoryWithContextStub != nil {
+		return fake.DescribeAlarmHistoryWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.describeAlarmHistoryWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContextCallCount() int {
+	fake.describeAlarmHistoryWithContextMutex.RLock()
+	defer fake.describeAlarmHistoryWithContextMutex.RUnlock()
+	return len(fake.describeAlarmHistoryWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContextCalls(stub func(context.Context, *cloudwatch.DescribeAlarmHistoryInput, ...request.Option) (*cloudwatch.DescribeAlarmHistoryOutput, error)) {
+	fake.describeAlarmHistoryWithContextMutex.Lock()
+	defer fake.describeAlarmHistoryWithContextMutex.Unlock()
+	fake.DescribeAlarmHistoryWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContextArgsForCall(i int) (context.Context, *cloudwatch.DescribeAlarmHistoryInput, []request.Option) {
+	fake.describeAlarmHistoryWithContextMutex.RLock()
+	defer fake.describeAlarmHistoryWithContextMutex.RUnlock()
+	argsForCall := fake.describeAlarmHistoryWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContextReturns(result1 *cloudwatch.DescribeAlarmHistoryOutput, result2 error) {
+	fake.describeAlarmHistoryWithContextMutex.Lock()
+	defer fake.describeAlarmHistoryWithContextMutex.Unlock()
+	fake.DescribeAlarmHistoryWithContextStub = nil
+	fake.describeAlarmHistoryWithContextReturns = struct {
+		result1 *cloudwatch.DescribeAlarmHistoryOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmHistoryWithContextReturnsOnCall(i int, result1 *cloudwatch.DescribeAlarmHistoryOutput, result2 error) {
+	fake.describeAlarmHistoryWithContextMutex.Lock()
+	defer fake.describeAlarmHistoryWithContextMutex.Unlock()
+	fake.DescribeAlarmHistoryWithContextStub = nil
+	if fake.describeAlarmHistoryWithContextReturnsOnCall == nil {
+		fake.describeAlarmHistoryWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.DescribeAlarmHistoryOutput
+			result2 error
+		})
+	}
+	fake.describeAlarmHistoryWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.DescribeAlarmHistoryOutput
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarms(arg1 *cloudwatch.DescribeAlarmsInput) (*cloudwatch.DescribeAlarmsOutput, error) {
@@ -1352,7 +1525,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarms(arg1 *cloudwatch.DescribeAlarmsInp
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.describeAlarmsReturns.result1, fake.describeAlarmsReturns.result2
+	fakeReturns := fake.describeAlarmsReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmsCallCount() int {
@@ -1361,13 +1535,22 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsCallCount() int {
 	return len(fake.describeAlarmsArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DescribeAlarmsCalls(stub func(*cloudwatch.DescribeAlarmsInput) (*cloudwatch.DescribeAlarmsOutput, error)) {
+	fake.describeAlarmsMutex.Lock()
+	defer fake.describeAlarmsMutex.Unlock()
+	fake.DescribeAlarmsStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DescribeAlarmsArgsForCall(i int) *cloudwatch.DescribeAlarmsInput {
 	fake.describeAlarmsMutex.RLock()
 	defer fake.describeAlarmsMutex.RUnlock()
-	return fake.describeAlarmsArgsForCall[i].arg1
+	argsForCall := fake.describeAlarmsArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmsReturns(result1 *cloudwatch.DescribeAlarmsOutput, result2 error) {
+	fake.describeAlarmsMutex.Lock()
+	defer fake.describeAlarmsMutex.Unlock()
 	fake.DescribeAlarmsStub = nil
 	fake.describeAlarmsReturns = struct {
 		result1 *cloudwatch.DescribeAlarmsOutput
@@ -1376,6 +1559,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsReturns(result1 *cloudwatch.Describ
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmsReturnsOnCall(i int, result1 *cloudwatch.DescribeAlarmsOutput, result2 error) {
+	fake.describeAlarmsMutex.Lock()
+	defer fake.describeAlarmsMutex.Unlock()
 	fake.DescribeAlarmsStub = nil
 	if fake.describeAlarmsReturnsOnCall == nil {
 		fake.describeAlarmsReturnsOnCall = make(map[int]struct {
@@ -1387,210 +1572,6 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsReturnsOnCall(i int, result1 *cloud
 		result1 *cloudwatch.DescribeAlarmsOutput
 		result2 error
 	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContext(arg1 aws.Context, arg2 *cloudwatch.DescribeAlarmsInput, arg3 ...request.Option) (*cloudwatch.DescribeAlarmsOutput, error) {
-	fake.describeAlarmsWithContextMutex.Lock()
-	ret, specificReturn := fake.describeAlarmsWithContextReturnsOnCall[len(fake.describeAlarmsWithContextArgsForCall)]
-	fake.describeAlarmsWithContextArgsForCall = append(fake.describeAlarmsWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DescribeAlarmsInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("DescribeAlarmsWithContext", []interface{}{arg1, arg2, arg3})
-	fake.describeAlarmsWithContextMutex.Unlock()
-	if fake.DescribeAlarmsWithContextStub != nil {
-		return fake.DescribeAlarmsWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.describeAlarmsWithContextReturns.result1, fake.describeAlarmsWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContextCallCount() int {
-	fake.describeAlarmsWithContextMutex.RLock()
-	defer fake.describeAlarmsWithContextMutex.RUnlock()
-	return len(fake.describeAlarmsWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContextArgsForCall(i int) (aws.Context, *cloudwatch.DescribeAlarmsInput, []request.Option) {
-	fake.describeAlarmsWithContextMutex.RLock()
-	defer fake.describeAlarmsWithContextMutex.RUnlock()
-	return fake.describeAlarmsWithContextArgsForCall[i].arg1, fake.describeAlarmsWithContextArgsForCall[i].arg2, fake.describeAlarmsWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContextReturns(result1 *cloudwatch.DescribeAlarmsOutput, result2 error) {
-	fake.DescribeAlarmsWithContextStub = nil
-	fake.describeAlarmsWithContextReturns = struct {
-		result1 *cloudwatch.DescribeAlarmsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContextReturnsOnCall(i int, result1 *cloudwatch.DescribeAlarmsOutput, result2 error) {
-	fake.DescribeAlarmsWithContextStub = nil
-	if fake.describeAlarmsWithContextReturnsOnCall == nil {
-		fake.describeAlarmsWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.DescribeAlarmsOutput
-			result2 error
-		})
-	}
-	fake.describeAlarmsWithContextReturnsOnCall[i] = struct {
-		result1 *cloudwatch.DescribeAlarmsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsRequest(arg1 *cloudwatch.DescribeAlarmsInput) (*request.Request, *cloudwatch.DescribeAlarmsOutput) {
-	fake.describeAlarmsRequestMutex.Lock()
-	ret, specificReturn := fake.describeAlarmsRequestReturnsOnCall[len(fake.describeAlarmsRequestArgsForCall)]
-	fake.describeAlarmsRequestArgsForCall = append(fake.describeAlarmsRequestArgsForCall, struct {
-		arg1 *cloudwatch.DescribeAlarmsInput
-	}{arg1})
-	fake.recordInvocation("DescribeAlarmsRequest", []interface{}{arg1})
-	fake.describeAlarmsRequestMutex.Unlock()
-	if fake.DescribeAlarmsRequestStub != nil {
-		return fake.DescribeAlarmsRequestStub(arg1)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.describeAlarmsRequestReturns.result1, fake.describeAlarmsRequestReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsRequestCallCount() int {
-	fake.describeAlarmsRequestMutex.RLock()
-	defer fake.describeAlarmsRequestMutex.RUnlock()
-	return len(fake.describeAlarmsRequestArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsRequestArgsForCall(i int) *cloudwatch.DescribeAlarmsInput {
-	fake.describeAlarmsRequestMutex.RLock()
-	defer fake.describeAlarmsRequestMutex.RUnlock()
-	return fake.describeAlarmsRequestArgsForCall[i].arg1
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsRequestReturns(result1 *request.Request, result2 *cloudwatch.DescribeAlarmsOutput) {
-	fake.DescribeAlarmsRequestStub = nil
-	fake.describeAlarmsRequestReturns = struct {
-		result1 *request.Request
-		result2 *cloudwatch.DescribeAlarmsOutput
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.DescribeAlarmsOutput) {
-	fake.DescribeAlarmsRequestStub = nil
-	if fake.describeAlarmsRequestReturnsOnCall == nil {
-		fake.describeAlarmsRequestReturnsOnCall = make(map[int]struct {
-			result1 *request.Request
-			result2 *cloudwatch.DescribeAlarmsOutput
-		})
-	}
-	fake.describeAlarmsRequestReturnsOnCall[i] = struct {
-		result1 *request.Request
-		result2 *cloudwatch.DescribeAlarmsOutput
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsPages(arg1 *cloudwatch.DescribeAlarmsInput, arg2 func(*cloudwatch.DescribeAlarmsOutput, bool) bool) error {
-	fake.describeAlarmsPagesMutex.Lock()
-	ret, specificReturn := fake.describeAlarmsPagesReturnsOnCall[len(fake.describeAlarmsPagesArgsForCall)]
-	fake.describeAlarmsPagesArgsForCall = append(fake.describeAlarmsPagesArgsForCall, struct {
-		arg1 *cloudwatch.DescribeAlarmsInput
-		arg2 func(*cloudwatch.DescribeAlarmsOutput, bool) bool
-	}{arg1, arg2})
-	fake.recordInvocation("DescribeAlarmsPages", []interface{}{arg1, arg2})
-	fake.describeAlarmsPagesMutex.Unlock()
-	if fake.DescribeAlarmsPagesStub != nil {
-		return fake.DescribeAlarmsPagesStub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fake.describeAlarmsPagesReturns.result1
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesCallCount() int {
-	fake.describeAlarmsPagesMutex.RLock()
-	defer fake.describeAlarmsPagesMutex.RUnlock()
-	return len(fake.describeAlarmsPagesArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesArgsForCall(i int) (*cloudwatch.DescribeAlarmsInput, func(*cloudwatch.DescribeAlarmsOutput, bool) bool) {
-	fake.describeAlarmsPagesMutex.RLock()
-	defer fake.describeAlarmsPagesMutex.RUnlock()
-	return fake.describeAlarmsPagesArgsForCall[i].arg1, fake.describeAlarmsPagesArgsForCall[i].arg2
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesReturns(result1 error) {
-	fake.DescribeAlarmsPagesStub = nil
-	fake.describeAlarmsPagesReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesReturnsOnCall(i int, result1 error) {
-	fake.DescribeAlarmsPagesStub = nil
-	if fake.describeAlarmsPagesReturnsOnCall == nil {
-		fake.describeAlarmsPagesReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.describeAlarmsPagesReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContext(arg1 aws.Context, arg2 *cloudwatch.DescribeAlarmsInput, arg3 func(*cloudwatch.DescribeAlarmsOutput, bool) bool, arg4 ...request.Option) error {
-	fake.describeAlarmsPagesWithContextMutex.Lock()
-	ret, specificReturn := fake.describeAlarmsPagesWithContextReturnsOnCall[len(fake.describeAlarmsPagesWithContextArgsForCall)]
-	fake.describeAlarmsPagesWithContextArgsForCall = append(fake.describeAlarmsPagesWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DescribeAlarmsInput
-		arg3 func(*cloudwatch.DescribeAlarmsOutput, bool) bool
-		arg4 []request.Option
-	}{arg1, arg2, arg3, arg4})
-	fake.recordInvocation("DescribeAlarmsPagesWithContext", []interface{}{arg1, arg2, arg3, arg4})
-	fake.describeAlarmsPagesWithContextMutex.Unlock()
-	if fake.DescribeAlarmsPagesWithContextStub != nil {
-		return fake.DescribeAlarmsPagesWithContextStub(arg1, arg2, arg3, arg4...)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fake.describeAlarmsPagesWithContextReturns.result1
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContextCallCount() int {
-	fake.describeAlarmsPagesWithContextMutex.RLock()
-	defer fake.describeAlarmsPagesWithContextMutex.RUnlock()
-	return len(fake.describeAlarmsPagesWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContextArgsForCall(i int) (aws.Context, *cloudwatch.DescribeAlarmsInput, func(*cloudwatch.DescribeAlarmsOutput, bool) bool, []request.Option) {
-	fake.describeAlarmsPagesWithContextMutex.RLock()
-	defer fake.describeAlarmsPagesWithContextMutex.RUnlock()
-	return fake.describeAlarmsPagesWithContextArgsForCall[i].arg1, fake.describeAlarmsPagesWithContextArgsForCall[i].arg2, fake.describeAlarmsPagesWithContextArgsForCall[i].arg3, fake.describeAlarmsPagesWithContextArgsForCall[i].arg4
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContextReturns(result1 error) {
-	fake.DescribeAlarmsPagesWithContextStub = nil
-	fake.describeAlarmsPagesWithContextReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContextReturnsOnCall(i int, result1 error) {
-	fake.DescribeAlarmsPagesWithContextStub = nil
-	if fake.describeAlarmsPagesWithContextReturnsOnCall == nil {
-		fake.describeAlarmsPagesWithContextReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.describeAlarmsPagesWithContextReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetric(arg1 *cloudwatch.DescribeAlarmsForMetricInput) (*cloudwatch.DescribeAlarmsForMetricOutput, error) {
@@ -1607,7 +1588,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetric(arg1 *cloudwatch.Describe
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.describeAlarmsForMetricReturns.result1, fake.describeAlarmsForMetricReturns.result2
+	fakeReturns := fake.describeAlarmsForMetricReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricCallCount() int {
@@ -1616,13 +1598,22 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricCallCount() int {
 	return len(fake.describeAlarmsForMetricArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricCalls(stub func(*cloudwatch.DescribeAlarmsForMetricInput) (*cloudwatch.DescribeAlarmsForMetricOutput, error)) {
+	fake.describeAlarmsForMetricMutex.Lock()
+	defer fake.describeAlarmsForMetricMutex.Unlock()
+	fake.DescribeAlarmsForMetricStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricArgsForCall(i int) *cloudwatch.DescribeAlarmsForMetricInput {
 	fake.describeAlarmsForMetricMutex.RLock()
 	defer fake.describeAlarmsForMetricMutex.RUnlock()
-	return fake.describeAlarmsForMetricArgsForCall[i].arg1
+	argsForCall := fake.describeAlarmsForMetricArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricReturns(result1 *cloudwatch.DescribeAlarmsForMetricOutput, result2 error) {
+	fake.describeAlarmsForMetricMutex.Lock()
+	defer fake.describeAlarmsForMetricMutex.Unlock()
 	fake.DescribeAlarmsForMetricStub = nil
 	fake.describeAlarmsForMetricReturns = struct {
 		result1 *cloudwatch.DescribeAlarmsForMetricOutput
@@ -1631,6 +1622,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricReturns(result1 *cloudwatc
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricReturnsOnCall(i int, result1 *cloudwatch.DescribeAlarmsForMetricOutput, result2 error) {
+	fake.describeAlarmsForMetricMutex.Lock()
+	defer fake.describeAlarmsForMetricMutex.Unlock()
 	fake.DescribeAlarmsForMetricStub = nil
 	if fake.describeAlarmsForMetricReturnsOnCall == nil {
 		fake.describeAlarmsForMetricReturnsOnCall = make(map[int]struct {
@@ -1639,59 +1632,6 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricReturnsOnCall(i int, resul
 		})
 	}
 	fake.describeAlarmsForMetricReturnsOnCall[i] = struct {
-		result1 *cloudwatch.DescribeAlarmsForMetricOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContext(arg1 aws.Context, arg2 *cloudwatch.DescribeAlarmsForMetricInput, arg3 ...request.Option) (*cloudwatch.DescribeAlarmsForMetricOutput, error) {
-	fake.describeAlarmsForMetricWithContextMutex.Lock()
-	ret, specificReturn := fake.describeAlarmsForMetricWithContextReturnsOnCall[len(fake.describeAlarmsForMetricWithContextArgsForCall)]
-	fake.describeAlarmsForMetricWithContextArgsForCall = append(fake.describeAlarmsForMetricWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DescribeAlarmsForMetricInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("DescribeAlarmsForMetricWithContext", []interface{}{arg1, arg2, arg3})
-	fake.describeAlarmsForMetricWithContextMutex.Unlock()
-	if fake.DescribeAlarmsForMetricWithContextStub != nil {
-		return fake.DescribeAlarmsForMetricWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.describeAlarmsForMetricWithContextReturns.result1, fake.describeAlarmsForMetricWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContextCallCount() int {
-	fake.describeAlarmsForMetricWithContextMutex.RLock()
-	defer fake.describeAlarmsForMetricWithContextMutex.RUnlock()
-	return len(fake.describeAlarmsForMetricWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContextArgsForCall(i int) (aws.Context, *cloudwatch.DescribeAlarmsForMetricInput, []request.Option) {
-	fake.describeAlarmsForMetricWithContextMutex.RLock()
-	defer fake.describeAlarmsForMetricWithContextMutex.RUnlock()
-	return fake.describeAlarmsForMetricWithContextArgsForCall[i].arg1, fake.describeAlarmsForMetricWithContextArgsForCall[i].arg2, fake.describeAlarmsForMetricWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContextReturns(result1 *cloudwatch.DescribeAlarmsForMetricOutput, result2 error) {
-	fake.DescribeAlarmsForMetricWithContextStub = nil
-	fake.describeAlarmsForMetricWithContextReturns = struct {
-		result1 *cloudwatch.DescribeAlarmsForMetricOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContextReturnsOnCall(i int, result1 *cloudwatch.DescribeAlarmsForMetricOutput, result2 error) {
-	fake.DescribeAlarmsForMetricWithContextStub = nil
-	if fake.describeAlarmsForMetricWithContextReturnsOnCall == nil {
-		fake.describeAlarmsForMetricWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.DescribeAlarmsForMetricOutput
-			result2 error
-		})
-	}
-	fake.describeAlarmsForMetricWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.DescribeAlarmsForMetricOutput
 		result2 error
 	}{result1, result2}
@@ -1711,7 +1651,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricRequest(arg1 *cloudwatch.D
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.describeAlarmsForMetricRequestReturns.result1, fake.describeAlarmsForMetricRequestReturns.result2
+	fakeReturns := fake.describeAlarmsForMetricRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricRequestCallCount() int {
@@ -1720,13 +1661,22 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricRequestCallCount() int {
 	return len(fake.describeAlarmsForMetricRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricRequestCalls(stub func(*cloudwatch.DescribeAlarmsForMetricInput) (*request.Request, *cloudwatch.DescribeAlarmsForMetricOutput)) {
+	fake.describeAlarmsForMetricRequestMutex.Lock()
+	defer fake.describeAlarmsForMetricRequestMutex.Unlock()
+	fake.DescribeAlarmsForMetricRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricRequestArgsForCall(i int) *cloudwatch.DescribeAlarmsForMetricInput {
 	fake.describeAlarmsForMetricRequestMutex.RLock()
 	defer fake.describeAlarmsForMetricRequestMutex.RUnlock()
-	return fake.describeAlarmsForMetricRequestArgsForCall[i].arg1
+	argsForCall := fake.describeAlarmsForMetricRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricRequestReturns(result1 *request.Request, result2 *cloudwatch.DescribeAlarmsForMetricOutput) {
+	fake.describeAlarmsForMetricRequestMutex.Lock()
+	defer fake.describeAlarmsForMetricRequestMutex.Unlock()
 	fake.DescribeAlarmsForMetricRequestStub = nil
 	fake.describeAlarmsForMetricRequestReturns = struct {
 		result1 *request.Request
@@ -1735,6 +1685,8 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricRequestReturns(result1 *re
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.DescribeAlarmsForMetricOutput) {
+	fake.describeAlarmsForMetricRequestMutex.Lock()
+	defer fake.describeAlarmsForMetricRequestMutex.Unlock()
 	fake.DescribeAlarmsForMetricRequestStub = nil
 	if fake.describeAlarmsForMetricRequestReturnsOnCall == nil {
 		fake.describeAlarmsForMetricRequestReturnsOnCall = make(map[int]struct {
@@ -1745,6 +1697,323 @@ func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricRequestReturnsOnCall(i int
 	fake.describeAlarmsForMetricRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.DescribeAlarmsForMetricOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContext(arg1 context.Context, arg2 *cloudwatch.DescribeAlarmsForMetricInput, arg3 ...request.Option) (*cloudwatch.DescribeAlarmsForMetricOutput, error) {
+	fake.describeAlarmsForMetricWithContextMutex.Lock()
+	ret, specificReturn := fake.describeAlarmsForMetricWithContextReturnsOnCall[len(fake.describeAlarmsForMetricWithContextArgsForCall)]
+	fake.describeAlarmsForMetricWithContextArgsForCall = append(fake.describeAlarmsForMetricWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DescribeAlarmsForMetricInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("DescribeAlarmsForMetricWithContext", []interface{}{arg1, arg2, arg3})
+	fake.describeAlarmsForMetricWithContextMutex.Unlock()
+	if fake.DescribeAlarmsForMetricWithContextStub != nil {
+		return fake.DescribeAlarmsForMetricWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.describeAlarmsForMetricWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContextCallCount() int {
+	fake.describeAlarmsForMetricWithContextMutex.RLock()
+	defer fake.describeAlarmsForMetricWithContextMutex.RUnlock()
+	return len(fake.describeAlarmsForMetricWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContextCalls(stub func(context.Context, *cloudwatch.DescribeAlarmsForMetricInput, ...request.Option) (*cloudwatch.DescribeAlarmsForMetricOutput, error)) {
+	fake.describeAlarmsForMetricWithContextMutex.Lock()
+	defer fake.describeAlarmsForMetricWithContextMutex.Unlock()
+	fake.DescribeAlarmsForMetricWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContextArgsForCall(i int) (context.Context, *cloudwatch.DescribeAlarmsForMetricInput, []request.Option) {
+	fake.describeAlarmsForMetricWithContextMutex.RLock()
+	defer fake.describeAlarmsForMetricWithContextMutex.RUnlock()
+	argsForCall := fake.describeAlarmsForMetricWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContextReturns(result1 *cloudwatch.DescribeAlarmsForMetricOutput, result2 error) {
+	fake.describeAlarmsForMetricWithContextMutex.Lock()
+	defer fake.describeAlarmsForMetricWithContextMutex.Unlock()
+	fake.DescribeAlarmsForMetricWithContextStub = nil
+	fake.describeAlarmsForMetricWithContextReturns = struct {
+		result1 *cloudwatch.DescribeAlarmsForMetricOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsForMetricWithContextReturnsOnCall(i int, result1 *cloudwatch.DescribeAlarmsForMetricOutput, result2 error) {
+	fake.describeAlarmsForMetricWithContextMutex.Lock()
+	defer fake.describeAlarmsForMetricWithContextMutex.Unlock()
+	fake.DescribeAlarmsForMetricWithContextStub = nil
+	if fake.describeAlarmsForMetricWithContextReturnsOnCall == nil {
+		fake.describeAlarmsForMetricWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.DescribeAlarmsForMetricOutput
+			result2 error
+		})
+	}
+	fake.describeAlarmsForMetricWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.DescribeAlarmsForMetricOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPages(arg1 *cloudwatch.DescribeAlarmsInput, arg2 func(*cloudwatch.DescribeAlarmsOutput, bool) bool) error {
+	fake.describeAlarmsPagesMutex.Lock()
+	ret, specificReturn := fake.describeAlarmsPagesReturnsOnCall[len(fake.describeAlarmsPagesArgsForCall)]
+	fake.describeAlarmsPagesArgsForCall = append(fake.describeAlarmsPagesArgsForCall, struct {
+		arg1 *cloudwatch.DescribeAlarmsInput
+		arg2 func(*cloudwatch.DescribeAlarmsOutput, bool) bool
+	}{arg1, arg2})
+	fake.recordInvocation("DescribeAlarmsPages", []interface{}{arg1, arg2})
+	fake.describeAlarmsPagesMutex.Unlock()
+	if fake.DescribeAlarmsPagesStub != nil {
+		return fake.DescribeAlarmsPagesStub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.describeAlarmsPagesReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesCallCount() int {
+	fake.describeAlarmsPagesMutex.RLock()
+	defer fake.describeAlarmsPagesMutex.RUnlock()
+	return len(fake.describeAlarmsPagesArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesCalls(stub func(*cloudwatch.DescribeAlarmsInput, func(*cloudwatch.DescribeAlarmsOutput, bool) bool) error) {
+	fake.describeAlarmsPagesMutex.Lock()
+	defer fake.describeAlarmsPagesMutex.Unlock()
+	fake.DescribeAlarmsPagesStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesArgsForCall(i int) (*cloudwatch.DescribeAlarmsInput, func(*cloudwatch.DescribeAlarmsOutput, bool) bool) {
+	fake.describeAlarmsPagesMutex.RLock()
+	defer fake.describeAlarmsPagesMutex.RUnlock()
+	argsForCall := fake.describeAlarmsPagesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesReturns(result1 error) {
+	fake.describeAlarmsPagesMutex.Lock()
+	defer fake.describeAlarmsPagesMutex.Unlock()
+	fake.DescribeAlarmsPagesStub = nil
+	fake.describeAlarmsPagesReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesReturnsOnCall(i int, result1 error) {
+	fake.describeAlarmsPagesMutex.Lock()
+	defer fake.describeAlarmsPagesMutex.Unlock()
+	fake.DescribeAlarmsPagesStub = nil
+	if fake.describeAlarmsPagesReturnsOnCall == nil {
+		fake.describeAlarmsPagesReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.describeAlarmsPagesReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContext(arg1 context.Context, arg2 *cloudwatch.DescribeAlarmsInput, arg3 func(*cloudwatch.DescribeAlarmsOutput, bool) bool, arg4 ...request.Option) error {
+	fake.describeAlarmsPagesWithContextMutex.Lock()
+	ret, specificReturn := fake.describeAlarmsPagesWithContextReturnsOnCall[len(fake.describeAlarmsPagesWithContextArgsForCall)]
+	fake.describeAlarmsPagesWithContextArgsForCall = append(fake.describeAlarmsPagesWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DescribeAlarmsInput
+		arg3 func(*cloudwatch.DescribeAlarmsOutput, bool) bool
+		arg4 []request.Option
+	}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("DescribeAlarmsPagesWithContext", []interface{}{arg1, arg2, arg3, arg4})
+	fake.describeAlarmsPagesWithContextMutex.Unlock()
+	if fake.DescribeAlarmsPagesWithContextStub != nil {
+		return fake.DescribeAlarmsPagesWithContextStub(arg1, arg2, arg3, arg4...)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.describeAlarmsPagesWithContextReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContextCallCount() int {
+	fake.describeAlarmsPagesWithContextMutex.RLock()
+	defer fake.describeAlarmsPagesWithContextMutex.RUnlock()
+	return len(fake.describeAlarmsPagesWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContextCalls(stub func(context.Context, *cloudwatch.DescribeAlarmsInput, func(*cloudwatch.DescribeAlarmsOutput, bool) bool, ...request.Option) error) {
+	fake.describeAlarmsPagesWithContextMutex.Lock()
+	defer fake.describeAlarmsPagesWithContextMutex.Unlock()
+	fake.DescribeAlarmsPagesWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContextArgsForCall(i int) (context.Context, *cloudwatch.DescribeAlarmsInput, func(*cloudwatch.DescribeAlarmsOutput, bool) bool, []request.Option) {
+	fake.describeAlarmsPagesWithContextMutex.RLock()
+	defer fake.describeAlarmsPagesWithContextMutex.RUnlock()
+	argsForCall := fake.describeAlarmsPagesWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContextReturns(result1 error) {
+	fake.describeAlarmsPagesWithContextMutex.Lock()
+	defer fake.describeAlarmsPagesWithContextMutex.Unlock()
+	fake.DescribeAlarmsPagesWithContextStub = nil
+	fake.describeAlarmsPagesWithContextReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsPagesWithContextReturnsOnCall(i int, result1 error) {
+	fake.describeAlarmsPagesWithContextMutex.Lock()
+	defer fake.describeAlarmsPagesWithContextMutex.Unlock()
+	fake.DescribeAlarmsPagesWithContextStub = nil
+	if fake.describeAlarmsPagesWithContextReturnsOnCall == nil {
+		fake.describeAlarmsPagesWithContextReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.describeAlarmsPagesWithContextReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsRequest(arg1 *cloudwatch.DescribeAlarmsInput) (*request.Request, *cloudwatch.DescribeAlarmsOutput) {
+	fake.describeAlarmsRequestMutex.Lock()
+	ret, specificReturn := fake.describeAlarmsRequestReturnsOnCall[len(fake.describeAlarmsRequestArgsForCall)]
+	fake.describeAlarmsRequestArgsForCall = append(fake.describeAlarmsRequestArgsForCall, struct {
+		arg1 *cloudwatch.DescribeAlarmsInput
+	}{arg1})
+	fake.recordInvocation("DescribeAlarmsRequest", []interface{}{arg1})
+	fake.describeAlarmsRequestMutex.Unlock()
+	if fake.DescribeAlarmsRequestStub != nil {
+		return fake.DescribeAlarmsRequestStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.describeAlarmsRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsRequestCallCount() int {
+	fake.describeAlarmsRequestMutex.RLock()
+	defer fake.describeAlarmsRequestMutex.RUnlock()
+	return len(fake.describeAlarmsRequestArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsRequestCalls(stub func(*cloudwatch.DescribeAlarmsInput) (*request.Request, *cloudwatch.DescribeAlarmsOutput)) {
+	fake.describeAlarmsRequestMutex.Lock()
+	defer fake.describeAlarmsRequestMutex.Unlock()
+	fake.DescribeAlarmsRequestStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsRequestArgsForCall(i int) *cloudwatch.DescribeAlarmsInput {
+	fake.describeAlarmsRequestMutex.RLock()
+	defer fake.describeAlarmsRequestMutex.RUnlock()
+	argsForCall := fake.describeAlarmsRequestArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsRequestReturns(result1 *request.Request, result2 *cloudwatch.DescribeAlarmsOutput) {
+	fake.describeAlarmsRequestMutex.Lock()
+	defer fake.describeAlarmsRequestMutex.Unlock()
+	fake.DescribeAlarmsRequestStub = nil
+	fake.describeAlarmsRequestReturns = struct {
+		result1 *request.Request
+		result2 *cloudwatch.DescribeAlarmsOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.DescribeAlarmsOutput) {
+	fake.describeAlarmsRequestMutex.Lock()
+	defer fake.describeAlarmsRequestMutex.Unlock()
+	fake.DescribeAlarmsRequestStub = nil
+	if fake.describeAlarmsRequestReturnsOnCall == nil {
+		fake.describeAlarmsRequestReturnsOnCall = make(map[int]struct {
+			result1 *request.Request
+			result2 *cloudwatch.DescribeAlarmsOutput
+		})
+	}
+	fake.describeAlarmsRequestReturnsOnCall[i] = struct {
+		result1 *request.Request
+		result2 *cloudwatch.DescribeAlarmsOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContext(arg1 context.Context, arg2 *cloudwatch.DescribeAlarmsInput, arg3 ...request.Option) (*cloudwatch.DescribeAlarmsOutput, error) {
+	fake.describeAlarmsWithContextMutex.Lock()
+	ret, specificReturn := fake.describeAlarmsWithContextReturnsOnCall[len(fake.describeAlarmsWithContextArgsForCall)]
+	fake.describeAlarmsWithContextArgsForCall = append(fake.describeAlarmsWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DescribeAlarmsInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("DescribeAlarmsWithContext", []interface{}{arg1, arg2, arg3})
+	fake.describeAlarmsWithContextMutex.Unlock()
+	if fake.DescribeAlarmsWithContextStub != nil {
+		return fake.DescribeAlarmsWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.describeAlarmsWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContextCallCount() int {
+	fake.describeAlarmsWithContextMutex.RLock()
+	defer fake.describeAlarmsWithContextMutex.RUnlock()
+	return len(fake.describeAlarmsWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContextCalls(stub func(context.Context, *cloudwatch.DescribeAlarmsInput, ...request.Option) (*cloudwatch.DescribeAlarmsOutput, error)) {
+	fake.describeAlarmsWithContextMutex.Lock()
+	defer fake.describeAlarmsWithContextMutex.Unlock()
+	fake.DescribeAlarmsWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContextArgsForCall(i int) (context.Context, *cloudwatch.DescribeAlarmsInput, []request.Option) {
+	fake.describeAlarmsWithContextMutex.RLock()
+	defer fake.describeAlarmsWithContextMutex.RUnlock()
+	argsForCall := fake.describeAlarmsWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContextReturns(result1 *cloudwatch.DescribeAlarmsOutput, result2 error) {
+	fake.describeAlarmsWithContextMutex.Lock()
+	defer fake.describeAlarmsWithContextMutex.Unlock()
+	fake.DescribeAlarmsWithContextStub = nil
+	fake.describeAlarmsWithContextReturns = struct {
+		result1 *cloudwatch.DescribeAlarmsOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAlarmsWithContextReturnsOnCall(i int, result1 *cloudwatch.DescribeAlarmsOutput, result2 error) {
+	fake.describeAlarmsWithContextMutex.Lock()
+	defer fake.describeAlarmsWithContextMutex.Unlock()
+	fake.DescribeAlarmsWithContextStub = nil
+	if fake.describeAlarmsWithContextReturnsOnCall == nil {
+		fake.describeAlarmsWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.DescribeAlarmsOutput
+			result2 error
+		})
+	}
+	fake.describeAlarmsWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.DescribeAlarmsOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -1762,7 +2031,8 @@ func (fake *FakeCloudWatchAPI) DisableAlarmActions(arg1 *cloudwatch.DisableAlarm
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.disableAlarmActionsReturns.result1, fake.disableAlarmActionsReturns.result2
+	fakeReturns := fake.disableAlarmActionsReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) DisableAlarmActionsCallCount() int {
@@ -1771,13 +2041,22 @@ func (fake *FakeCloudWatchAPI) DisableAlarmActionsCallCount() int {
 	return len(fake.disableAlarmActionsArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DisableAlarmActionsCalls(stub func(*cloudwatch.DisableAlarmActionsInput) (*cloudwatch.DisableAlarmActionsOutput, error)) {
+	fake.disableAlarmActionsMutex.Lock()
+	defer fake.disableAlarmActionsMutex.Unlock()
+	fake.DisableAlarmActionsStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DisableAlarmActionsArgsForCall(i int) *cloudwatch.DisableAlarmActionsInput {
 	fake.disableAlarmActionsMutex.RLock()
 	defer fake.disableAlarmActionsMutex.RUnlock()
-	return fake.disableAlarmActionsArgsForCall[i].arg1
+	argsForCall := fake.disableAlarmActionsArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) DisableAlarmActionsReturns(result1 *cloudwatch.DisableAlarmActionsOutput, result2 error) {
+	fake.disableAlarmActionsMutex.Lock()
+	defer fake.disableAlarmActionsMutex.Unlock()
 	fake.DisableAlarmActionsStub = nil
 	fake.disableAlarmActionsReturns = struct {
 		result1 *cloudwatch.DisableAlarmActionsOutput
@@ -1786,6 +2065,8 @@ func (fake *FakeCloudWatchAPI) DisableAlarmActionsReturns(result1 *cloudwatch.Di
 }
 
 func (fake *FakeCloudWatchAPI) DisableAlarmActionsReturnsOnCall(i int, result1 *cloudwatch.DisableAlarmActionsOutput, result2 error) {
+	fake.disableAlarmActionsMutex.Lock()
+	defer fake.disableAlarmActionsMutex.Unlock()
 	fake.DisableAlarmActionsStub = nil
 	if fake.disableAlarmActionsReturnsOnCall == nil {
 		fake.disableAlarmActionsReturnsOnCall = make(map[int]struct {
@@ -1794,59 +2075,6 @@ func (fake *FakeCloudWatchAPI) DisableAlarmActionsReturnsOnCall(i int, result1 *
 		})
 	}
 	fake.disableAlarmActionsReturnsOnCall[i] = struct {
-		result1 *cloudwatch.DisableAlarmActionsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContext(arg1 aws.Context, arg2 *cloudwatch.DisableAlarmActionsInput, arg3 ...request.Option) (*cloudwatch.DisableAlarmActionsOutput, error) {
-	fake.disableAlarmActionsWithContextMutex.Lock()
-	ret, specificReturn := fake.disableAlarmActionsWithContextReturnsOnCall[len(fake.disableAlarmActionsWithContextArgsForCall)]
-	fake.disableAlarmActionsWithContextArgsForCall = append(fake.disableAlarmActionsWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.DisableAlarmActionsInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("DisableAlarmActionsWithContext", []interface{}{arg1, arg2, arg3})
-	fake.disableAlarmActionsWithContextMutex.Unlock()
-	if fake.DisableAlarmActionsWithContextStub != nil {
-		return fake.DisableAlarmActionsWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.disableAlarmActionsWithContextReturns.result1, fake.disableAlarmActionsWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContextCallCount() int {
-	fake.disableAlarmActionsWithContextMutex.RLock()
-	defer fake.disableAlarmActionsWithContextMutex.RUnlock()
-	return len(fake.disableAlarmActionsWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContextArgsForCall(i int) (aws.Context, *cloudwatch.DisableAlarmActionsInput, []request.Option) {
-	fake.disableAlarmActionsWithContextMutex.RLock()
-	defer fake.disableAlarmActionsWithContextMutex.RUnlock()
-	return fake.disableAlarmActionsWithContextArgsForCall[i].arg1, fake.disableAlarmActionsWithContextArgsForCall[i].arg2, fake.disableAlarmActionsWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContextReturns(result1 *cloudwatch.DisableAlarmActionsOutput, result2 error) {
-	fake.DisableAlarmActionsWithContextStub = nil
-	fake.disableAlarmActionsWithContextReturns = struct {
-		result1 *cloudwatch.DisableAlarmActionsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContextReturnsOnCall(i int, result1 *cloudwatch.DisableAlarmActionsOutput, result2 error) {
-	fake.DisableAlarmActionsWithContextStub = nil
-	if fake.disableAlarmActionsWithContextReturnsOnCall == nil {
-		fake.disableAlarmActionsWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.DisableAlarmActionsOutput
-			result2 error
-		})
-	}
-	fake.disableAlarmActionsWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.DisableAlarmActionsOutput
 		result2 error
 	}{result1, result2}
@@ -1866,7 +2094,8 @@ func (fake *FakeCloudWatchAPI) DisableAlarmActionsRequest(arg1 *cloudwatch.Disab
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.disableAlarmActionsRequestReturns.result1, fake.disableAlarmActionsRequestReturns.result2
+	fakeReturns := fake.disableAlarmActionsRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) DisableAlarmActionsRequestCallCount() int {
@@ -1875,13 +2104,22 @@ func (fake *FakeCloudWatchAPI) DisableAlarmActionsRequestCallCount() int {
 	return len(fake.disableAlarmActionsRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) DisableAlarmActionsRequestCalls(stub func(*cloudwatch.DisableAlarmActionsInput) (*request.Request, *cloudwatch.DisableAlarmActionsOutput)) {
+	fake.disableAlarmActionsRequestMutex.Lock()
+	defer fake.disableAlarmActionsRequestMutex.Unlock()
+	fake.DisableAlarmActionsRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) DisableAlarmActionsRequestArgsForCall(i int) *cloudwatch.DisableAlarmActionsInput {
 	fake.disableAlarmActionsRequestMutex.RLock()
 	defer fake.disableAlarmActionsRequestMutex.RUnlock()
-	return fake.disableAlarmActionsRequestArgsForCall[i].arg1
+	argsForCall := fake.disableAlarmActionsRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) DisableAlarmActionsRequestReturns(result1 *request.Request, result2 *cloudwatch.DisableAlarmActionsOutput) {
+	fake.disableAlarmActionsRequestMutex.Lock()
+	defer fake.disableAlarmActionsRequestMutex.Unlock()
 	fake.DisableAlarmActionsRequestStub = nil
 	fake.disableAlarmActionsRequestReturns = struct {
 		result1 *request.Request
@@ -1890,6 +2128,8 @@ func (fake *FakeCloudWatchAPI) DisableAlarmActionsRequestReturns(result1 *reques
 }
 
 func (fake *FakeCloudWatchAPI) DisableAlarmActionsRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.DisableAlarmActionsOutput) {
+	fake.disableAlarmActionsRequestMutex.Lock()
+	defer fake.disableAlarmActionsRequestMutex.Unlock()
 	fake.DisableAlarmActionsRequestStub = nil
 	if fake.disableAlarmActionsRequestReturnsOnCall == nil {
 		fake.disableAlarmActionsRequestReturnsOnCall = make(map[int]struct {
@@ -1900,6 +2140,71 @@ func (fake *FakeCloudWatchAPI) DisableAlarmActionsRequestReturnsOnCall(i int, re
 	fake.disableAlarmActionsRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.DisableAlarmActionsOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContext(arg1 context.Context, arg2 *cloudwatch.DisableAlarmActionsInput, arg3 ...request.Option) (*cloudwatch.DisableAlarmActionsOutput, error) {
+	fake.disableAlarmActionsWithContextMutex.Lock()
+	ret, specificReturn := fake.disableAlarmActionsWithContextReturnsOnCall[len(fake.disableAlarmActionsWithContextArgsForCall)]
+	fake.disableAlarmActionsWithContextArgsForCall = append(fake.disableAlarmActionsWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DisableAlarmActionsInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("DisableAlarmActionsWithContext", []interface{}{arg1, arg2, arg3})
+	fake.disableAlarmActionsWithContextMutex.Unlock()
+	if fake.DisableAlarmActionsWithContextStub != nil {
+		return fake.DisableAlarmActionsWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.disableAlarmActionsWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContextCallCount() int {
+	fake.disableAlarmActionsWithContextMutex.RLock()
+	defer fake.disableAlarmActionsWithContextMutex.RUnlock()
+	return len(fake.disableAlarmActionsWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContextCalls(stub func(context.Context, *cloudwatch.DisableAlarmActionsInput, ...request.Option) (*cloudwatch.DisableAlarmActionsOutput, error)) {
+	fake.disableAlarmActionsWithContextMutex.Lock()
+	defer fake.disableAlarmActionsWithContextMutex.Unlock()
+	fake.DisableAlarmActionsWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContextArgsForCall(i int) (context.Context, *cloudwatch.DisableAlarmActionsInput, []request.Option) {
+	fake.disableAlarmActionsWithContextMutex.RLock()
+	defer fake.disableAlarmActionsWithContextMutex.RUnlock()
+	argsForCall := fake.disableAlarmActionsWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContextReturns(result1 *cloudwatch.DisableAlarmActionsOutput, result2 error) {
+	fake.disableAlarmActionsWithContextMutex.Lock()
+	defer fake.disableAlarmActionsWithContextMutex.Unlock()
+	fake.DisableAlarmActionsWithContextStub = nil
+	fake.disableAlarmActionsWithContextReturns = struct {
+		result1 *cloudwatch.DisableAlarmActionsOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DisableAlarmActionsWithContextReturnsOnCall(i int, result1 *cloudwatch.DisableAlarmActionsOutput, result2 error) {
+	fake.disableAlarmActionsWithContextMutex.Lock()
+	defer fake.disableAlarmActionsWithContextMutex.Unlock()
+	fake.DisableAlarmActionsWithContextStub = nil
+	if fake.disableAlarmActionsWithContextReturnsOnCall == nil {
+		fake.disableAlarmActionsWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.DisableAlarmActionsOutput
+			result2 error
+		})
+	}
+	fake.disableAlarmActionsWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.DisableAlarmActionsOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -1917,7 +2222,8 @@ func (fake *FakeCloudWatchAPI) EnableAlarmActions(arg1 *cloudwatch.EnableAlarmAc
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.enableAlarmActionsReturns.result1, fake.enableAlarmActionsReturns.result2
+	fakeReturns := fake.enableAlarmActionsReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) EnableAlarmActionsCallCount() int {
@@ -1926,13 +2232,22 @@ func (fake *FakeCloudWatchAPI) EnableAlarmActionsCallCount() int {
 	return len(fake.enableAlarmActionsArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) EnableAlarmActionsCalls(stub func(*cloudwatch.EnableAlarmActionsInput) (*cloudwatch.EnableAlarmActionsOutput, error)) {
+	fake.enableAlarmActionsMutex.Lock()
+	defer fake.enableAlarmActionsMutex.Unlock()
+	fake.EnableAlarmActionsStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) EnableAlarmActionsArgsForCall(i int) *cloudwatch.EnableAlarmActionsInput {
 	fake.enableAlarmActionsMutex.RLock()
 	defer fake.enableAlarmActionsMutex.RUnlock()
-	return fake.enableAlarmActionsArgsForCall[i].arg1
+	argsForCall := fake.enableAlarmActionsArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) EnableAlarmActionsReturns(result1 *cloudwatch.EnableAlarmActionsOutput, result2 error) {
+	fake.enableAlarmActionsMutex.Lock()
+	defer fake.enableAlarmActionsMutex.Unlock()
 	fake.EnableAlarmActionsStub = nil
 	fake.enableAlarmActionsReturns = struct {
 		result1 *cloudwatch.EnableAlarmActionsOutput
@@ -1941,6 +2256,8 @@ func (fake *FakeCloudWatchAPI) EnableAlarmActionsReturns(result1 *cloudwatch.Ena
 }
 
 func (fake *FakeCloudWatchAPI) EnableAlarmActionsReturnsOnCall(i int, result1 *cloudwatch.EnableAlarmActionsOutput, result2 error) {
+	fake.enableAlarmActionsMutex.Lock()
+	defer fake.enableAlarmActionsMutex.Unlock()
 	fake.EnableAlarmActionsStub = nil
 	if fake.enableAlarmActionsReturnsOnCall == nil {
 		fake.enableAlarmActionsReturnsOnCall = make(map[int]struct {
@@ -1949,59 +2266,6 @@ func (fake *FakeCloudWatchAPI) EnableAlarmActionsReturnsOnCall(i int, result1 *c
 		})
 	}
 	fake.enableAlarmActionsReturnsOnCall[i] = struct {
-		result1 *cloudwatch.EnableAlarmActionsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContext(arg1 aws.Context, arg2 *cloudwatch.EnableAlarmActionsInput, arg3 ...request.Option) (*cloudwatch.EnableAlarmActionsOutput, error) {
-	fake.enableAlarmActionsWithContextMutex.Lock()
-	ret, specificReturn := fake.enableAlarmActionsWithContextReturnsOnCall[len(fake.enableAlarmActionsWithContextArgsForCall)]
-	fake.enableAlarmActionsWithContextArgsForCall = append(fake.enableAlarmActionsWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.EnableAlarmActionsInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("EnableAlarmActionsWithContext", []interface{}{arg1, arg2, arg3})
-	fake.enableAlarmActionsWithContextMutex.Unlock()
-	if fake.EnableAlarmActionsWithContextStub != nil {
-		return fake.EnableAlarmActionsWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.enableAlarmActionsWithContextReturns.result1, fake.enableAlarmActionsWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContextCallCount() int {
-	fake.enableAlarmActionsWithContextMutex.RLock()
-	defer fake.enableAlarmActionsWithContextMutex.RUnlock()
-	return len(fake.enableAlarmActionsWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContextArgsForCall(i int) (aws.Context, *cloudwatch.EnableAlarmActionsInput, []request.Option) {
-	fake.enableAlarmActionsWithContextMutex.RLock()
-	defer fake.enableAlarmActionsWithContextMutex.RUnlock()
-	return fake.enableAlarmActionsWithContextArgsForCall[i].arg1, fake.enableAlarmActionsWithContextArgsForCall[i].arg2, fake.enableAlarmActionsWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContextReturns(result1 *cloudwatch.EnableAlarmActionsOutput, result2 error) {
-	fake.EnableAlarmActionsWithContextStub = nil
-	fake.enableAlarmActionsWithContextReturns = struct {
-		result1 *cloudwatch.EnableAlarmActionsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContextReturnsOnCall(i int, result1 *cloudwatch.EnableAlarmActionsOutput, result2 error) {
-	fake.EnableAlarmActionsWithContextStub = nil
-	if fake.enableAlarmActionsWithContextReturnsOnCall == nil {
-		fake.enableAlarmActionsWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.EnableAlarmActionsOutput
-			result2 error
-		})
-	}
-	fake.enableAlarmActionsWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.EnableAlarmActionsOutput
 		result2 error
 	}{result1, result2}
@@ -2021,7 +2285,8 @@ func (fake *FakeCloudWatchAPI) EnableAlarmActionsRequest(arg1 *cloudwatch.Enable
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.enableAlarmActionsRequestReturns.result1, fake.enableAlarmActionsRequestReturns.result2
+	fakeReturns := fake.enableAlarmActionsRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) EnableAlarmActionsRequestCallCount() int {
@@ -2030,13 +2295,22 @@ func (fake *FakeCloudWatchAPI) EnableAlarmActionsRequestCallCount() int {
 	return len(fake.enableAlarmActionsRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) EnableAlarmActionsRequestCalls(stub func(*cloudwatch.EnableAlarmActionsInput) (*request.Request, *cloudwatch.EnableAlarmActionsOutput)) {
+	fake.enableAlarmActionsRequestMutex.Lock()
+	defer fake.enableAlarmActionsRequestMutex.Unlock()
+	fake.EnableAlarmActionsRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) EnableAlarmActionsRequestArgsForCall(i int) *cloudwatch.EnableAlarmActionsInput {
 	fake.enableAlarmActionsRequestMutex.RLock()
 	defer fake.enableAlarmActionsRequestMutex.RUnlock()
-	return fake.enableAlarmActionsRequestArgsForCall[i].arg1
+	argsForCall := fake.enableAlarmActionsRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) EnableAlarmActionsRequestReturns(result1 *request.Request, result2 *cloudwatch.EnableAlarmActionsOutput) {
+	fake.enableAlarmActionsRequestMutex.Lock()
+	defer fake.enableAlarmActionsRequestMutex.Unlock()
 	fake.EnableAlarmActionsRequestStub = nil
 	fake.enableAlarmActionsRequestReturns = struct {
 		result1 *request.Request
@@ -2045,6 +2319,8 @@ func (fake *FakeCloudWatchAPI) EnableAlarmActionsRequestReturns(result1 *request
 }
 
 func (fake *FakeCloudWatchAPI) EnableAlarmActionsRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.EnableAlarmActionsOutput) {
+	fake.enableAlarmActionsRequestMutex.Lock()
+	defer fake.enableAlarmActionsRequestMutex.Unlock()
 	fake.EnableAlarmActionsRequestStub = nil
 	if fake.enableAlarmActionsRequestReturnsOnCall == nil {
 		fake.enableAlarmActionsRequestReturnsOnCall = make(map[int]struct {
@@ -2055,6 +2331,71 @@ func (fake *FakeCloudWatchAPI) EnableAlarmActionsRequestReturnsOnCall(i int, res
 	fake.enableAlarmActionsRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.EnableAlarmActionsOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContext(arg1 context.Context, arg2 *cloudwatch.EnableAlarmActionsInput, arg3 ...request.Option) (*cloudwatch.EnableAlarmActionsOutput, error) {
+	fake.enableAlarmActionsWithContextMutex.Lock()
+	ret, specificReturn := fake.enableAlarmActionsWithContextReturnsOnCall[len(fake.enableAlarmActionsWithContextArgsForCall)]
+	fake.enableAlarmActionsWithContextArgsForCall = append(fake.enableAlarmActionsWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.EnableAlarmActionsInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("EnableAlarmActionsWithContext", []interface{}{arg1, arg2, arg3})
+	fake.enableAlarmActionsWithContextMutex.Unlock()
+	if fake.EnableAlarmActionsWithContextStub != nil {
+		return fake.EnableAlarmActionsWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.enableAlarmActionsWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContextCallCount() int {
+	fake.enableAlarmActionsWithContextMutex.RLock()
+	defer fake.enableAlarmActionsWithContextMutex.RUnlock()
+	return len(fake.enableAlarmActionsWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContextCalls(stub func(context.Context, *cloudwatch.EnableAlarmActionsInput, ...request.Option) (*cloudwatch.EnableAlarmActionsOutput, error)) {
+	fake.enableAlarmActionsWithContextMutex.Lock()
+	defer fake.enableAlarmActionsWithContextMutex.Unlock()
+	fake.EnableAlarmActionsWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContextArgsForCall(i int) (context.Context, *cloudwatch.EnableAlarmActionsInput, []request.Option) {
+	fake.enableAlarmActionsWithContextMutex.RLock()
+	defer fake.enableAlarmActionsWithContextMutex.RUnlock()
+	argsForCall := fake.enableAlarmActionsWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContextReturns(result1 *cloudwatch.EnableAlarmActionsOutput, result2 error) {
+	fake.enableAlarmActionsWithContextMutex.Lock()
+	defer fake.enableAlarmActionsWithContextMutex.Unlock()
+	fake.EnableAlarmActionsWithContextStub = nil
+	fake.enableAlarmActionsWithContextReturns = struct {
+		result1 *cloudwatch.EnableAlarmActionsOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) EnableAlarmActionsWithContextReturnsOnCall(i int, result1 *cloudwatch.EnableAlarmActionsOutput, result2 error) {
+	fake.enableAlarmActionsWithContextMutex.Lock()
+	defer fake.enableAlarmActionsWithContextMutex.Unlock()
+	fake.EnableAlarmActionsWithContextStub = nil
+	if fake.enableAlarmActionsWithContextReturnsOnCall == nil {
+		fake.enableAlarmActionsWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.EnableAlarmActionsOutput
+			result2 error
+		})
+	}
+	fake.enableAlarmActionsWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.EnableAlarmActionsOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -2072,7 +2413,8 @@ func (fake *FakeCloudWatchAPI) GetDashboard(arg1 *cloudwatch.GetDashboardInput) 
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.getDashboardReturns.result1, fake.getDashboardReturns.result2
+	fakeReturns := fake.getDashboardReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) GetDashboardCallCount() int {
@@ -2081,13 +2423,22 @@ func (fake *FakeCloudWatchAPI) GetDashboardCallCount() int {
 	return len(fake.getDashboardArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) GetDashboardCalls(stub func(*cloudwatch.GetDashboardInput) (*cloudwatch.GetDashboardOutput, error)) {
+	fake.getDashboardMutex.Lock()
+	defer fake.getDashboardMutex.Unlock()
+	fake.GetDashboardStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) GetDashboardArgsForCall(i int) *cloudwatch.GetDashboardInput {
 	fake.getDashboardMutex.RLock()
 	defer fake.getDashboardMutex.RUnlock()
-	return fake.getDashboardArgsForCall[i].arg1
+	argsForCall := fake.getDashboardArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) GetDashboardReturns(result1 *cloudwatch.GetDashboardOutput, result2 error) {
+	fake.getDashboardMutex.Lock()
+	defer fake.getDashboardMutex.Unlock()
 	fake.GetDashboardStub = nil
 	fake.getDashboardReturns = struct {
 		result1 *cloudwatch.GetDashboardOutput
@@ -2096,6 +2447,8 @@ func (fake *FakeCloudWatchAPI) GetDashboardReturns(result1 *cloudwatch.GetDashbo
 }
 
 func (fake *FakeCloudWatchAPI) GetDashboardReturnsOnCall(i int, result1 *cloudwatch.GetDashboardOutput, result2 error) {
+	fake.getDashboardMutex.Lock()
+	defer fake.getDashboardMutex.Unlock()
 	fake.GetDashboardStub = nil
 	if fake.getDashboardReturnsOnCall == nil {
 		fake.getDashboardReturnsOnCall = make(map[int]struct {
@@ -2104,59 +2457,6 @@ func (fake *FakeCloudWatchAPI) GetDashboardReturnsOnCall(i int, result1 *cloudwa
 		})
 	}
 	fake.getDashboardReturnsOnCall[i] = struct {
-		result1 *cloudwatch.GetDashboardOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) GetDashboardWithContext(arg1 aws.Context, arg2 *cloudwatch.GetDashboardInput, arg3 ...request.Option) (*cloudwatch.GetDashboardOutput, error) {
-	fake.getDashboardWithContextMutex.Lock()
-	ret, specificReturn := fake.getDashboardWithContextReturnsOnCall[len(fake.getDashboardWithContextArgsForCall)]
-	fake.getDashboardWithContextArgsForCall = append(fake.getDashboardWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.GetDashboardInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("GetDashboardWithContext", []interface{}{arg1, arg2, arg3})
-	fake.getDashboardWithContextMutex.Unlock()
-	if fake.GetDashboardWithContextStub != nil {
-		return fake.GetDashboardWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.getDashboardWithContextReturns.result1, fake.getDashboardWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) GetDashboardWithContextCallCount() int {
-	fake.getDashboardWithContextMutex.RLock()
-	defer fake.getDashboardWithContextMutex.RUnlock()
-	return len(fake.getDashboardWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) GetDashboardWithContextArgsForCall(i int) (aws.Context, *cloudwatch.GetDashboardInput, []request.Option) {
-	fake.getDashboardWithContextMutex.RLock()
-	defer fake.getDashboardWithContextMutex.RUnlock()
-	return fake.getDashboardWithContextArgsForCall[i].arg1, fake.getDashboardWithContextArgsForCall[i].arg2, fake.getDashboardWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) GetDashboardWithContextReturns(result1 *cloudwatch.GetDashboardOutput, result2 error) {
-	fake.GetDashboardWithContextStub = nil
-	fake.getDashboardWithContextReturns = struct {
-		result1 *cloudwatch.GetDashboardOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) GetDashboardWithContextReturnsOnCall(i int, result1 *cloudwatch.GetDashboardOutput, result2 error) {
-	fake.GetDashboardWithContextStub = nil
-	if fake.getDashboardWithContextReturnsOnCall == nil {
-		fake.getDashboardWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.GetDashboardOutput
-			result2 error
-		})
-	}
-	fake.getDashboardWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.GetDashboardOutput
 		result2 error
 	}{result1, result2}
@@ -2176,7 +2476,8 @@ func (fake *FakeCloudWatchAPI) GetDashboardRequest(arg1 *cloudwatch.GetDashboard
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.getDashboardRequestReturns.result1, fake.getDashboardRequestReturns.result2
+	fakeReturns := fake.getDashboardRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) GetDashboardRequestCallCount() int {
@@ -2185,13 +2486,22 @@ func (fake *FakeCloudWatchAPI) GetDashboardRequestCallCount() int {
 	return len(fake.getDashboardRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) GetDashboardRequestCalls(stub func(*cloudwatch.GetDashboardInput) (*request.Request, *cloudwatch.GetDashboardOutput)) {
+	fake.getDashboardRequestMutex.Lock()
+	defer fake.getDashboardRequestMutex.Unlock()
+	fake.GetDashboardRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) GetDashboardRequestArgsForCall(i int) *cloudwatch.GetDashboardInput {
 	fake.getDashboardRequestMutex.RLock()
 	defer fake.getDashboardRequestMutex.RUnlock()
-	return fake.getDashboardRequestArgsForCall[i].arg1
+	argsForCall := fake.getDashboardRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) GetDashboardRequestReturns(result1 *request.Request, result2 *cloudwatch.GetDashboardOutput) {
+	fake.getDashboardRequestMutex.Lock()
+	defer fake.getDashboardRequestMutex.Unlock()
 	fake.GetDashboardRequestStub = nil
 	fake.getDashboardRequestReturns = struct {
 		result1 *request.Request
@@ -2200,6 +2510,8 @@ func (fake *FakeCloudWatchAPI) GetDashboardRequestReturns(result1 *request.Reque
 }
 
 func (fake *FakeCloudWatchAPI) GetDashboardRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.GetDashboardOutput) {
+	fake.getDashboardRequestMutex.Lock()
+	defer fake.getDashboardRequestMutex.Unlock()
 	fake.GetDashboardRequestStub = nil
 	if fake.getDashboardRequestReturnsOnCall == nil {
 		fake.getDashboardRequestReturnsOnCall = make(map[int]struct {
@@ -2210,6 +2522,71 @@ func (fake *FakeCloudWatchAPI) GetDashboardRequestReturnsOnCall(i int, result1 *
 	fake.getDashboardRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.GetDashboardOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetDashboardWithContext(arg1 context.Context, arg2 *cloudwatch.GetDashboardInput, arg3 ...request.Option) (*cloudwatch.GetDashboardOutput, error) {
+	fake.getDashboardWithContextMutex.Lock()
+	ret, specificReturn := fake.getDashboardWithContextReturnsOnCall[len(fake.getDashboardWithContextArgsForCall)]
+	fake.getDashboardWithContextArgsForCall = append(fake.getDashboardWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.GetDashboardInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("GetDashboardWithContext", []interface{}{arg1, arg2, arg3})
+	fake.getDashboardWithContextMutex.Unlock()
+	if fake.GetDashboardWithContextStub != nil {
+		return fake.GetDashboardWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.getDashboardWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) GetDashboardWithContextCallCount() int {
+	fake.getDashboardWithContextMutex.RLock()
+	defer fake.getDashboardWithContextMutex.RUnlock()
+	return len(fake.getDashboardWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) GetDashboardWithContextCalls(stub func(context.Context, *cloudwatch.GetDashboardInput, ...request.Option) (*cloudwatch.GetDashboardOutput, error)) {
+	fake.getDashboardWithContextMutex.Lock()
+	defer fake.getDashboardWithContextMutex.Unlock()
+	fake.GetDashboardWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) GetDashboardWithContextArgsForCall(i int) (context.Context, *cloudwatch.GetDashboardInput, []request.Option) {
+	fake.getDashboardWithContextMutex.RLock()
+	defer fake.getDashboardWithContextMutex.RUnlock()
+	argsForCall := fake.getDashboardWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) GetDashboardWithContextReturns(result1 *cloudwatch.GetDashboardOutput, result2 error) {
+	fake.getDashboardWithContextMutex.Lock()
+	defer fake.getDashboardWithContextMutex.Unlock()
+	fake.GetDashboardWithContextStub = nil
+	fake.getDashboardWithContextReturns = struct {
+		result1 *cloudwatch.GetDashboardOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetDashboardWithContextReturnsOnCall(i int, result1 *cloudwatch.GetDashboardOutput, result2 error) {
+	fake.getDashboardWithContextMutex.Lock()
+	defer fake.getDashboardWithContextMutex.Unlock()
+	fake.GetDashboardWithContextStub = nil
+	if fake.getDashboardWithContextReturnsOnCall == nil {
+		fake.getDashboardWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.GetDashboardOutput
+			result2 error
+		})
+	}
+	fake.getDashboardWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.GetDashboardOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -2227,7 +2604,8 @@ func (fake *FakeCloudWatchAPI) GetMetricData(arg1 *cloudwatch.GetMetricDataInput
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.getMetricDataReturns.result1, fake.getMetricDataReturns.result2
+	fakeReturns := fake.getMetricDataReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricDataCallCount() int {
@@ -2236,13 +2614,22 @@ func (fake *FakeCloudWatchAPI) GetMetricDataCallCount() int {
 	return len(fake.getMetricDataArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) GetMetricDataCalls(stub func(*cloudwatch.GetMetricDataInput) (*cloudwatch.GetMetricDataOutput, error)) {
+	fake.getMetricDataMutex.Lock()
+	defer fake.getMetricDataMutex.Unlock()
+	fake.GetMetricDataStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) GetMetricDataArgsForCall(i int) *cloudwatch.GetMetricDataInput {
 	fake.getMetricDataMutex.RLock()
 	defer fake.getMetricDataMutex.RUnlock()
-	return fake.getMetricDataArgsForCall[i].arg1
+	argsForCall := fake.getMetricDataArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricDataReturns(result1 *cloudwatch.GetMetricDataOutput, result2 error) {
+	fake.getMetricDataMutex.Lock()
+	defer fake.getMetricDataMutex.Unlock()
 	fake.GetMetricDataStub = nil
 	fake.getMetricDataReturns = struct {
 		result1 *cloudwatch.GetMetricDataOutput
@@ -2251,6 +2638,8 @@ func (fake *FakeCloudWatchAPI) GetMetricDataReturns(result1 *cloudwatch.GetMetri
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricDataReturnsOnCall(i int, result1 *cloudwatch.GetMetricDataOutput, result2 error) {
+	fake.getMetricDataMutex.Lock()
+	defer fake.getMetricDataMutex.Unlock()
 	fake.GetMetricDataStub = nil
 	if fake.getMetricDataReturnsOnCall == nil {
 		fake.getMetricDataReturnsOnCall = make(map[int]struct {
@@ -2259,59 +2648,6 @@ func (fake *FakeCloudWatchAPI) GetMetricDataReturnsOnCall(i int, result1 *cloudw
 		})
 	}
 	fake.getMetricDataReturnsOnCall[i] = struct {
-		result1 *cloudwatch.GetMetricDataOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) GetMetricDataWithContext(arg1 aws.Context, arg2 *cloudwatch.GetMetricDataInput, arg3 ...request.Option) (*cloudwatch.GetMetricDataOutput, error) {
-	fake.getMetricDataWithContextMutex.Lock()
-	ret, specificReturn := fake.getMetricDataWithContextReturnsOnCall[len(fake.getMetricDataWithContextArgsForCall)]
-	fake.getMetricDataWithContextArgsForCall = append(fake.getMetricDataWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.GetMetricDataInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("GetMetricDataWithContext", []interface{}{arg1, arg2, arg3})
-	fake.getMetricDataWithContextMutex.Unlock()
-	if fake.GetMetricDataWithContextStub != nil {
-		return fake.GetMetricDataWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.getMetricDataWithContextReturns.result1, fake.getMetricDataWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) GetMetricDataWithContextCallCount() int {
-	fake.getMetricDataWithContextMutex.RLock()
-	defer fake.getMetricDataWithContextMutex.RUnlock()
-	return len(fake.getMetricDataWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) GetMetricDataWithContextArgsForCall(i int) (aws.Context, *cloudwatch.GetMetricDataInput, []request.Option) {
-	fake.getMetricDataWithContextMutex.RLock()
-	defer fake.getMetricDataWithContextMutex.RUnlock()
-	return fake.getMetricDataWithContextArgsForCall[i].arg1, fake.getMetricDataWithContextArgsForCall[i].arg2, fake.getMetricDataWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) GetMetricDataWithContextReturns(result1 *cloudwatch.GetMetricDataOutput, result2 error) {
-	fake.GetMetricDataWithContextStub = nil
-	fake.getMetricDataWithContextReturns = struct {
-		result1 *cloudwatch.GetMetricDataOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) GetMetricDataWithContextReturnsOnCall(i int, result1 *cloudwatch.GetMetricDataOutput, result2 error) {
-	fake.GetMetricDataWithContextStub = nil
-	if fake.getMetricDataWithContextReturnsOnCall == nil {
-		fake.getMetricDataWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.GetMetricDataOutput
-			result2 error
-		})
-	}
-	fake.getMetricDataWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.GetMetricDataOutput
 		result2 error
 	}{result1, result2}
@@ -2331,7 +2667,8 @@ func (fake *FakeCloudWatchAPI) GetMetricDataRequest(arg1 *cloudwatch.GetMetricDa
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.getMetricDataRequestReturns.result1, fake.getMetricDataRequestReturns.result2
+	fakeReturns := fake.getMetricDataRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricDataRequestCallCount() int {
@@ -2340,13 +2677,22 @@ func (fake *FakeCloudWatchAPI) GetMetricDataRequestCallCount() int {
 	return len(fake.getMetricDataRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) GetMetricDataRequestCalls(stub func(*cloudwatch.GetMetricDataInput) (*request.Request, *cloudwatch.GetMetricDataOutput)) {
+	fake.getMetricDataRequestMutex.Lock()
+	defer fake.getMetricDataRequestMutex.Unlock()
+	fake.GetMetricDataRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) GetMetricDataRequestArgsForCall(i int) *cloudwatch.GetMetricDataInput {
 	fake.getMetricDataRequestMutex.RLock()
 	defer fake.getMetricDataRequestMutex.RUnlock()
-	return fake.getMetricDataRequestArgsForCall[i].arg1
+	argsForCall := fake.getMetricDataRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricDataRequestReturns(result1 *request.Request, result2 *cloudwatch.GetMetricDataOutput) {
+	fake.getMetricDataRequestMutex.Lock()
+	defer fake.getMetricDataRequestMutex.Unlock()
 	fake.GetMetricDataRequestStub = nil
 	fake.getMetricDataRequestReturns = struct {
 		result1 *request.Request
@@ -2355,6 +2701,8 @@ func (fake *FakeCloudWatchAPI) GetMetricDataRequestReturns(result1 *request.Requ
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricDataRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.GetMetricDataOutput) {
+	fake.getMetricDataRequestMutex.Lock()
+	defer fake.getMetricDataRequestMutex.Unlock()
 	fake.GetMetricDataRequestStub = nil
 	if fake.getMetricDataRequestReturnsOnCall == nil {
 		fake.getMetricDataRequestReturnsOnCall = make(map[int]struct {
@@ -2365,6 +2713,71 @@ func (fake *FakeCloudWatchAPI) GetMetricDataRequestReturnsOnCall(i int, result1 
 	fake.getMetricDataRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.GetMetricDataOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricDataWithContext(arg1 context.Context, arg2 *cloudwatch.GetMetricDataInput, arg3 ...request.Option) (*cloudwatch.GetMetricDataOutput, error) {
+	fake.getMetricDataWithContextMutex.Lock()
+	ret, specificReturn := fake.getMetricDataWithContextReturnsOnCall[len(fake.getMetricDataWithContextArgsForCall)]
+	fake.getMetricDataWithContextArgsForCall = append(fake.getMetricDataWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.GetMetricDataInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("GetMetricDataWithContext", []interface{}{arg1, arg2, arg3})
+	fake.getMetricDataWithContextMutex.Unlock()
+	if fake.GetMetricDataWithContextStub != nil {
+		return fake.GetMetricDataWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.getMetricDataWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricDataWithContextCallCount() int {
+	fake.getMetricDataWithContextMutex.RLock()
+	defer fake.getMetricDataWithContextMutex.RUnlock()
+	return len(fake.getMetricDataWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricDataWithContextCalls(stub func(context.Context, *cloudwatch.GetMetricDataInput, ...request.Option) (*cloudwatch.GetMetricDataOutput, error)) {
+	fake.getMetricDataWithContextMutex.Lock()
+	defer fake.getMetricDataWithContextMutex.Unlock()
+	fake.GetMetricDataWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricDataWithContextArgsForCall(i int) (context.Context, *cloudwatch.GetMetricDataInput, []request.Option) {
+	fake.getMetricDataWithContextMutex.RLock()
+	defer fake.getMetricDataWithContextMutex.RUnlock()
+	argsForCall := fake.getMetricDataWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricDataWithContextReturns(result1 *cloudwatch.GetMetricDataOutput, result2 error) {
+	fake.getMetricDataWithContextMutex.Lock()
+	defer fake.getMetricDataWithContextMutex.Unlock()
+	fake.GetMetricDataWithContextStub = nil
+	fake.getMetricDataWithContextReturns = struct {
+		result1 *cloudwatch.GetMetricDataOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricDataWithContextReturnsOnCall(i int, result1 *cloudwatch.GetMetricDataOutput, result2 error) {
+	fake.getMetricDataWithContextMutex.Lock()
+	defer fake.getMetricDataWithContextMutex.Unlock()
+	fake.GetMetricDataWithContextStub = nil
+	if fake.getMetricDataWithContextReturnsOnCall == nil {
+		fake.getMetricDataWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.GetMetricDataOutput
+			result2 error
+		})
+	}
+	fake.getMetricDataWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.GetMetricDataOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -2382,7 +2795,8 @@ func (fake *FakeCloudWatchAPI) GetMetricStatistics(arg1 *cloudwatch.GetMetricSta
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.getMetricStatisticsReturns.result1, fake.getMetricStatisticsReturns.result2
+	fakeReturns := fake.getMetricStatisticsReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricStatisticsCallCount() int {
@@ -2391,13 +2805,22 @@ func (fake *FakeCloudWatchAPI) GetMetricStatisticsCallCount() int {
 	return len(fake.getMetricStatisticsArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) GetMetricStatisticsCalls(stub func(*cloudwatch.GetMetricStatisticsInput) (*cloudwatch.GetMetricStatisticsOutput, error)) {
+	fake.getMetricStatisticsMutex.Lock()
+	defer fake.getMetricStatisticsMutex.Unlock()
+	fake.GetMetricStatisticsStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) GetMetricStatisticsArgsForCall(i int) *cloudwatch.GetMetricStatisticsInput {
 	fake.getMetricStatisticsMutex.RLock()
 	defer fake.getMetricStatisticsMutex.RUnlock()
-	return fake.getMetricStatisticsArgsForCall[i].arg1
+	argsForCall := fake.getMetricStatisticsArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricStatisticsReturns(result1 *cloudwatch.GetMetricStatisticsOutput, result2 error) {
+	fake.getMetricStatisticsMutex.Lock()
+	defer fake.getMetricStatisticsMutex.Unlock()
 	fake.GetMetricStatisticsStub = nil
 	fake.getMetricStatisticsReturns = struct {
 		result1 *cloudwatch.GetMetricStatisticsOutput
@@ -2406,6 +2829,8 @@ func (fake *FakeCloudWatchAPI) GetMetricStatisticsReturns(result1 *cloudwatch.Ge
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricStatisticsReturnsOnCall(i int, result1 *cloudwatch.GetMetricStatisticsOutput, result2 error) {
+	fake.getMetricStatisticsMutex.Lock()
+	defer fake.getMetricStatisticsMutex.Unlock()
 	fake.GetMetricStatisticsStub = nil
 	if fake.getMetricStatisticsReturnsOnCall == nil {
 		fake.getMetricStatisticsReturnsOnCall = make(map[int]struct {
@@ -2414,59 +2839,6 @@ func (fake *FakeCloudWatchAPI) GetMetricStatisticsReturnsOnCall(i int, result1 *
 		})
 	}
 	fake.getMetricStatisticsReturnsOnCall[i] = struct {
-		result1 *cloudwatch.GetMetricStatisticsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContext(arg1 aws.Context, arg2 *cloudwatch.GetMetricStatisticsInput, arg3 ...request.Option) (*cloudwatch.GetMetricStatisticsOutput, error) {
-	fake.getMetricStatisticsWithContextMutex.Lock()
-	ret, specificReturn := fake.getMetricStatisticsWithContextReturnsOnCall[len(fake.getMetricStatisticsWithContextArgsForCall)]
-	fake.getMetricStatisticsWithContextArgsForCall = append(fake.getMetricStatisticsWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.GetMetricStatisticsInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("GetMetricStatisticsWithContext", []interface{}{arg1, arg2, arg3})
-	fake.getMetricStatisticsWithContextMutex.Unlock()
-	if fake.GetMetricStatisticsWithContextStub != nil {
-		return fake.GetMetricStatisticsWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.getMetricStatisticsWithContextReturns.result1, fake.getMetricStatisticsWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContextCallCount() int {
-	fake.getMetricStatisticsWithContextMutex.RLock()
-	defer fake.getMetricStatisticsWithContextMutex.RUnlock()
-	return len(fake.getMetricStatisticsWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContextArgsForCall(i int) (aws.Context, *cloudwatch.GetMetricStatisticsInput, []request.Option) {
-	fake.getMetricStatisticsWithContextMutex.RLock()
-	defer fake.getMetricStatisticsWithContextMutex.RUnlock()
-	return fake.getMetricStatisticsWithContextArgsForCall[i].arg1, fake.getMetricStatisticsWithContextArgsForCall[i].arg2, fake.getMetricStatisticsWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContextReturns(result1 *cloudwatch.GetMetricStatisticsOutput, result2 error) {
-	fake.GetMetricStatisticsWithContextStub = nil
-	fake.getMetricStatisticsWithContextReturns = struct {
-		result1 *cloudwatch.GetMetricStatisticsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContextReturnsOnCall(i int, result1 *cloudwatch.GetMetricStatisticsOutput, result2 error) {
-	fake.GetMetricStatisticsWithContextStub = nil
-	if fake.getMetricStatisticsWithContextReturnsOnCall == nil {
-		fake.getMetricStatisticsWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.GetMetricStatisticsOutput
-			result2 error
-		})
-	}
-	fake.getMetricStatisticsWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.GetMetricStatisticsOutput
 		result2 error
 	}{result1, result2}
@@ -2486,7 +2858,8 @@ func (fake *FakeCloudWatchAPI) GetMetricStatisticsRequest(arg1 *cloudwatch.GetMe
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.getMetricStatisticsRequestReturns.result1, fake.getMetricStatisticsRequestReturns.result2
+	fakeReturns := fake.getMetricStatisticsRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricStatisticsRequestCallCount() int {
@@ -2495,13 +2868,22 @@ func (fake *FakeCloudWatchAPI) GetMetricStatisticsRequestCallCount() int {
 	return len(fake.getMetricStatisticsRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) GetMetricStatisticsRequestCalls(stub func(*cloudwatch.GetMetricStatisticsInput) (*request.Request, *cloudwatch.GetMetricStatisticsOutput)) {
+	fake.getMetricStatisticsRequestMutex.Lock()
+	defer fake.getMetricStatisticsRequestMutex.Unlock()
+	fake.GetMetricStatisticsRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) GetMetricStatisticsRequestArgsForCall(i int) *cloudwatch.GetMetricStatisticsInput {
 	fake.getMetricStatisticsRequestMutex.RLock()
 	defer fake.getMetricStatisticsRequestMutex.RUnlock()
-	return fake.getMetricStatisticsRequestArgsForCall[i].arg1
+	argsForCall := fake.getMetricStatisticsRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricStatisticsRequestReturns(result1 *request.Request, result2 *cloudwatch.GetMetricStatisticsOutput) {
+	fake.getMetricStatisticsRequestMutex.Lock()
+	defer fake.getMetricStatisticsRequestMutex.Unlock()
 	fake.GetMetricStatisticsRequestStub = nil
 	fake.getMetricStatisticsRequestReturns = struct {
 		result1 *request.Request
@@ -2510,6 +2892,8 @@ func (fake *FakeCloudWatchAPI) GetMetricStatisticsRequestReturns(result1 *reques
 }
 
 func (fake *FakeCloudWatchAPI) GetMetricStatisticsRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.GetMetricStatisticsOutput) {
+	fake.getMetricStatisticsRequestMutex.Lock()
+	defer fake.getMetricStatisticsRequestMutex.Unlock()
 	fake.GetMetricStatisticsRequestStub = nil
 	if fake.getMetricStatisticsRequestReturnsOnCall == nil {
 		fake.getMetricStatisticsRequestReturnsOnCall = make(map[int]struct {
@@ -2520,6 +2904,262 @@ func (fake *FakeCloudWatchAPI) GetMetricStatisticsRequestReturnsOnCall(i int, re
 	fake.getMetricStatisticsRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.GetMetricStatisticsOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContext(arg1 context.Context, arg2 *cloudwatch.GetMetricStatisticsInput, arg3 ...request.Option) (*cloudwatch.GetMetricStatisticsOutput, error) {
+	fake.getMetricStatisticsWithContextMutex.Lock()
+	ret, specificReturn := fake.getMetricStatisticsWithContextReturnsOnCall[len(fake.getMetricStatisticsWithContextArgsForCall)]
+	fake.getMetricStatisticsWithContextArgsForCall = append(fake.getMetricStatisticsWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.GetMetricStatisticsInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("GetMetricStatisticsWithContext", []interface{}{arg1, arg2, arg3})
+	fake.getMetricStatisticsWithContextMutex.Unlock()
+	if fake.GetMetricStatisticsWithContextStub != nil {
+		return fake.GetMetricStatisticsWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.getMetricStatisticsWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContextCallCount() int {
+	fake.getMetricStatisticsWithContextMutex.RLock()
+	defer fake.getMetricStatisticsWithContextMutex.RUnlock()
+	return len(fake.getMetricStatisticsWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContextCalls(stub func(context.Context, *cloudwatch.GetMetricStatisticsInput, ...request.Option) (*cloudwatch.GetMetricStatisticsOutput, error)) {
+	fake.getMetricStatisticsWithContextMutex.Lock()
+	defer fake.getMetricStatisticsWithContextMutex.Unlock()
+	fake.GetMetricStatisticsWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContextArgsForCall(i int) (context.Context, *cloudwatch.GetMetricStatisticsInput, []request.Option) {
+	fake.getMetricStatisticsWithContextMutex.RLock()
+	defer fake.getMetricStatisticsWithContextMutex.RUnlock()
+	argsForCall := fake.getMetricStatisticsWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContextReturns(result1 *cloudwatch.GetMetricStatisticsOutput, result2 error) {
+	fake.getMetricStatisticsWithContextMutex.Lock()
+	defer fake.getMetricStatisticsWithContextMutex.Unlock()
+	fake.GetMetricStatisticsWithContextStub = nil
+	fake.getMetricStatisticsWithContextReturns = struct {
+		result1 *cloudwatch.GetMetricStatisticsOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricStatisticsWithContextReturnsOnCall(i int, result1 *cloudwatch.GetMetricStatisticsOutput, result2 error) {
+	fake.getMetricStatisticsWithContextMutex.Lock()
+	defer fake.getMetricStatisticsWithContextMutex.Unlock()
+	fake.GetMetricStatisticsWithContextStub = nil
+	if fake.getMetricStatisticsWithContextReturnsOnCall == nil {
+		fake.getMetricStatisticsWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.GetMetricStatisticsOutput
+			result2 error
+		})
+	}
+	fake.getMetricStatisticsWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.GetMetricStatisticsOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImage(arg1 *cloudwatch.GetMetricWidgetImageInput) (*cloudwatch.GetMetricWidgetImageOutput, error) {
+	fake.getMetricWidgetImageMutex.Lock()
+	ret, specificReturn := fake.getMetricWidgetImageReturnsOnCall[len(fake.getMetricWidgetImageArgsForCall)]
+	fake.getMetricWidgetImageArgsForCall = append(fake.getMetricWidgetImageArgsForCall, struct {
+		arg1 *cloudwatch.GetMetricWidgetImageInput
+	}{arg1})
+	fake.recordInvocation("GetMetricWidgetImage", []interface{}{arg1})
+	fake.getMetricWidgetImageMutex.Unlock()
+	if fake.GetMetricWidgetImageStub != nil {
+		return fake.GetMetricWidgetImageStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.getMetricWidgetImageReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageCallCount() int {
+	fake.getMetricWidgetImageMutex.RLock()
+	defer fake.getMetricWidgetImageMutex.RUnlock()
+	return len(fake.getMetricWidgetImageArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageCalls(stub func(*cloudwatch.GetMetricWidgetImageInput) (*cloudwatch.GetMetricWidgetImageOutput, error)) {
+	fake.getMetricWidgetImageMutex.Lock()
+	defer fake.getMetricWidgetImageMutex.Unlock()
+	fake.GetMetricWidgetImageStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageArgsForCall(i int) *cloudwatch.GetMetricWidgetImageInput {
+	fake.getMetricWidgetImageMutex.RLock()
+	defer fake.getMetricWidgetImageMutex.RUnlock()
+	argsForCall := fake.getMetricWidgetImageArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageReturns(result1 *cloudwatch.GetMetricWidgetImageOutput, result2 error) {
+	fake.getMetricWidgetImageMutex.Lock()
+	defer fake.getMetricWidgetImageMutex.Unlock()
+	fake.GetMetricWidgetImageStub = nil
+	fake.getMetricWidgetImageReturns = struct {
+		result1 *cloudwatch.GetMetricWidgetImageOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageReturnsOnCall(i int, result1 *cloudwatch.GetMetricWidgetImageOutput, result2 error) {
+	fake.getMetricWidgetImageMutex.Lock()
+	defer fake.getMetricWidgetImageMutex.Unlock()
+	fake.GetMetricWidgetImageStub = nil
+	if fake.getMetricWidgetImageReturnsOnCall == nil {
+		fake.getMetricWidgetImageReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.GetMetricWidgetImageOutput
+			result2 error
+		})
+	}
+	fake.getMetricWidgetImageReturnsOnCall[i] = struct {
+		result1 *cloudwatch.GetMetricWidgetImageOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageRequest(arg1 *cloudwatch.GetMetricWidgetImageInput) (*request.Request, *cloudwatch.GetMetricWidgetImageOutput) {
+	fake.getMetricWidgetImageRequestMutex.Lock()
+	ret, specificReturn := fake.getMetricWidgetImageRequestReturnsOnCall[len(fake.getMetricWidgetImageRequestArgsForCall)]
+	fake.getMetricWidgetImageRequestArgsForCall = append(fake.getMetricWidgetImageRequestArgsForCall, struct {
+		arg1 *cloudwatch.GetMetricWidgetImageInput
+	}{arg1})
+	fake.recordInvocation("GetMetricWidgetImageRequest", []interface{}{arg1})
+	fake.getMetricWidgetImageRequestMutex.Unlock()
+	if fake.GetMetricWidgetImageRequestStub != nil {
+		return fake.GetMetricWidgetImageRequestStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.getMetricWidgetImageRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageRequestCallCount() int {
+	fake.getMetricWidgetImageRequestMutex.RLock()
+	defer fake.getMetricWidgetImageRequestMutex.RUnlock()
+	return len(fake.getMetricWidgetImageRequestArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageRequestCalls(stub func(*cloudwatch.GetMetricWidgetImageInput) (*request.Request, *cloudwatch.GetMetricWidgetImageOutput)) {
+	fake.getMetricWidgetImageRequestMutex.Lock()
+	defer fake.getMetricWidgetImageRequestMutex.Unlock()
+	fake.GetMetricWidgetImageRequestStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageRequestArgsForCall(i int) *cloudwatch.GetMetricWidgetImageInput {
+	fake.getMetricWidgetImageRequestMutex.RLock()
+	defer fake.getMetricWidgetImageRequestMutex.RUnlock()
+	argsForCall := fake.getMetricWidgetImageRequestArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageRequestReturns(result1 *request.Request, result2 *cloudwatch.GetMetricWidgetImageOutput) {
+	fake.getMetricWidgetImageRequestMutex.Lock()
+	defer fake.getMetricWidgetImageRequestMutex.Unlock()
+	fake.GetMetricWidgetImageRequestStub = nil
+	fake.getMetricWidgetImageRequestReturns = struct {
+		result1 *request.Request
+		result2 *cloudwatch.GetMetricWidgetImageOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.GetMetricWidgetImageOutput) {
+	fake.getMetricWidgetImageRequestMutex.Lock()
+	defer fake.getMetricWidgetImageRequestMutex.Unlock()
+	fake.GetMetricWidgetImageRequestStub = nil
+	if fake.getMetricWidgetImageRequestReturnsOnCall == nil {
+		fake.getMetricWidgetImageRequestReturnsOnCall = make(map[int]struct {
+			result1 *request.Request
+			result2 *cloudwatch.GetMetricWidgetImageOutput
+		})
+	}
+	fake.getMetricWidgetImageRequestReturnsOnCall[i] = struct {
+		result1 *request.Request
+		result2 *cloudwatch.GetMetricWidgetImageOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageWithContext(arg1 context.Context, arg2 *cloudwatch.GetMetricWidgetImageInput, arg3 ...request.Option) (*cloudwatch.GetMetricWidgetImageOutput, error) {
+	fake.getMetricWidgetImageWithContextMutex.Lock()
+	ret, specificReturn := fake.getMetricWidgetImageWithContextReturnsOnCall[len(fake.getMetricWidgetImageWithContextArgsForCall)]
+	fake.getMetricWidgetImageWithContextArgsForCall = append(fake.getMetricWidgetImageWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.GetMetricWidgetImageInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("GetMetricWidgetImageWithContext", []interface{}{arg1, arg2, arg3})
+	fake.getMetricWidgetImageWithContextMutex.Unlock()
+	if fake.GetMetricWidgetImageWithContextStub != nil {
+		return fake.GetMetricWidgetImageWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.getMetricWidgetImageWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageWithContextCallCount() int {
+	fake.getMetricWidgetImageWithContextMutex.RLock()
+	defer fake.getMetricWidgetImageWithContextMutex.RUnlock()
+	return len(fake.getMetricWidgetImageWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageWithContextCalls(stub func(context.Context, *cloudwatch.GetMetricWidgetImageInput, ...request.Option) (*cloudwatch.GetMetricWidgetImageOutput, error)) {
+	fake.getMetricWidgetImageWithContextMutex.Lock()
+	defer fake.getMetricWidgetImageWithContextMutex.Unlock()
+	fake.GetMetricWidgetImageWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageWithContextArgsForCall(i int) (context.Context, *cloudwatch.GetMetricWidgetImageInput, []request.Option) {
+	fake.getMetricWidgetImageWithContextMutex.RLock()
+	defer fake.getMetricWidgetImageWithContextMutex.RUnlock()
+	argsForCall := fake.getMetricWidgetImageWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageWithContextReturns(result1 *cloudwatch.GetMetricWidgetImageOutput, result2 error) {
+	fake.getMetricWidgetImageWithContextMutex.Lock()
+	defer fake.getMetricWidgetImageWithContextMutex.Unlock()
+	fake.GetMetricWidgetImageWithContextStub = nil
+	fake.getMetricWidgetImageWithContextReturns = struct {
+		result1 *cloudwatch.GetMetricWidgetImageOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) GetMetricWidgetImageWithContextReturnsOnCall(i int, result1 *cloudwatch.GetMetricWidgetImageOutput, result2 error) {
+	fake.getMetricWidgetImageWithContextMutex.Lock()
+	defer fake.getMetricWidgetImageWithContextMutex.Unlock()
+	fake.GetMetricWidgetImageWithContextStub = nil
+	if fake.getMetricWidgetImageWithContextReturnsOnCall == nil {
+		fake.getMetricWidgetImageWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.GetMetricWidgetImageOutput
+			result2 error
+		})
+	}
+	fake.getMetricWidgetImageWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.GetMetricWidgetImageOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -2537,7 +3177,8 @@ func (fake *FakeCloudWatchAPI) ListDashboards(arg1 *cloudwatch.ListDashboardsInp
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.listDashboardsReturns.result1, fake.listDashboardsReturns.result2
+	fakeReturns := fake.listDashboardsReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) ListDashboardsCallCount() int {
@@ -2546,13 +3187,22 @@ func (fake *FakeCloudWatchAPI) ListDashboardsCallCount() int {
 	return len(fake.listDashboardsArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) ListDashboardsCalls(stub func(*cloudwatch.ListDashboardsInput) (*cloudwatch.ListDashboardsOutput, error)) {
+	fake.listDashboardsMutex.Lock()
+	defer fake.listDashboardsMutex.Unlock()
+	fake.ListDashboardsStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) ListDashboardsArgsForCall(i int) *cloudwatch.ListDashboardsInput {
 	fake.listDashboardsMutex.RLock()
 	defer fake.listDashboardsMutex.RUnlock()
-	return fake.listDashboardsArgsForCall[i].arg1
+	argsForCall := fake.listDashboardsArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) ListDashboardsReturns(result1 *cloudwatch.ListDashboardsOutput, result2 error) {
+	fake.listDashboardsMutex.Lock()
+	defer fake.listDashboardsMutex.Unlock()
 	fake.ListDashboardsStub = nil
 	fake.listDashboardsReturns = struct {
 		result1 *cloudwatch.ListDashboardsOutput
@@ -2561,6 +3211,8 @@ func (fake *FakeCloudWatchAPI) ListDashboardsReturns(result1 *cloudwatch.ListDas
 }
 
 func (fake *FakeCloudWatchAPI) ListDashboardsReturnsOnCall(i int, result1 *cloudwatch.ListDashboardsOutput, result2 error) {
+	fake.listDashboardsMutex.Lock()
+	defer fake.listDashboardsMutex.Unlock()
 	fake.ListDashboardsStub = nil
 	if fake.listDashboardsReturnsOnCall == nil {
 		fake.listDashboardsReturnsOnCall = make(map[int]struct {
@@ -2569,59 +3221,6 @@ func (fake *FakeCloudWatchAPI) ListDashboardsReturnsOnCall(i int, result1 *cloud
 		})
 	}
 	fake.listDashboardsReturnsOnCall[i] = struct {
-		result1 *cloudwatch.ListDashboardsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) ListDashboardsWithContext(arg1 aws.Context, arg2 *cloudwatch.ListDashboardsInput, arg3 ...request.Option) (*cloudwatch.ListDashboardsOutput, error) {
-	fake.listDashboardsWithContextMutex.Lock()
-	ret, specificReturn := fake.listDashboardsWithContextReturnsOnCall[len(fake.listDashboardsWithContextArgsForCall)]
-	fake.listDashboardsWithContextArgsForCall = append(fake.listDashboardsWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.ListDashboardsInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("ListDashboardsWithContext", []interface{}{arg1, arg2, arg3})
-	fake.listDashboardsWithContextMutex.Unlock()
-	if fake.ListDashboardsWithContextStub != nil {
-		return fake.ListDashboardsWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.listDashboardsWithContextReturns.result1, fake.listDashboardsWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) ListDashboardsWithContextCallCount() int {
-	fake.listDashboardsWithContextMutex.RLock()
-	defer fake.listDashboardsWithContextMutex.RUnlock()
-	return len(fake.listDashboardsWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) ListDashboardsWithContextArgsForCall(i int) (aws.Context, *cloudwatch.ListDashboardsInput, []request.Option) {
-	fake.listDashboardsWithContextMutex.RLock()
-	defer fake.listDashboardsWithContextMutex.RUnlock()
-	return fake.listDashboardsWithContextArgsForCall[i].arg1, fake.listDashboardsWithContextArgsForCall[i].arg2, fake.listDashboardsWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) ListDashboardsWithContextReturns(result1 *cloudwatch.ListDashboardsOutput, result2 error) {
-	fake.ListDashboardsWithContextStub = nil
-	fake.listDashboardsWithContextReturns = struct {
-		result1 *cloudwatch.ListDashboardsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) ListDashboardsWithContextReturnsOnCall(i int, result1 *cloudwatch.ListDashboardsOutput, result2 error) {
-	fake.ListDashboardsWithContextStub = nil
-	if fake.listDashboardsWithContextReturnsOnCall == nil {
-		fake.listDashboardsWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.ListDashboardsOutput
-			result2 error
-		})
-	}
-	fake.listDashboardsWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.ListDashboardsOutput
 		result2 error
 	}{result1, result2}
@@ -2641,7 +3240,8 @@ func (fake *FakeCloudWatchAPI) ListDashboardsRequest(arg1 *cloudwatch.ListDashbo
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.listDashboardsRequestReturns.result1, fake.listDashboardsRequestReturns.result2
+	fakeReturns := fake.listDashboardsRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) ListDashboardsRequestCallCount() int {
@@ -2650,13 +3250,22 @@ func (fake *FakeCloudWatchAPI) ListDashboardsRequestCallCount() int {
 	return len(fake.listDashboardsRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) ListDashboardsRequestCalls(stub func(*cloudwatch.ListDashboardsInput) (*request.Request, *cloudwatch.ListDashboardsOutput)) {
+	fake.listDashboardsRequestMutex.Lock()
+	defer fake.listDashboardsRequestMutex.Unlock()
+	fake.ListDashboardsRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) ListDashboardsRequestArgsForCall(i int) *cloudwatch.ListDashboardsInput {
 	fake.listDashboardsRequestMutex.RLock()
 	defer fake.listDashboardsRequestMutex.RUnlock()
-	return fake.listDashboardsRequestArgsForCall[i].arg1
+	argsForCall := fake.listDashboardsRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) ListDashboardsRequestReturns(result1 *request.Request, result2 *cloudwatch.ListDashboardsOutput) {
+	fake.listDashboardsRequestMutex.Lock()
+	defer fake.listDashboardsRequestMutex.Unlock()
 	fake.ListDashboardsRequestStub = nil
 	fake.listDashboardsRequestReturns = struct {
 		result1 *request.Request
@@ -2665,6 +3274,8 @@ func (fake *FakeCloudWatchAPI) ListDashboardsRequestReturns(result1 *request.Req
 }
 
 func (fake *FakeCloudWatchAPI) ListDashboardsRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.ListDashboardsOutput) {
+	fake.listDashboardsRequestMutex.Lock()
+	defer fake.listDashboardsRequestMutex.Unlock()
 	fake.ListDashboardsRequestStub = nil
 	if fake.listDashboardsRequestReturnsOnCall == nil {
 		fake.listDashboardsRequestReturnsOnCall = make(map[int]struct {
@@ -2675,6 +3286,71 @@ func (fake *FakeCloudWatchAPI) ListDashboardsRequestReturnsOnCall(i int, result1
 	fake.listDashboardsRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.ListDashboardsOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) ListDashboardsWithContext(arg1 context.Context, arg2 *cloudwatch.ListDashboardsInput, arg3 ...request.Option) (*cloudwatch.ListDashboardsOutput, error) {
+	fake.listDashboardsWithContextMutex.Lock()
+	ret, specificReturn := fake.listDashboardsWithContextReturnsOnCall[len(fake.listDashboardsWithContextArgsForCall)]
+	fake.listDashboardsWithContextArgsForCall = append(fake.listDashboardsWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.ListDashboardsInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("ListDashboardsWithContext", []interface{}{arg1, arg2, arg3})
+	fake.listDashboardsWithContextMutex.Unlock()
+	if fake.ListDashboardsWithContextStub != nil {
+		return fake.ListDashboardsWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.listDashboardsWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) ListDashboardsWithContextCallCount() int {
+	fake.listDashboardsWithContextMutex.RLock()
+	defer fake.listDashboardsWithContextMutex.RUnlock()
+	return len(fake.listDashboardsWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) ListDashboardsWithContextCalls(stub func(context.Context, *cloudwatch.ListDashboardsInput, ...request.Option) (*cloudwatch.ListDashboardsOutput, error)) {
+	fake.listDashboardsWithContextMutex.Lock()
+	defer fake.listDashboardsWithContextMutex.Unlock()
+	fake.ListDashboardsWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) ListDashboardsWithContextArgsForCall(i int) (context.Context, *cloudwatch.ListDashboardsInput, []request.Option) {
+	fake.listDashboardsWithContextMutex.RLock()
+	defer fake.listDashboardsWithContextMutex.RUnlock()
+	argsForCall := fake.listDashboardsWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) ListDashboardsWithContextReturns(result1 *cloudwatch.ListDashboardsOutput, result2 error) {
+	fake.listDashboardsWithContextMutex.Lock()
+	defer fake.listDashboardsWithContextMutex.Unlock()
+	fake.ListDashboardsWithContextStub = nil
+	fake.listDashboardsWithContextReturns = struct {
+		result1 *cloudwatch.ListDashboardsOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) ListDashboardsWithContextReturnsOnCall(i int, result1 *cloudwatch.ListDashboardsOutput, result2 error) {
+	fake.listDashboardsWithContextMutex.Lock()
+	defer fake.listDashboardsWithContextMutex.Unlock()
+	fake.ListDashboardsWithContextStub = nil
+	if fake.listDashboardsWithContextReturnsOnCall == nil {
+		fake.listDashboardsWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.ListDashboardsOutput
+			result2 error
+		})
+	}
+	fake.listDashboardsWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.ListDashboardsOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -2692,7 +3368,8 @@ func (fake *FakeCloudWatchAPI) ListMetrics(arg1 *cloudwatch.ListMetricsInput) (*
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.listMetricsReturns.result1, fake.listMetricsReturns.result2
+	fakeReturns := fake.listMetricsReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) ListMetricsCallCount() int {
@@ -2701,13 +3378,22 @@ func (fake *FakeCloudWatchAPI) ListMetricsCallCount() int {
 	return len(fake.listMetricsArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) ListMetricsCalls(stub func(*cloudwatch.ListMetricsInput) (*cloudwatch.ListMetricsOutput, error)) {
+	fake.listMetricsMutex.Lock()
+	defer fake.listMetricsMutex.Unlock()
+	fake.ListMetricsStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) ListMetricsArgsForCall(i int) *cloudwatch.ListMetricsInput {
 	fake.listMetricsMutex.RLock()
 	defer fake.listMetricsMutex.RUnlock()
-	return fake.listMetricsArgsForCall[i].arg1
+	argsForCall := fake.listMetricsArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) ListMetricsReturns(result1 *cloudwatch.ListMetricsOutput, result2 error) {
+	fake.listMetricsMutex.Lock()
+	defer fake.listMetricsMutex.Unlock()
 	fake.ListMetricsStub = nil
 	fake.listMetricsReturns = struct {
 		result1 *cloudwatch.ListMetricsOutput
@@ -2716,6 +3402,8 @@ func (fake *FakeCloudWatchAPI) ListMetricsReturns(result1 *cloudwatch.ListMetric
 }
 
 func (fake *FakeCloudWatchAPI) ListMetricsReturnsOnCall(i int, result1 *cloudwatch.ListMetricsOutput, result2 error) {
+	fake.listMetricsMutex.Lock()
+	defer fake.listMetricsMutex.Unlock()
 	fake.ListMetricsStub = nil
 	if fake.listMetricsReturnsOnCall == nil {
 		fake.listMetricsReturnsOnCall = make(map[int]struct {
@@ -2726,110 +3414,6 @@ func (fake *FakeCloudWatchAPI) ListMetricsReturnsOnCall(i int, result1 *cloudwat
 	fake.listMetricsReturnsOnCall[i] = struct {
 		result1 *cloudwatch.ListMetricsOutput
 		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) ListMetricsWithContext(arg1 aws.Context, arg2 *cloudwatch.ListMetricsInput, arg3 ...request.Option) (*cloudwatch.ListMetricsOutput, error) {
-	fake.listMetricsWithContextMutex.Lock()
-	ret, specificReturn := fake.listMetricsWithContextReturnsOnCall[len(fake.listMetricsWithContextArgsForCall)]
-	fake.listMetricsWithContextArgsForCall = append(fake.listMetricsWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.ListMetricsInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("ListMetricsWithContext", []interface{}{arg1, arg2, arg3})
-	fake.listMetricsWithContextMutex.Unlock()
-	if fake.ListMetricsWithContextStub != nil {
-		return fake.ListMetricsWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.listMetricsWithContextReturns.result1, fake.listMetricsWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) ListMetricsWithContextCallCount() int {
-	fake.listMetricsWithContextMutex.RLock()
-	defer fake.listMetricsWithContextMutex.RUnlock()
-	return len(fake.listMetricsWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) ListMetricsWithContextArgsForCall(i int) (aws.Context, *cloudwatch.ListMetricsInput, []request.Option) {
-	fake.listMetricsWithContextMutex.RLock()
-	defer fake.listMetricsWithContextMutex.RUnlock()
-	return fake.listMetricsWithContextArgsForCall[i].arg1, fake.listMetricsWithContextArgsForCall[i].arg2, fake.listMetricsWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) ListMetricsWithContextReturns(result1 *cloudwatch.ListMetricsOutput, result2 error) {
-	fake.ListMetricsWithContextStub = nil
-	fake.listMetricsWithContextReturns = struct {
-		result1 *cloudwatch.ListMetricsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) ListMetricsWithContextReturnsOnCall(i int, result1 *cloudwatch.ListMetricsOutput, result2 error) {
-	fake.ListMetricsWithContextStub = nil
-	if fake.listMetricsWithContextReturnsOnCall == nil {
-		fake.listMetricsWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.ListMetricsOutput
-			result2 error
-		})
-	}
-	fake.listMetricsWithContextReturnsOnCall[i] = struct {
-		result1 *cloudwatch.ListMetricsOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) ListMetricsRequest(arg1 *cloudwatch.ListMetricsInput) (*request.Request, *cloudwatch.ListMetricsOutput) {
-	fake.listMetricsRequestMutex.Lock()
-	ret, specificReturn := fake.listMetricsRequestReturnsOnCall[len(fake.listMetricsRequestArgsForCall)]
-	fake.listMetricsRequestArgsForCall = append(fake.listMetricsRequestArgsForCall, struct {
-		arg1 *cloudwatch.ListMetricsInput
-	}{arg1})
-	fake.recordInvocation("ListMetricsRequest", []interface{}{arg1})
-	fake.listMetricsRequestMutex.Unlock()
-	if fake.ListMetricsRequestStub != nil {
-		return fake.ListMetricsRequestStub(arg1)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.listMetricsRequestReturns.result1, fake.listMetricsRequestReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) ListMetricsRequestCallCount() int {
-	fake.listMetricsRequestMutex.RLock()
-	defer fake.listMetricsRequestMutex.RUnlock()
-	return len(fake.listMetricsRequestArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) ListMetricsRequestArgsForCall(i int) *cloudwatch.ListMetricsInput {
-	fake.listMetricsRequestMutex.RLock()
-	defer fake.listMetricsRequestMutex.RUnlock()
-	return fake.listMetricsRequestArgsForCall[i].arg1
-}
-
-func (fake *FakeCloudWatchAPI) ListMetricsRequestReturns(result1 *request.Request, result2 *cloudwatch.ListMetricsOutput) {
-	fake.ListMetricsRequestStub = nil
-	fake.listMetricsRequestReturns = struct {
-		result1 *request.Request
-		result2 *cloudwatch.ListMetricsOutput
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) ListMetricsRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.ListMetricsOutput) {
-	fake.ListMetricsRequestStub = nil
-	if fake.listMetricsRequestReturnsOnCall == nil {
-		fake.listMetricsRequestReturnsOnCall = make(map[int]struct {
-			result1 *request.Request
-			result2 *cloudwatch.ListMetricsOutput
-		})
-	}
-	fake.listMetricsRequestReturnsOnCall[i] = struct {
-		result1 *request.Request
-		result2 *cloudwatch.ListMetricsOutput
 	}{result1, result2}
 }
 
@@ -2848,7 +3432,8 @@ func (fake *FakeCloudWatchAPI) ListMetricsPages(arg1 *cloudwatch.ListMetricsInpu
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.listMetricsPagesReturns.result1
+	fakeReturns := fake.listMetricsPagesReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeCloudWatchAPI) ListMetricsPagesCallCount() int {
@@ -2857,13 +3442,22 @@ func (fake *FakeCloudWatchAPI) ListMetricsPagesCallCount() int {
 	return len(fake.listMetricsPagesArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) ListMetricsPagesCalls(stub func(*cloudwatch.ListMetricsInput, func(*cloudwatch.ListMetricsOutput, bool) bool) error) {
+	fake.listMetricsPagesMutex.Lock()
+	defer fake.listMetricsPagesMutex.Unlock()
+	fake.ListMetricsPagesStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) ListMetricsPagesArgsForCall(i int) (*cloudwatch.ListMetricsInput, func(*cloudwatch.ListMetricsOutput, bool) bool) {
 	fake.listMetricsPagesMutex.RLock()
 	defer fake.listMetricsPagesMutex.RUnlock()
-	return fake.listMetricsPagesArgsForCall[i].arg1, fake.listMetricsPagesArgsForCall[i].arg2
+	argsForCall := fake.listMetricsPagesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeCloudWatchAPI) ListMetricsPagesReturns(result1 error) {
+	fake.listMetricsPagesMutex.Lock()
+	defer fake.listMetricsPagesMutex.Unlock()
 	fake.ListMetricsPagesStub = nil
 	fake.listMetricsPagesReturns = struct {
 		result1 error
@@ -2871,6 +3465,8 @@ func (fake *FakeCloudWatchAPI) ListMetricsPagesReturns(result1 error) {
 }
 
 func (fake *FakeCloudWatchAPI) ListMetricsPagesReturnsOnCall(i int, result1 error) {
+	fake.listMetricsPagesMutex.Lock()
+	defer fake.listMetricsPagesMutex.Unlock()
 	fake.ListMetricsPagesStub = nil
 	if fake.listMetricsPagesReturnsOnCall == nil {
 		fake.listMetricsPagesReturnsOnCall = make(map[int]struct {
@@ -2882,11 +3478,11 @@ func (fake *FakeCloudWatchAPI) ListMetricsPagesReturnsOnCall(i int, result1 erro
 	}{result1}
 }
 
-func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContext(arg1 aws.Context, arg2 *cloudwatch.ListMetricsInput, arg3 func(*cloudwatch.ListMetricsOutput, bool) bool, arg4 ...request.Option) error {
+func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContext(arg1 context.Context, arg2 *cloudwatch.ListMetricsInput, arg3 func(*cloudwatch.ListMetricsOutput, bool) bool, arg4 ...request.Option) error {
 	fake.listMetricsPagesWithContextMutex.Lock()
 	ret, specificReturn := fake.listMetricsPagesWithContextReturnsOnCall[len(fake.listMetricsPagesWithContextArgsForCall)]
 	fake.listMetricsPagesWithContextArgsForCall = append(fake.listMetricsPagesWithContextArgsForCall, struct {
-		arg1 aws.Context
+		arg1 context.Context
 		arg2 *cloudwatch.ListMetricsInput
 		arg3 func(*cloudwatch.ListMetricsOutput, bool) bool
 		arg4 []request.Option
@@ -2899,7 +3495,8 @@ func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContext(arg1 aws.Context, arg
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.listMetricsPagesWithContextReturns.result1
+	fakeReturns := fake.listMetricsPagesWithContextReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContextCallCount() int {
@@ -2908,13 +3505,22 @@ func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContextCallCount() int {
 	return len(fake.listMetricsPagesWithContextArgsForCall)
 }
 
-func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContextArgsForCall(i int) (aws.Context, *cloudwatch.ListMetricsInput, func(*cloudwatch.ListMetricsOutput, bool) bool, []request.Option) {
+func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContextCalls(stub func(context.Context, *cloudwatch.ListMetricsInput, func(*cloudwatch.ListMetricsOutput, bool) bool, ...request.Option) error) {
+	fake.listMetricsPagesWithContextMutex.Lock()
+	defer fake.listMetricsPagesWithContextMutex.Unlock()
+	fake.ListMetricsPagesWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContextArgsForCall(i int) (context.Context, *cloudwatch.ListMetricsInput, func(*cloudwatch.ListMetricsOutput, bool) bool, []request.Option) {
 	fake.listMetricsPagesWithContextMutex.RLock()
 	defer fake.listMetricsPagesWithContextMutex.RUnlock()
-	return fake.listMetricsPagesWithContextArgsForCall[i].arg1, fake.listMetricsPagesWithContextArgsForCall[i].arg2, fake.listMetricsPagesWithContextArgsForCall[i].arg3, fake.listMetricsPagesWithContextArgsForCall[i].arg4
+	argsForCall := fake.listMetricsPagesWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContextReturns(result1 error) {
+	fake.listMetricsPagesWithContextMutex.Lock()
+	defer fake.listMetricsPagesWithContextMutex.Unlock()
 	fake.ListMetricsPagesWithContextStub = nil
 	fake.listMetricsPagesWithContextReturns = struct {
 		result1 error
@@ -2922,6 +3528,8 @@ func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContextReturns(result1 error)
 }
 
 func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContextReturnsOnCall(i int, result1 error) {
+	fake.listMetricsPagesWithContextMutex.Lock()
+	defer fake.listMetricsPagesWithContextMutex.Unlock()
 	fake.ListMetricsPagesWithContextStub = nil
 	if fake.listMetricsPagesWithContextReturnsOnCall == nil {
 		fake.listMetricsPagesWithContextReturnsOnCall = make(map[int]struct {
@@ -2931,6 +3539,134 @@ func (fake *FakeCloudWatchAPI) ListMetricsPagesWithContextReturnsOnCall(i int, r
 	fake.listMetricsPagesWithContextReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsRequest(arg1 *cloudwatch.ListMetricsInput) (*request.Request, *cloudwatch.ListMetricsOutput) {
+	fake.listMetricsRequestMutex.Lock()
+	ret, specificReturn := fake.listMetricsRequestReturnsOnCall[len(fake.listMetricsRequestArgsForCall)]
+	fake.listMetricsRequestArgsForCall = append(fake.listMetricsRequestArgsForCall, struct {
+		arg1 *cloudwatch.ListMetricsInput
+	}{arg1})
+	fake.recordInvocation("ListMetricsRequest", []interface{}{arg1})
+	fake.listMetricsRequestMutex.Unlock()
+	if fake.ListMetricsRequestStub != nil {
+		return fake.ListMetricsRequestStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.listMetricsRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsRequestCallCount() int {
+	fake.listMetricsRequestMutex.RLock()
+	defer fake.listMetricsRequestMutex.RUnlock()
+	return len(fake.listMetricsRequestArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsRequestCalls(stub func(*cloudwatch.ListMetricsInput) (*request.Request, *cloudwatch.ListMetricsOutput)) {
+	fake.listMetricsRequestMutex.Lock()
+	defer fake.listMetricsRequestMutex.Unlock()
+	fake.ListMetricsRequestStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsRequestArgsForCall(i int) *cloudwatch.ListMetricsInput {
+	fake.listMetricsRequestMutex.RLock()
+	defer fake.listMetricsRequestMutex.RUnlock()
+	argsForCall := fake.listMetricsRequestArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsRequestReturns(result1 *request.Request, result2 *cloudwatch.ListMetricsOutput) {
+	fake.listMetricsRequestMutex.Lock()
+	defer fake.listMetricsRequestMutex.Unlock()
+	fake.ListMetricsRequestStub = nil
+	fake.listMetricsRequestReturns = struct {
+		result1 *request.Request
+		result2 *cloudwatch.ListMetricsOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.ListMetricsOutput) {
+	fake.listMetricsRequestMutex.Lock()
+	defer fake.listMetricsRequestMutex.Unlock()
+	fake.ListMetricsRequestStub = nil
+	if fake.listMetricsRequestReturnsOnCall == nil {
+		fake.listMetricsRequestReturnsOnCall = make(map[int]struct {
+			result1 *request.Request
+			result2 *cloudwatch.ListMetricsOutput
+		})
+	}
+	fake.listMetricsRequestReturnsOnCall[i] = struct {
+		result1 *request.Request
+		result2 *cloudwatch.ListMetricsOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsWithContext(arg1 context.Context, arg2 *cloudwatch.ListMetricsInput, arg3 ...request.Option) (*cloudwatch.ListMetricsOutput, error) {
+	fake.listMetricsWithContextMutex.Lock()
+	ret, specificReturn := fake.listMetricsWithContextReturnsOnCall[len(fake.listMetricsWithContextArgsForCall)]
+	fake.listMetricsWithContextArgsForCall = append(fake.listMetricsWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.ListMetricsInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("ListMetricsWithContext", []interface{}{arg1, arg2, arg3})
+	fake.listMetricsWithContextMutex.Unlock()
+	if fake.ListMetricsWithContextStub != nil {
+		return fake.ListMetricsWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.listMetricsWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsWithContextCallCount() int {
+	fake.listMetricsWithContextMutex.RLock()
+	defer fake.listMetricsWithContextMutex.RUnlock()
+	return len(fake.listMetricsWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsWithContextCalls(stub func(context.Context, *cloudwatch.ListMetricsInput, ...request.Option) (*cloudwatch.ListMetricsOutput, error)) {
+	fake.listMetricsWithContextMutex.Lock()
+	defer fake.listMetricsWithContextMutex.Unlock()
+	fake.ListMetricsWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsWithContextArgsForCall(i int) (context.Context, *cloudwatch.ListMetricsInput, []request.Option) {
+	fake.listMetricsWithContextMutex.RLock()
+	defer fake.listMetricsWithContextMutex.RUnlock()
+	argsForCall := fake.listMetricsWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsWithContextReturns(result1 *cloudwatch.ListMetricsOutput, result2 error) {
+	fake.listMetricsWithContextMutex.Lock()
+	defer fake.listMetricsWithContextMutex.Unlock()
+	fake.ListMetricsWithContextStub = nil
+	fake.listMetricsWithContextReturns = struct {
+		result1 *cloudwatch.ListMetricsOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) ListMetricsWithContextReturnsOnCall(i int, result1 *cloudwatch.ListMetricsOutput, result2 error) {
+	fake.listMetricsWithContextMutex.Lock()
+	defer fake.listMetricsWithContextMutex.Unlock()
+	fake.ListMetricsWithContextStub = nil
+	if fake.listMetricsWithContextReturnsOnCall == nil {
+		fake.listMetricsWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.ListMetricsOutput
+			result2 error
+		})
+	}
+	fake.listMetricsWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.ListMetricsOutput
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeCloudWatchAPI) PutDashboard(arg1 *cloudwatch.PutDashboardInput) (*cloudwatch.PutDashboardOutput, error) {
@@ -2947,7 +3683,8 @@ func (fake *FakeCloudWatchAPI) PutDashboard(arg1 *cloudwatch.PutDashboardInput) 
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.putDashboardReturns.result1, fake.putDashboardReturns.result2
+	fakeReturns := fake.putDashboardReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) PutDashboardCallCount() int {
@@ -2956,13 +3693,22 @@ func (fake *FakeCloudWatchAPI) PutDashboardCallCount() int {
 	return len(fake.putDashboardArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) PutDashboardCalls(stub func(*cloudwatch.PutDashboardInput) (*cloudwatch.PutDashboardOutput, error)) {
+	fake.putDashboardMutex.Lock()
+	defer fake.putDashboardMutex.Unlock()
+	fake.PutDashboardStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) PutDashboardArgsForCall(i int) *cloudwatch.PutDashboardInput {
 	fake.putDashboardMutex.RLock()
 	defer fake.putDashboardMutex.RUnlock()
-	return fake.putDashboardArgsForCall[i].arg1
+	argsForCall := fake.putDashboardArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) PutDashboardReturns(result1 *cloudwatch.PutDashboardOutput, result2 error) {
+	fake.putDashboardMutex.Lock()
+	defer fake.putDashboardMutex.Unlock()
 	fake.PutDashboardStub = nil
 	fake.putDashboardReturns = struct {
 		result1 *cloudwatch.PutDashboardOutput
@@ -2971,6 +3717,8 @@ func (fake *FakeCloudWatchAPI) PutDashboardReturns(result1 *cloudwatch.PutDashbo
 }
 
 func (fake *FakeCloudWatchAPI) PutDashboardReturnsOnCall(i int, result1 *cloudwatch.PutDashboardOutput, result2 error) {
+	fake.putDashboardMutex.Lock()
+	defer fake.putDashboardMutex.Unlock()
 	fake.PutDashboardStub = nil
 	if fake.putDashboardReturnsOnCall == nil {
 		fake.putDashboardReturnsOnCall = make(map[int]struct {
@@ -2979,59 +3727,6 @@ func (fake *FakeCloudWatchAPI) PutDashboardReturnsOnCall(i int, result1 *cloudwa
 		})
 	}
 	fake.putDashboardReturnsOnCall[i] = struct {
-		result1 *cloudwatch.PutDashboardOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) PutDashboardWithContext(arg1 aws.Context, arg2 *cloudwatch.PutDashboardInput, arg3 ...request.Option) (*cloudwatch.PutDashboardOutput, error) {
-	fake.putDashboardWithContextMutex.Lock()
-	ret, specificReturn := fake.putDashboardWithContextReturnsOnCall[len(fake.putDashboardWithContextArgsForCall)]
-	fake.putDashboardWithContextArgsForCall = append(fake.putDashboardWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.PutDashboardInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("PutDashboardWithContext", []interface{}{arg1, arg2, arg3})
-	fake.putDashboardWithContextMutex.Unlock()
-	if fake.PutDashboardWithContextStub != nil {
-		return fake.PutDashboardWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.putDashboardWithContextReturns.result1, fake.putDashboardWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) PutDashboardWithContextCallCount() int {
-	fake.putDashboardWithContextMutex.RLock()
-	defer fake.putDashboardWithContextMutex.RUnlock()
-	return len(fake.putDashboardWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) PutDashboardWithContextArgsForCall(i int) (aws.Context, *cloudwatch.PutDashboardInput, []request.Option) {
-	fake.putDashboardWithContextMutex.RLock()
-	defer fake.putDashboardWithContextMutex.RUnlock()
-	return fake.putDashboardWithContextArgsForCall[i].arg1, fake.putDashboardWithContextArgsForCall[i].arg2, fake.putDashboardWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) PutDashboardWithContextReturns(result1 *cloudwatch.PutDashboardOutput, result2 error) {
-	fake.PutDashboardWithContextStub = nil
-	fake.putDashboardWithContextReturns = struct {
-		result1 *cloudwatch.PutDashboardOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) PutDashboardWithContextReturnsOnCall(i int, result1 *cloudwatch.PutDashboardOutput, result2 error) {
-	fake.PutDashboardWithContextStub = nil
-	if fake.putDashboardWithContextReturnsOnCall == nil {
-		fake.putDashboardWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.PutDashboardOutput
-			result2 error
-		})
-	}
-	fake.putDashboardWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.PutDashboardOutput
 		result2 error
 	}{result1, result2}
@@ -3051,7 +3746,8 @@ func (fake *FakeCloudWatchAPI) PutDashboardRequest(arg1 *cloudwatch.PutDashboard
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.putDashboardRequestReturns.result1, fake.putDashboardRequestReturns.result2
+	fakeReturns := fake.putDashboardRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) PutDashboardRequestCallCount() int {
@@ -3060,13 +3756,22 @@ func (fake *FakeCloudWatchAPI) PutDashboardRequestCallCount() int {
 	return len(fake.putDashboardRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) PutDashboardRequestCalls(stub func(*cloudwatch.PutDashboardInput) (*request.Request, *cloudwatch.PutDashboardOutput)) {
+	fake.putDashboardRequestMutex.Lock()
+	defer fake.putDashboardRequestMutex.Unlock()
+	fake.PutDashboardRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) PutDashboardRequestArgsForCall(i int) *cloudwatch.PutDashboardInput {
 	fake.putDashboardRequestMutex.RLock()
 	defer fake.putDashboardRequestMutex.RUnlock()
-	return fake.putDashboardRequestArgsForCall[i].arg1
+	argsForCall := fake.putDashboardRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) PutDashboardRequestReturns(result1 *request.Request, result2 *cloudwatch.PutDashboardOutput) {
+	fake.putDashboardRequestMutex.Lock()
+	defer fake.putDashboardRequestMutex.Unlock()
 	fake.PutDashboardRequestStub = nil
 	fake.putDashboardRequestReturns = struct {
 		result1 *request.Request
@@ -3075,6 +3780,8 @@ func (fake *FakeCloudWatchAPI) PutDashboardRequestReturns(result1 *request.Reque
 }
 
 func (fake *FakeCloudWatchAPI) PutDashboardRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.PutDashboardOutput) {
+	fake.putDashboardRequestMutex.Lock()
+	defer fake.putDashboardRequestMutex.Unlock()
 	fake.PutDashboardRequestStub = nil
 	if fake.putDashboardRequestReturnsOnCall == nil {
 		fake.putDashboardRequestReturnsOnCall = make(map[int]struct {
@@ -3085,6 +3792,71 @@ func (fake *FakeCloudWatchAPI) PutDashboardRequestReturnsOnCall(i int, result1 *
 	fake.putDashboardRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.PutDashboardOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutDashboardWithContext(arg1 context.Context, arg2 *cloudwatch.PutDashboardInput, arg3 ...request.Option) (*cloudwatch.PutDashboardOutput, error) {
+	fake.putDashboardWithContextMutex.Lock()
+	ret, specificReturn := fake.putDashboardWithContextReturnsOnCall[len(fake.putDashboardWithContextArgsForCall)]
+	fake.putDashboardWithContextArgsForCall = append(fake.putDashboardWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.PutDashboardInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("PutDashboardWithContext", []interface{}{arg1, arg2, arg3})
+	fake.putDashboardWithContextMutex.Unlock()
+	if fake.PutDashboardWithContextStub != nil {
+		return fake.PutDashboardWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.putDashboardWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) PutDashboardWithContextCallCount() int {
+	fake.putDashboardWithContextMutex.RLock()
+	defer fake.putDashboardWithContextMutex.RUnlock()
+	return len(fake.putDashboardWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) PutDashboardWithContextCalls(stub func(context.Context, *cloudwatch.PutDashboardInput, ...request.Option) (*cloudwatch.PutDashboardOutput, error)) {
+	fake.putDashboardWithContextMutex.Lock()
+	defer fake.putDashboardWithContextMutex.Unlock()
+	fake.PutDashboardWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) PutDashboardWithContextArgsForCall(i int) (context.Context, *cloudwatch.PutDashboardInput, []request.Option) {
+	fake.putDashboardWithContextMutex.RLock()
+	defer fake.putDashboardWithContextMutex.RUnlock()
+	argsForCall := fake.putDashboardWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) PutDashboardWithContextReturns(result1 *cloudwatch.PutDashboardOutput, result2 error) {
+	fake.putDashboardWithContextMutex.Lock()
+	defer fake.putDashboardWithContextMutex.Unlock()
+	fake.PutDashboardWithContextStub = nil
+	fake.putDashboardWithContextReturns = struct {
+		result1 *cloudwatch.PutDashboardOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutDashboardWithContextReturnsOnCall(i int, result1 *cloudwatch.PutDashboardOutput, result2 error) {
+	fake.putDashboardWithContextMutex.Lock()
+	defer fake.putDashboardWithContextMutex.Unlock()
+	fake.PutDashboardWithContextStub = nil
+	if fake.putDashboardWithContextReturnsOnCall == nil {
+		fake.putDashboardWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.PutDashboardOutput
+			result2 error
+		})
+	}
+	fake.putDashboardWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.PutDashboardOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -3102,7 +3874,8 @@ func (fake *FakeCloudWatchAPI) PutMetricAlarm(arg1 *cloudwatch.PutMetricAlarmInp
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.putMetricAlarmReturns.result1, fake.putMetricAlarmReturns.result2
+	fakeReturns := fake.putMetricAlarmReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricAlarmCallCount() int {
@@ -3111,13 +3884,22 @@ func (fake *FakeCloudWatchAPI) PutMetricAlarmCallCount() int {
 	return len(fake.putMetricAlarmArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) PutMetricAlarmCalls(stub func(*cloudwatch.PutMetricAlarmInput) (*cloudwatch.PutMetricAlarmOutput, error)) {
+	fake.putMetricAlarmMutex.Lock()
+	defer fake.putMetricAlarmMutex.Unlock()
+	fake.PutMetricAlarmStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) PutMetricAlarmArgsForCall(i int) *cloudwatch.PutMetricAlarmInput {
 	fake.putMetricAlarmMutex.RLock()
 	defer fake.putMetricAlarmMutex.RUnlock()
-	return fake.putMetricAlarmArgsForCall[i].arg1
+	argsForCall := fake.putMetricAlarmArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricAlarmReturns(result1 *cloudwatch.PutMetricAlarmOutput, result2 error) {
+	fake.putMetricAlarmMutex.Lock()
+	defer fake.putMetricAlarmMutex.Unlock()
 	fake.PutMetricAlarmStub = nil
 	fake.putMetricAlarmReturns = struct {
 		result1 *cloudwatch.PutMetricAlarmOutput
@@ -3126,6 +3908,8 @@ func (fake *FakeCloudWatchAPI) PutMetricAlarmReturns(result1 *cloudwatch.PutMetr
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricAlarmReturnsOnCall(i int, result1 *cloudwatch.PutMetricAlarmOutput, result2 error) {
+	fake.putMetricAlarmMutex.Lock()
+	defer fake.putMetricAlarmMutex.Unlock()
 	fake.PutMetricAlarmStub = nil
 	if fake.putMetricAlarmReturnsOnCall == nil {
 		fake.putMetricAlarmReturnsOnCall = make(map[int]struct {
@@ -3134,59 +3918,6 @@ func (fake *FakeCloudWatchAPI) PutMetricAlarmReturnsOnCall(i int, result1 *cloud
 		})
 	}
 	fake.putMetricAlarmReturnsOnCall[i] = struct {
-		result1 *cloudwatch.PutMetricAlarmOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContext(arg1 aws.Context, arg2 *cloudwatch.PutMetricAlarmInput, arg3 ...request.Option) (*cloudwatch.PutMetricAlarmOutput, error) {
-	fake.putMetricAlarmWithContextMutex.Lock()
-	ret, specificReturn := fake.putMetricAlarmWithContextReturnsOnCall[len(fake.putMetricAlarmWithContextArgsForCall)]
-	fake.putMetricAlarmWithContextArgsForCall = append(fake.putMetricAlarmWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.PutMetricAlarmInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("PutMetricAlarmWithContext", []interface{}{arg1, arg2, arg3})
-	fake.putMetricAlarmWithContextMutex.Unlock()
-	if fake.PutMetricAlarmWithContextStub != nil {
-		return fake.PutMetricAlarmWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.putMetricAlarmWithContextReturns.result1, fake.putMetricAlarmWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContextCallCount() int {
-	fake.putMetricAlarmWithContextMutex.RLock()
-	defer fake.putMetricAlarmWithContextMutex.RUnlock()
-	return len(fake.putMetricAlarmWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContextArgsForCall(i int) (aws.Context, *cloudwatch.PutMetricAlarmInput, []request.Option) {
-	fake.putMetricAlarmWithContextMutex.RLock()
-	defer fake.putMetricAlarmWithContextMutex.RUnlock()
-	return fake.putMetricAlarmWithContextArgsForCall[i].arg1, fake.putMetricAlarmWithContextArgsForCall[i].arg2, fake.putMetricAlarmWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContextReturns(result1 *cloudwatch.PutMetricAlarmOutput, result2 error) {
-	fake.PutMetricAlarmWithContextStub = nil
-	fake.putMetricAlarmWithContextReturns = struct {
-		result1 *cloudwatch.PutMetricAlarmOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContextReturnsOnCall(i int, result1 *cloudwatch.PutMetricAlarmOutput, result2 error) {
-	fake.PutMetricAlarmWithContextStub = nil
-	if fake.putMetricAlarmWithContextReturnsOnCall == nil {
-		fake.putMetricAlarmWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.PutMetricAlarmOutput
-			result2 error
-		})
-	}
-	fake.putMetricAlarmWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.PutMetricAlarmOutput
 		result2 error
 	}{result1, result2}
@@ -3206,7 +3937,8 @@ func (fake *FakeCloudWatchAPI) PutMetricAlarmRequest(arg1 *cloudwatch.PutMetricA
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.putMetricAlarmRequestReturns.result1, fake.putMetricAlarmRequestReturns.result2
+	fakeReturns := fake.putMetricAlarmRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricAlarmRequestCallCount() int {
@@ -3215,13 +3947,22 @@ func (fake *FakeCloudWatchAPI) PutMetricAlarmRequestCallCount() int {
 	return len(fake.putMetricAlarmRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) PutMetricAlarmRequestCalls(stub func(*cloudwatch.PutMetricAlarmInput) (*request.Request, *cloudwatch.PutMetricAlarmOutput)) {
+	fake.putMetricAlarmRequestMutex.Lock()
+	defer fake.putMetricAlarmRequestMutex.Unlock()
+	fake.PutMetricAlarmRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) PutMetricAlarmRequestArgsForCall(i int) *cloudwatch.PutMetricAlarmInput {
 	fake.putMetricAlarmRequestMutex.RLock()
 	defer fake.putMetricAlarmRequestMutex.RUnlock()
-	return fake.putMetricAlarmRequestArgsForCall[i].arg1
+	argsForCall := fake.putMetricAlarmRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricAlarmRequestReturns(result1 *request.Request, result2 *cloudwatch.PutMetricAlarmOutput) {
+	fake.putMetricAlarmRequestMutex.Lock()
+	defer fake.putMetricAlarmRequestMutex.Unlock()
 	fake.PutMetricAlarmRequestStub = nil
 	fake.putMetricAlarmRequestReturns = struct {
 		result1 *request.Request
@@ -3230,6 +3971,8 @@ func (fake *FakeCloudWatchAPI) PutMetricAlarmRequestReturns(result1 *request.Req
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricAlarmRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.PutMetricAlarmOutput) {
+	fake.putMetricAlarmRequestMutex.Lock()
+	defer fake.putMetricAlarmRequestMutex.Unlock()
 	fake.PutMetricAlarmRequestStub = nil
 	if fake.putMetricAlarmRequestReturnsOnCall == nil {
 		fake.putMetricAlarmRequestReturnsOnCall = make(map[int]struct {
@@ -3240,6 +3983,71 @@ func (fake *FakeCloudWatchAPI) PutMetricAlarmRequestReturnsOnCall(i int, result1
 	fake.putMetricAlarmRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.PutMetricAlarmOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContext(arg1 context.Context, arg2 *cloudwatch.PutMetricAlarmInput, arg3 ...request.Option) (*cloudwatch.PutMetricAlarmOutput, error) {
+	fake.putMetricAlarmWithContextMutex.Lock()
+	ret, specificReturn := fake.putMetricAlarmWithContextReturnsOnCall[len(fake.putMetricAlarmWithContextArgsForCall)]
+	fake.putMetricAlarmWithContextArgsForCall = append(fake.putMetricAlarmWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.PutMetricAlarmInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("PutMetricAlarmWithContext", []interface{}{arg1, arg2, arg3})
+	fake.putMetricAlarmWithContextMutex.Unlock()
+	if fake.PutMetricAlarmWithContextStub != nil {
+		return fake.PutMetricAlarmWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.putMetricAlarmWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContextCallCount() int {
+	fake.putMetricAlarmWithContextMutex.RLock()
+	defer fake.putMetricAlarmWithContextMutex.RUnlock()
+	return len(fake.putMetricAlarmWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContextCalls(stub func(context.Context, *cloudwatch.PutMetricAlarmInput, ...request.Option) (*cloudwatch.PutMetricAlarmOutput, error)) {
+	fake.putMetricAlarmWithContextMutex.Lock()
+	defer fake.putMetricAlarmWithContextMutex.Unlock()
+	fake.PutMetricAlarmWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContextArgsForCall(i int) (context.Context, *cloudwatch.PutMetricAlarmInput, []request.Option) {
+	fake.putMetricAlarmWithContextMutex.RLock()
+	defer fake.putMetricAlarmWithContextMutex.RUnlock()
+	argsForCall := fake.putMetricAlarmWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContextReturns(result1 *cloudwatch.PutMetricAlarmOutput, result2 error) {
+	fake.putMetricAlarmWithContextMutex.Lock()
+	defer fake.putMetricAlarmWithContextMutex.Unlock()
+	fake.PutMetricAlarmWithContextStub = nil
+	fake.putMetricAlarmWithContextReturns = struct {
+		result1 *cloudwatch.PutMetricAlarmOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricAlarmWithContextReturnsOnCall(i int, result1 *cloudwatch.PutMetricAlarmOutput, result2 error) {
+	fake.putMetricAlarmWithContextMutex.Lock()
+	defer fake.putMetricAlarmWithContextMutex.Unlock()
+	fake.PutMetricAlarmWithContextStub = nil
+	if fake.putMetricAlarmWithContextReturnsOnCall == nil {
+		fake.putMetricAlarmWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.PutMetricAlarmOutput
+			result2 error
+		})
+	}
+	fake.putMetricAlarmWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.PutMetricAlarmOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -3257,7 +4065,8 @@ func (fake *FakeCloudWatchAPI) PutMetricData(arg1 *cloudwatch.PutMetricDataInput
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.putMetricDataReturns.result1, fake.putMetricDataReturns.result2
+	fakeReturns := fake.putMetricDataReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricDataCallCount() int {
@@ -3266,13 +4075,22 @@ func (fake *FakeCloudWatchAPI) PutMetricDataCallCount() int {
 	return len(fake.putMetricDataArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) PutMetricDataCalls(stub func(*cloudwatch.PutMetricDataInput) (*cloudwatch.PutMetricDataOutput, error)) {
+	fake.putMetricDataMutex.Lock()
+	defer fake.putMetricDataMutex.Unlock()
+	fake.PutMetricDataStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) PutMetricDataArgsForCall(i int) *cloudwatch.PutMetricDataInput {
 	fake.putMetricDataMutex.RLock()
 	defer fake.putMetricDataMutex.RUnlock()
-	return fake.putMetricDataArgsForCall[i].arg1
+	argsForCall := fake.putMetricDataArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricDataReturns(result1 *cloudwatch.PutMetricDataOutput, result2 error) {
+	fake.putMetricDataMutex.Lock()
+	defer fake.putMetricDataMutex.Unlock()
 	fake.PutMetricDataStub = nil
 	fake.putMetricDataReturns = struct {
 		result1 *cloudwatch.PutMetricDataOutput
@@ -3281,6 +4099,8 @@ func (fake *FakeCloudWatchAPI) PutMetricDataReturns(result1 *cloudwatch.PutMetri
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricDataReturnsOnCall(i int, result1 *cloudwatch.PutMetricDataOutput, result2 error) {
+	fake.putMetricDataMutex.Lock()
+	defer fake.putMetricDataMutex.Unlock()
 	fake.PutMetricDataStub = nil
 	if fake.putMetricDataReturnsOnCall == nil {
 		fake.putMetricDataReturnsOnCall = make(map[int]struct {
@@ -3289,59 +4109,6 @@ func (fake *FakeCloudWatchAPI) PutMetricDataReturnsOnCall(i int, result1 *cloudw
 		})
 	}
 	fake.putMetricDataReturnsOnCall[i] = struct {
-		result1 *cloudwatch.PutMetricDataOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) PutMetricDataWithContext(arg1 aws.Context, arg2 *cloudwatch.PutMetricDataInput, arg3 ...request.Option) (*cloudwatch.PutMetricDataOutput, error) {
-	fake.putMetricDataWithContextMutex.Lock()
-	ret, specificReturn := fake.putMetricDataWithContextReturnsOnCall[len(fake.putMetricDataWithContextArgsForCall)]
-	fake.putMetricDataWithContextArgsForCall = append(fake.putMetricDataWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.PutMetricDataInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("PutMetricDataWithContext", []interface{}{arg1, arg2, arg3})
-	fake.putMetricDataWithContextMutex.Unlock()
-	if fake.PutMetricDataWithContextStub != nil {
-		return fake.PutMetricDataWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.putMetricDataWithContextReturns.result1, fake.putMetricDataWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) PutMetricDataWithContextCallCount() int {
-	fake.putMetricDataWithContextMutex.RLock()
-	defer fake.putMetricDataWithContextMutex.RUnlock()
-	return len(fake.putMetricDataWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) PutMetricDataWithContextArgsForCall(i int) (aws.Context, *cloudwatch.PutMetricDataInput, []request.Option) {
-	fake.putMetricDataWithContextMutex.RLock()
-	defer fake.putMetricDataWithContextMutex.RUnlock()
-	return fake.putMetricDataWithContextArgsForCall[i].arg1, fake.putMetricDataWithContextArgsForCall[i].arg2, fake.putMetricDataWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) PutMetricDataWithContextReturns(result1 *cloudwatch.PutMetricDataOutput, result2 error) {
-	fake.PutMetricDataWithContextStub = nil
-	fake.putMetricDataWithContextReturns = struct {
-		result1 *cloudwatch.PutMetricDataOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) PutMetricDataWithContextReturnsOnCall(i int, result1 *cloudwatch.PutMetricDataOutput, result2 error) {
-	fake.PutMetricDataWithContextStub = nil
-	if fake.putMetricDataWithContextReturnsOnCall == nil {
-		fake.putMetricDataWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.PutMetricDataOutput
-			result2 error
-		})
-	}
-	fake.putMetricDataWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.PutMetricDataOutput
 		result2 error
 	}{result1, result2}
@@ -3361,7 +4128,8 @@ func (fake *FakeCloudWatchAPI) PutMetricDataRequest(arg1 *cloudwatch.PutMetricDa
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.putMetricDataRequestReturns.result1, fake.putMetricDataRequestReturns.result2
+	fakeReturns := fake.putMetricDataRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricDataRequestCallCount() int {
@@ -3370,13 +4138,22 @@ func (fake *FakeCloudWatchAPI) PutMetricDataRequestCallCount() int {
 	return len(fake.putMetricDataRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) PutMetricDataRequestCalls(stub func(*cloudwatch.PutMetricDataInput) (*request.Request, *cloudwatch.PutMetricDataOutput)) {
+	fake.putMetricDataRequestMutex.Lock()
+	defer fake.putMetricDataRequestMutex.Unlock()
+	fake.PutMetricDataRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) PutMetricDataRequestArgsForCall(i int) *cloudwatch.PutMetricDataInput {
 	fake.putMetricDataRequestMutex.RLock()
 	defer fake.putMetricDataRequestMutex.RUnlock()
-	return fake.putMetricDataRequestArgsForCall[i].arg1
+	argsForCall := fake.putMetricDataRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricDataRequestReturns(result1 *request.Request, result2 *cloudwatch.PutMetricDataOutput) {
+	fake.putMetricDataRequestMutex.Lock()
+	defer fake.putMetricDataRequestMutex.Unlock()
 	fake.PutMetricDataRequestStub = nil
 	fake.putMetricDataRequestReturns = struct {
 		result1 *request.Request
@@ -3385,6 +4162,8 @@ func (fake *FakeCloudWatchAPI) PutMetricDataRequestReturns(result1 *request.Requ
 }
 
 func (fake *FakeCloudWatchAPI) PutMetricDataRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.PutMetricDataOutput) {
+	fake.putMetricDataRequestMutex.Lock()
+	defer fake.putMetricDataRequestMutex.Unlock()
 	fake.PutMetricDataRequestStub = nil
 	if fake.putMetricDataRequestReturnsOnCall == nil {
 		fake.putMetricDataRequestReturnsOnCall = make(map[int]struct {
@@ -3395,6 +4174,71 @@ func (fake *FakeCloudWatchAPI) PutMetricDataRequestReturnsOnCall(i int, result1 
 	fake.putMetricDataRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.PutMetricDataOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricDataWithContext(arg1 context.Context, arg2 *cloudwatch.PutMetricDataInput, arg3 ...request.Option) (*cloudwatch.PutMetricDataOutput, error) {
+	fake.putMetricDataWithContextMutex.Lock()
+	ret, specificReturn := fake.putMetricDataWithContextReturnsOnCall[len(fake.putMetricDataWithContextArgsForCall)]
+	fake.putMetricDataWithContextArgsForCall = append(fake.putMetricDataWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.PutMetricDataInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("PutMetricDataWithContext", []interface{}{arg1, arg2, arg3})
+	fake.putMetricDataWithContextMutex.Unlock()
+	if fake.PutMetricDataWithContextStub != nil {
+		return fake.PutMetricDataWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.putMetricDataWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricDataWithContextCallCount() int {
+	fake.putMetricDataWithContextMutex.RLock()
+	defer fake.putMetricDataWithContextMutex.RUnlock()
+	return len(fake.putMetricDataWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricDataWithContextCalls(stub func(context.Context, *cloudwatch.PutMetricDataInput, ...request.Option) (*cloudwatch.PutMetricDataOutput, error)) {
+	fake.putMetricDataWithContextMutex.Lock()
+	defer fake.putMetricDataWithContextMutex.Unlock()
+	fake.PutMetricDataWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricDataWithContextArgsForCall(i int) (context.Context, *cloudwatch.PutMetricDataInput, []request.Option) {
+	fake.putMetricDataWithContextMutex.RLock()
+	defer fake.putMetricDataWithContextMutex.RUnlock()
+	argsForCall := fake.putMetricDataWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricDataWithContextReturns(result1 *cloudwatch.PutMetricDataOutput, result2 error) {
+	fake.putMetricDataWithContextMutex.Lock()
+	defer fake.putMetricDataWithContextMutex.Unlock()
+	fake.PutMetricDataWithContextStub = nil
+	fake.putMetricDataWithContextReturns = struct {
+		result1 *cloudwatch.PutMetricDataOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutMetricDataWithContextReturnsOnCall(i int, result1 *cloudwatch.PutMetricDataOutput, result2 error) {
+	fake.putMetricDataWithContextMutex.Lock()
+	defer fake.putMetricDataWithContextMutex.Unlock()
+	fake.PutMetricDataWithContextStub = nil
+	if fake.putMetricDataWithContextReturnsOnCall == nil {
+		fake.putMetricDataWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.PutMetricDataOutput
+			result2 error
+		})
+	}
+	fake.putMetricDataWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.PutMetricDataOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -3412,7 +4256,8 @@ func (fake *FakeCloudWatchAPI) SetAlarmState(arg1 *cloudwatch.SetAlarmStateInput
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.setAlarmStateReturns.result1, fake.setAlarmStateReturns.result2
+	fakeReturns := fake.setAlarmStateReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) SetAlarmStateCallCount() int {
@@ -3421,13 +4266,22 @@ func (fake *FakeCloudWatchAPI) SetAlarmStateCallCount() int {
 	return len(fake.setAlarmStateArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) SetAlarmStateCalls(stub func(*cloudwatch.SetAlarmStateInput) (*cloudwatch.SetAlarmStateOutput, error)) {
+	fake.setAlarmStateMutex.Lock()
+	defer fake.setAlarmStateMutex.Unlock()
+	fake.SetAlarmStateStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) SetAlarmStateArgsForCall(i int) *cloudwatch.SetAlarmStateInput {
 	fake.setAlarmStateMutex.RLock()
 	defer fake.setAlarmStateMutex.RUnlock()
-	return fake.setAlarmStateArgsForCall[i].arg1
+	argsForCall := fake.setAlarmStateArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) SetAlarmStateReturns(result1 *cloudwatch.SetAlarmStateOutput, result2 error) {
+	fake.setAlarmStateMutex.Lock()
+	defer fake.setAlarmStateMutex.Unlock()
 	fake.SetAlarmStateStub = nil
 	fake.setAlarmStateReturns = struct {
 		result1 *cloudwatch.SetAlarmStateOutput
@@ -3436,6 +4290,8 @@ func (fake *FakeCloudWatchAPI) SetAlarmStateReturns(result1 *cloudwatch.SetAlarm
 }
 
 func (fake *FakeCloudWatchAPI) SetAlarmStateReturnsOnCall(i int, result1 *cloudwatch.SetAlarmStateOutput, result2 error) {
+	fake.setAlarmStateMutex.Lock()
+	defer fake.setAlarmStateMutex.Unlock()
 	fake.SetAlarmStateStub = nil
 	if fake.setAlarmStateReturnsOnCall == nil {
 		fake.setAlarmStateReturnsOnCall = make(map[int]struct {
@@ -3444,59 +4300,6 @@ func (fake *FakeCloudWatchAPI) SetAlarmStateReturnsOnCall(i int, result1 *cloudw
 		})
 	}
 	fake.setAlarmStateReturnsOnCall[i] = struct {
-		result1 *cloudwatch.SetAlarmStateOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) SetAlarmStateWithContext(arg1 aws.Context, arg2 *cloudwatch.SetAlarmStateInput, arg3 ...request.Option) (*cloudwatch.SetAlarmStateOutput, error) {
-	fake.setAlarmStateWithContextMutex.Lock()
-	ret, specificReturn := fake.setAlarmStateWithContextReturnsOnCall[len(fake.setAlarmStateWithContextArgsForCall)]
-	fake.setAlarmStateWithContextArgsForCall = append(fake.setAlarmStateWithContextArgsForCall, struct {
-		arg1 aws.Context
-		arg2 *cloudwatch.SetAlarmStateInput
-		arg3 []request.Option
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("SetAlarmStateWithContext", []interface{}{arg1, arg2, arg3})
-	fake.setAlarmStateWithContextMutex.Unlock()
-	if fake.SetAlarmStateWithContextStub != nil {
-		return fake.SetAlarmStateWithContextStub(arg1, arg2, arg3...)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.setAlarmStateWithContextReturns.result1, fake.setAlarmStateWithContextReturns.result2
-}
-
-func (fake *FakeCloudWatchAPI) SetAlarmStateWithContextCallCount() int {
-	fake.setAlarmStateWithContextMutex.RLock()
-	defer fake.setAlarmStateWithContextMutex.RUnlock()
-	return len(fake.setAlarmStateWithContextArgsForCall)
-}
-
-func (fake *FakeCloudWatchAPI) SetAlarmStateWithContextArgsForCall(i int) (aws.Context, *cloudwatch.SetAlarmStateInput, []request.Option) {
-	fake.setAlarmStateWithContextMutex.RLock()
-	defer fake.setAlarmStateWithContextMutex.RUnlock()
-	return fake.setAlarmStateWithContextArgsForCall[i].arg1, fake.setAlarmStateWithContextArgsForCall[i].arg2, fake.setAlarmStateWithContextArgsForCall[i].arg3
-}
-
-func (fake *FakeCloudWatchAPI) SetAlarmStateWithContextReturns(result1 *cloudwatch.SetAlarmStateOutput, result2 error) {
-	fake.SetAlarmStateWithContextStub = nil
-	fake.setAlarmStateWithContextReturns = struct {
-		result1 *cloudwatch.SetAlarmStateOutput
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeCloudWatchAPI) SetAlarmStateWithContextReturnsOnCall(i int, result1 *cloudwatch.SetAlarmStateOutput, result2 error) {
-	fake.SetAlarmStateWithContextStub = nil
-	if fake.setAlarmStateWithContextReturnsOnCall == nil {
-		fake.setAlarmStateWithContextReturnsOnCall = make(map[int]struct {
-			result1 *cloudwatch.SetAlarmStateOutput
-			result2 error
-		})
-	}
-	fake.setAlarmStateWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.SetAlarmStateOutput
 		result2 error
 	}{result1, result2}
@@ -3516,7 +4319,8 @@ func (fake *FakeCloudWatchAPI) SetAlarmStateRequest(arg1 *cloudwatch.SetAlarmSta
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.setAlarmStateRequestReturns.result1, fake.setAlarmStateRequestReturns.result2
+	fakeReturns := fake.setAlarmStateRequestReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeCloudWatchAPI) SetAlarmStateRequestCallCount() int {
@@ -3525,13 +4329,22 @@ func (fake *FakeCloudWatchAPI) SetAlarmStateRequestCallCount() int {
 	return len(fake.setAlarmStateRequestArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) SetAlarmStateRequestCalls(stub func(*cloudwatch.SetAlarmStateInput) (*request.Request, *cloudwatch.SetAlarmStateOutput)) {
+	fake.setAlarmStateRequestMutex.Lock()
+	defer fake.setAlarmStateRequestMutex.Unlock()
+	fake.SetAlarmStateRequestStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) SetAlarmStateRequestArgsForCall(i int) *cloudwatch.SetAlarmStateInput {
 	fake.setAlarmStateRequestMutex.RLock()
 	defer fake.setAlarmStateRequestMutex.RUnlock()
-	return fake.setAlarmStateRequestArgsForCall[i].arg1
+	argsForCall := fake.setAlarmStateRequestArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) SetAlarmStateRequestReturns(result1 *request.Request, result2 *cloudwatch.SetAlarmStateOutput) {
+	fake.setAlarmStateRequestMutex.Lock()
+	defer fake.setAlarmStateRequestMutex.Unlock()
 	fake.SetAlarmStateRequestStub = nil
 	fake.setAlarmStateRequestReturns = struct {
 		result1 *request.Request
@@ -3540,6 +4353,8 @@ func (fake *FakeCloudWatchAPI) SetAlarmStateRequestReturns(result1 *request.Requ
 }
 
 func (fake *FakeCloudWatchAPI) SetAlarmStateRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.SetAlarmStateOutput) {
+	fake.setAlarmStateRequestMutex.Lock()
+	defer fake.setAlarmStateRequestMutex.Unlock()
 	fake.SetAlarmStateRequestStub = nil
 	if fake.setAlarmStateRequestReturnsOnCall == nil {
 		fake.setAlarmStateRequestReturnsOnCall = make(map[int]struct {
@@ -3550,6 +4365,71 @@ func (fake *FakeCloudWatchAPI) SetAlarmStateRequestReturnsOnCall(i int, result1 
 	fake.setAlarmStateRequestReturnsOnCall[i] = struct {
 		result1 *request.Request
 		result2 *cloudwatch.SetAlarmStateOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) SetAlarmStateWithContext(arg1 context.Context, arg2 *cloudwatch.SetAlarmStateInput, arg3 ...request.Option) (*cloudwatch.SetAlarmStateOutput, error) {
+	fake.setAlarmStateWithContextMutex.Lock()
+	ret, specificReturn := fake.setAlarmStateWithContextReturnsOnCall[len(fake.setAlarmStateWithContextArgsForCall)]
+	fake.setAlarmStateWithContextArgsForCall = append(fake.setAlarmStateWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.SetAlarmStateInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("SetAlarmStateWithContext", []interface{}{arg1, arg2, arg3})
+	fake.setAlarmStateWithContextMutex.Unlock()
+	if fake.SetAlarmStateWithContextStub != nil {
+		return fake.SetAlarmStateWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.setAlarmStateWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) SetAlarmStateWithContextCallCount() int {
+	fake.setAlarmStateWithContextMutex.RLock()
+	defer fake.setAlarmStateWithContextMutex.RUnlock()
+	return len(fake.setAlarmStateWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) SetAlarmStateWithContextCalls(stub func(context.Context, *cloudwatch.SetAlarmStateInput, ...request.Option) (*cloudwatch.SetAlarmStateOutput, error)) {
+	fake.setAlarmStateWithContextMutex.Lock()
+	defer fake.setAlarmStateWithContextMutex.Unlock()
+	fake.SetAlarmStateWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) SetAlarmStateWithContextArgsForCall(i int) (context.Context, *cloudwatch.SetAlarmStateInput, []request.Option) {
+	fake.setAlarmStateWithContextMutex.RLock()
+	defer fake.setAlarmStateWithContextMutex.RUnlock()
+	argsForCall := fake.setAlarmStateWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) SetAlarmStateWithContextReturns(result1 *cloudwatch.SetAlarmStateOutput, result2 error) {
+	fake.setAlarmStateWithContextMutex.Lock()
+	defer fake.setAlarmStateWithContextMutex.Unlock()
+	fake.SetAlarmStateWithContextStub = nil
+	fake.setAlarmStateWithContextReturns = struct {
+		result1 *cloudwatch.SetAlarmStateOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) SetAlarmStateWithContextReturnsOnCall(i int, result1 *cloudwatch.SetAlarmStateOutput, result2 error) {
+	fake.setAlarmStateWithContextMutex.Lock()
+	defer fake.setAlarmStateWithContextMutex.Unlock()
+	fake.SetAlarmStateWithContextStub = nil
+	if fake.setAlarmStateWithContextReturnsOnCall == nil {
+		fake.setAlarmStateWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.SetAlarmStateOutput
+			result2 error
+		})
+	}
+	fake.setAlarmStateWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.SetAlarmStateOutput
+		result2 error
 	}{result1, result2}
 }
 
@@ -3567,7 +4447,8 @@ func (fake *FakeCloudWatchAPI) WaitUntilAlarmExists(arg1 *cloudwatch.DescribeAla
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.waitUntilAlarmExistsReturns.result1
+	fakeReturns := fake.waitUntilAlarmExistsReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsCallCount() int {
@@ -3576,13 +4457,22 @@ func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsCallCount() int {
 	return len(fake.waitUntilAlarmExistsArgsForCall)
 }
 
+func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsCalls(stub func(*cloudwatch.DescribeAlarmsInput) error) {
+	fake.waitUntilAlarmExistsMutex.Lock()
+	defer fake.waitUntilAlarmExistsMutex.Unlock()
+	fake.WaitUntilAlarmExistsStub = stub
+}
+
 func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsArgsForCall(i int) *cloudwatch.DescribeAlarmsInput {
 	fake.waitUntilAlarmExistsMutex.RLock()
 	defer fake.waitUntilAlarmExistsMutex.RUnlock()
-	return fake.waitUntilAlarmExistsArgsForCall[i].arg1
+	argsForCall := fake.waitUntilAlarmExistsArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsReturns(result1 error) {
+	fake.waitUntilAlarmExistsMutex.Lock()
+	defer fake.waitUntilAlarmExistsMutex.Unlock()
 	fake.WaitUntilAlarmExistsStub = nil
 	fake.waitUntilAlarmExistsReturns = struct {
 		result1 error
@@ -3590,6 +4480,8 @@ func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsReturns(result1 error) {
 }
 
 func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsReturnsOnCall(i int, result1 error) {
+	fake.waitUntilAlarmExistsMutex.Lock()
+	defer fake.waitUntilAlarmExistsMutex.Unlock()
 	fake.WaitUntilAlarmExistsStub = nil
 	if fake.waitUntilAlarmExistsReturnsOnCall == nil {
 		fake.waitUntilAlarmExistsReturnsOnCall = make(map[int]struct {
@@ -3601,11 +4493,11 @@ func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsReturnsOnCall(i int, result1 
 	}{result1}
 }
 
-func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContext(arg1 aws.Context, arg2 *cloudwatch.DescribeAlarmsInput, arg3 ...request.WaiterOption) error {
+func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContext(arg1 context.Context, arg2 *cloudwatch.DescribeAlarmsInput, arg3 ...request.WaiterOption) error {
 	fake.waitUntilAlarmExistsWithContextMutex.Lock()
 	ret, specificReturn := fake.waitUntilAlarmExistsWithContextReturnsOnCall[len(fake.waitUntilAlarmExistsWithContextArgsForCall)]
 	fake.waitUntilAlarmExistsWithContextArgsForCall = append(fake.waitUntilAlarmExistsWithContextArgsForCall, struct {
-		arg1 aws.Context
+		arg1 context.Context
 		arg2 *cloudwatch.DescribeAlarmsInput
 		arg3 []request.WaiterOption
 	}{arg1, arg2, arg3})
@@ -3617,7 +4509,8 @@ func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContext(arg1 aws.Context,
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.waitUntilAlarmExistsWithContextReturns.result1
+	fakeReturns := fake.waitUntilAlarmExistsWithContextReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContextCallCount() int {
@@ -3626,13 +4519,22 @@ func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContextCallCount() int {
 	return len(fake.waitUntilAlarmExistsWithContextArgsForCall)
 }
 
-func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContextArgsForCall(i int) (aws.Context, *cloudwatch.DescribeAlarmsInput, []request.WaiterOption) {
+func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContextCalls(stub func(context.Context, *cloudwatch.DescribeAlarmsInput, ...request.WaiterOption) error) {
+	fake.waitUntilAlarmExistsWithContextMutex.Lock()
+	defer fake.waitUntilAlarmExistsWithContextMutex.Unlock()
+	fake.WaitUntilAlarmExistsWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContextArgsForCall(i int) (context.Context, *cloudwatch.DescribeAlarmsInput, []request.WaiterOption) {
 	fake.waitUntilAlarmExistsWithContextMutex.RLock()
 	defer fake.waitUntilAlarmExistsWithContextMutex.RUnlock()
-	return fake.waitUntilAlarmExistsWithContextArgsForCall[i].arg1, fake.waitUntilAlarmExistsWithContextArgsForCall[i].arg2, fake.waitUntilAlarmExistsWithContextArgsForCall[i].arg3
+	argsForCall := fake.waitUntilAlarmExistsWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContextReturns(result1 error) {
+	fake.waitUntilAlarmExistsWithContextMutex.Lock()
+	defer fake.waitUntilAlarmExistsWithContextMutex.Unlock()
 	fake.WaitUntilAlarmExistsWithContextStub = nil
 	fake.waitUntilAlarmExistsWithContextReturns = struct {
 		result1 error
@@ -3640,6 +4542,8 @@ func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContextReturns(result1 er
 }
 
 func (fake *FakeCloudWatchAPI) WaitUntilAlarmExistsWithContextReturnsOnCall(i int, result1 error) {
+	fake.waitUntilAlarmExistsWithContextMutex.Lock()
+	defer fake.waitUntilAlarmExistsWithContextMutex.Unlock()
 	fake.WaitUntilAlarmExistsWithContextStub = nil
 	if fake.waitUntilAlarmExistsWithContextReturnsOnCall == nil {
 		fake.waitUntilAlarmExistsWithContextReturnsOnCall = make(map[int]struct {
@@ -3656,112 +4560,118 @@ func (fake *FakeCloudWatchAPI) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.deleteAlarmsMutex.RLock()
 	defer fake.deleteAlarmsMutex.RUnlock()
-	fake.deleteAlarmsWithContextMutex.RLock()
-	defer fake.deleteAlarmsWithContextMutex.RUnlock()
 	fake.deleteAlarmsRequestMutex.RLock()
 	defer fake.deleteAlarmsRequestMutex.RUnlock()
+	fake.deleteAlarmsWithContextMutex.RLock()
+	defer fake.deleteAlarmsWithContextMutex.RUnlock()
 	fake.deleteDashboardsMutex.RLock()
 	defer fake.deleteDashboardsMutex.RUnlock()
-	fake.deleteDashboardsWithContextMutex.RLock()
-	defer fake.deleteDashboardsWithContextMutex.RUnlock()
 	fake.deleteDashboardsRequestMutex.RLock()
 	defer fake.deleteDashboardsRequestMutex.RUnlock()
+	fake.deleteDashboardsWithContextMutex.RLock()
+	defer fake.deleteDashboardsWithContextMutex.RUnlock()
 	fake.describeAlarmHistoryMutex.RLock()
 	defer fake.describeAlarmHistoryMutex.RUnlock()
-	fake.describeAlarmHistoryWithContextMutex.RLock()
-	defer fake.describeAlarmHistoryWithContextMutex.RUnlock()
-	fake.describeAlarmHistoryRequestMutex.RLock()
-	defer fake.describeAlarmHistoryRequestMutex.RUnlock()
 	fake.describeAlarmHistoryPagesMutex.RLock()
 	defer fake.describeAlarmHistoryPagesMutex.RUnlock()
 	fake.describeAlarmHistoryPagesWithContextMutex.RLock()
 	defer fake.describeAlarmHistoryPagesWithContextMutex.RUnlock()
+	fake.describeAlarmHistoryRequestMutex.RLock()
+	defer fake.describeAlarmHistoryRequestMutex.RUnlock()
+	fake.describeAlarmHistoryWithContextMutex.RLock()
+	defer fake.describeAlarmHistoryWithContextMutex.RUnlock()
 	fake.describeAlarmsMutex.RLock()
 	defer fake.describeAlarmsMutex.RUnlock()
-	fake.describeAlarmsWithContextMutex.RLock()
-	defer fake.describeAlarmsWithContextMutex.RUnlock()
-	fake.describeAlarmsRequestMutex.RLock()
-	defer fake.describeAlarmsRequestMutex.RUnlock()
+	fake.describeAlarmsForMetricMutex.RLock()
+	defer fake.describeAlarmsForMetricMutex.RUnlock()
+	fake.describeAlarmsForMetricRequestMutex.RLock()
+	defer fake.describeAlarmsForMetricRequestMutex.RUnlock()
+	fake.describeAlarmsForMetricWithContextMutex.RLock()
+	defer fake.describeAlarmsForMetricWithContextMutex.RUnlock()
 	fake.describeAlarmsPagesMutex.RLock()
 	defer fake.describeAlarmsPagesMutex.RUnlock()
 	fake.describeAlarmsPagesWithContextMutex.RLock()
 	defer fake.describeAlarmsPagesWithContextMutex.RUnlock()
-	fake.describeAlarmsForMetricMutex.RLock()
-	defer fake.describeAlarmsForMetricMutex.RUnlock()
-	fake.describeAlarmsForMetricWithContextMutex.RLock()
-	defer fake.describeAlarmsForMetricWithContextMutex.RUnlock()
-	fake.describeAlarmsForMetricRequestMutex.RLock()
-	defer fake.describeAlarmsForMetricRequestMutex.RUnlock()
+	fake.describeAlarmsRequestMutex.RLock()
+	defer fake.describeAlarmsRequestMutex.RUnlock()
+	fake.describeAlarmsWithContextMutex.RLock()
+	defer fake.describeAlarmsWithContextMutex.RUnlock()
 	fake.disableAlarmActionsMutex.RLock()
 	defer fake.disableAlarmActionsMutex.RUnlock()
-	fake.disableAlarmActionsWithContextMutex.RLock()
-	defer fake.disableAlarmActionsWithContextMutex.RUnlock()
 	fake.disableAlarmActionsRequestMutex.RLock()
 	defer fake.disableAlarmActionsRequestMutex.RUnlock()
+	fake.disableAlarmActionsWithContextMutex.RLock()
+	defer fake.disableAlarmActionsWithContextMutex.RUnlock()
 	fake.enableAlarmActionsMutex.RLock()
 	defer fake.enableAlarmActionsMutex.RUnlock()
-	fake.enableAlarmActionsWithContextMutex.RLock()
-	defer fake.enableAlarmActionsWithContextMutex.RUnlock()
 	fake.enableAlarmActionsRequestMutex.RLock()
 	defer fake.enableAlarmActionsRequestMutex.RUnlock()
+	fake.enableAlarmActionsWithContextMutex.RLock()
+	defer fake.enableAlarmActionsWithContextMutex.RUnlock()
 	fake.getDashboardMutex.RLock()
 	defer fake.getDashboardMutex.RUnlock()
-	fake.getDashboardWithContextMutex.RLock()
-	defer fake.getDashboardWithContextMutex.RUnlock()
 	fake.getDashboardRequestMutex.RLock()
 	defer fake.getDashboardRequestMutex.RUnlock()
+	fake.getDashboardWithContextMutex.RLock()
+	defer fake.getDashboardWithContextMutex.RUnlock()
 	fake.getMetricDataMutex.RLock()
 	defer fake.getMetricDataMutex.RUnlock()
-	fake.getMetricDataWithContextMutex.RLock()
-	defer fake.getMetricDataWithContextMutex.RUnlock()
 	fake.getMetricDataRequestMutex.RLock()
 	defer fake.getMetricDataRequestMutex.RUnlock()
+	fake.getMetricDataWithContextMutex.RLock()
+	defer fake.getMetricDataWithContextMutex.RUnlock()
 	fake.getMetricStatisticsMutex.RLock()
 	defer fake.getMetricStatisticsMutex.RUnlock()
-	fake.getMetricStatisticsWithContextMutex.RLock()
-	defer fake.getMetricStatisticsWithContextMutex.RUnlock()
 	fake.getMetricStatisticsRequestMutex.RLock()
 	defer fake.getMetricStatisticsRequestMutex.RUnlock()
+	fake.getMetricStatisticsWithContextMutex.RLock()
+	defer fake.getMetricStatisticsWithContextMutex.RUnlock()
+	fake.getMetricWidgetImageMutex.RLock()
+	defer fake.getMetricWidgetImageMutex.RUnlock()
+	fake.getMetricWidgetImageRequestMutex.RLock()
+	defer fake.getMetricWidgetImageRequestMutex.RUnlock()
+	fake.getMetricWidgetImageWithContextMutex.RLock()
+	defer fake.getMetricWidgetImageWithContextMutex.RUnlock()
 	fake.listDashboardsMutex.RLock()
 	defer fake.listDashboardsMutex.RUnlock()
-	fake.listDashboardsWithContextMutex.RLock()
-	defer fake.listDashboardsWithContextMutex.RUnlock()
 	fake.listDashboardsRequestMutex.RLock()
 	defer fake.listDashboardsRequestMutex.RUnlock()
+	fake.listDashboardsWithContextMutex.RLock()
+	defer fake.listDashboardsWithContextMutex.RUnlock()
 	fake.listMetricsMutex.RLock()
 	defer fake.listMetricsMutex.RUnlock()
-	fake.listMetricsWithContextMutex.RLock()
-	defer fake.listMetricsWithContextMutex.RUnlock()
-	fake.listMetricsRequestMutex.RLock()
-	defer fake.listMetricsRequestMutex.RUnlock()
 	fake.listMetricsPagesMutex.RLock()
 	defer fake.listMetricsPagesMutex.RUnlock()
 	fake.listMetricsPagesWithContextMutex.RLock()
 	defer fake.listMetricsPagesWithContextMutex.RUnlock()
+	fake.listMetricsRequestMutex.RLock()
+	defer fake.listMetricsRequestMutex.RUnlock()
+	fake.listMetricsWithContextMutex.RLock()
+	defer fake.listMetricsWithContextMutex.RUnlock()
 	fake.putDashboardMutex.RLock()
 	defer fake.putDashboardMutex.RUnlock()
-	fake.putDashboardWithContextMutex.RLock()
-	defer fake.putDashboardWithContextMutex.RUnlock()
 	fake.putDashboardRequestMutex.RLock()
 	defer fake.putDashboardRequestMutex.RUnlock()
+	fake.putDashboardWithContextMutex.RLock()
+	defer fake.putDashboardWithContextMutex.RUnlock()
 	fake.putMetricAlarmMutex.RLock()
 	defer fake.putMetricAlarmMutex.RUnlock()
-	fake.putMetricAlarmWithContextMutex.RLock()
-	defer fake.putMetricAlarmWithContextMutex.RUnlock()
 	fake.putMetricAlarmRequestMutex.RLock()
 	defer fake.putMetricAlarmRequestMutex.RUnlock()
+	fake.putMetricAlarmWithContextMutex.RLock()
+	defer fake.putMetricAlarmWithContextMutex.RUnlock()
 	fake.putMetricDataMutex.RLock()
 	defer fake.putMetricDataMutex.RUnlock()
-	fake.putMetricDataWithContextMutex.RLock()
-	defer fake.putMetricDataWithContextMutex.RUnlock()
 	fake.putMetricDataRequestMutex.RLock()
 	defer fake.putMetricDataRequestMutex.RUnlock()
+	fake.putMetricDataWithContextMutex.RLock()
+	defer fake.putMetricDataWithContextMutex.RUnlock()
 	fake.setAlarmStateMutex.RLock()
 	defer fake.setAlarmStateMutex.RUnlock()
-	fake.setAlarmStateWithContextMutex.RLock()
-	defer fake.setAlarmStateWithContextMutex.RUnlock()
 	fake.setAlarmStateRequestMutex.RLock()
 	defer fake.setAlarmStateRequestMutex.RUnlock()
+	fake.setAlarmStateWithContextMutex.RLock()
+	defer fake.setAlarmStateWithContextMutex.RUnlock()
 	fake.waitUntilAlarmExistsMutex.RLock()
 	defer fake.waitUntilAlarmExistsMutex.RUnlock()
 	fake.waitUntilAlarmExistsWithContextMutex.RLock()
