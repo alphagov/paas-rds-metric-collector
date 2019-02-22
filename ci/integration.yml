@@ -14,7 +14,7 @@ run:
     - -e
     - -c
     - |
-      apk add -U git make curl ca-certificates
+      apk add -U --no-progress -q git make curl ca-certificates
       go get github.com/onsi/ginkgo/ginkgo
 
 
