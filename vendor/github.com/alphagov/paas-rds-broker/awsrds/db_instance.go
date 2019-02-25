@@ -25,10 +25,13 @@ type RDSInstance interface {
 	Restore(restoreRBInstanceInput *rds.RestoreDBInstanceFromDBSnapshotInput) error
 	Modify(modifyDBInstanceInput *rds.ModifyDBInstanceInput) (*rds.DBInstance, error)
 	AddTagsToResource(resourceArn string, tags []*rds.Tag) error
-	Reboot(ID string) error
+	Reboot(rebootDBInstanceInput *rds.RebootDBInstanceInput) error
 	RemoveTag(ID, tagKey string) error
 	Delete(ID string, skipFinalSnapshot bool) error
 	GetTag(ID, tagKey string) (string, error)
+	GetParameterGroup(groupId string) (*rds.DBParameterGroup, error)
+	CreateParameterGroup(input *rds.CreateDBParameterGroupInput) error
+	ModifyParameterGroup(input *rds.ModifyDBParameterGroupInput) error
 }
 
 type ByCreateTime []*rds.DBSnapshot

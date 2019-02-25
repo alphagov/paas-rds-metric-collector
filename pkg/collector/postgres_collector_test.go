@@ -33,6 +33,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		testDBName             string
 		testDBConnectionString string
 		testDBConn             *sql.DB
+		groupName			   string
 	)
 
 	BeforeEach(func() {
@@ -76,6 +77,13 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 				('Code Name: K.O.Z.', '2015-02-13', 'crime', 114)
 		`)
 		Expect(err).NotTo(HaveOccurred())
+
+		groupName = fmt.Sprintf("rdsbroker_%s_manager", utils.RandomString(10))
+
+		_, err = testDBConn.Exec(fmt.Sprintf("CREATE GROUP %s", groupName))
+		Expect(err).NotTo(HaveOccurred())
+		_, err = testDBConn.Exec(fmt.Sprintf("GRANT %s TO postgres", groupName))
+		Expect(err).NotTo(HaveOccurred())
 	})
 
 	AfterEach(func() {
@@ -94,6 +102,11 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		_, err = dbConn.Query(fmt.Sprintf("DROP DATABASE %s", testDBName))
+		Expect(err).NotTo(HaveOccurred())
+
+		_, err = dbConn.Exec(fmt.Sprintf("REVOKE %s FROM postgres", groupName))
+		Expect(err).NotTo(HaveOccurred())
+		_, err = dbConn.Exec(fmt.Sprintf("DROP GROUP %s", groupName))
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -393,13 +406,37 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		_, err := testDBConn.BeginTx(ctx1, nil)
 		Expect(err).NotTo(HaveOccurred())
 
-		time.Sleep(1 * time.Second)
+		Eventually(func () float64{
+			collectedMetrics, err = metricsCollector.Collect(context.Background())
+			Expect(err).NotTo(HaveOccurred())
+			metric := getMetricByKey(collectedMetrics, "max_tx_age")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Unit).To(Equal("s"))
+			return metric.Value
+		}, 5 * time.Second).Should(
+			BeNumerically(">=", 1),
+		)
+	})
 
-		collectedMetrics, err = metricsCollector.Collect(context.Background())
-		metric := getMetricByKey(collectedMetrics, "max_tx_age")
-		Expect(metric).ToNot(BeNil())
-		Expect(metric.Value).To(BeNumerically(">=", 1))
-		Expect(metric.Unit).To(Equal("s"))
+	It("can collect the maximum system transaction age", func() {
+		_, err := testDBConn.Exec(fmt.Sprintf("REVOKE %s FROM postgres", groupName))
+		Expect(err).NotTo(HaveOccurred())
+
+		ctx1, cancel1 := context.WithCancel(context.Background())
+		defer cancel1()
+		_, err = testDBConn.BeginTx(ctx1, nil)
+		Expect(err).NotTo(HaveOccurred())
+
+		Eventually(func () float64{
+			collectedMetrics, err = metricsCollector.Collect(context.Background())
+			Expect(err).NotTo(HaveOccurred())
+			metric := getMetricByKey(collectedMetrics, "max_system_tx_age")
+			Expect(metric).ToNot(BeNil())
+			Expect(metric.Unit).To(Equal("s"))
+			return metric.Value
+		}, 5 * time.Second).Should(
+			BeNumerically(">=", 1),
+		)
 	})
 })
 
