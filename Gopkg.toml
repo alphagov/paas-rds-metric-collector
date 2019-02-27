@@ -24,6 +24,8 @@
 #   go-tests = true
 #   unused-packages = true
 
+required = ["github.com/onsi/ginkgo/ginkgo"]
+
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
   version = "1.17.3"
