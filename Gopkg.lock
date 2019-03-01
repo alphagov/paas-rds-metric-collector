@@ -346,11 +346,18 @@
   revision = "179d4d0c4d8d407a32af483c2354df1d2c91e6c3"
 
 [[projects]]
-  digest = "1:5f4b78246f0bcb105b1e3b2b9e22b52a57cd02f57a8078572fe27c62f4a75ff7"
+  digest = "1:8db0b995c00eef29c02e716e193957df972287c5ac652830936750a850094531"
   name = "github.com/onsi/ginkgo"
   packages = [
     ".",
     "config",
+    "ginkgo",
+    "ginkgo/convert",
+    "ginkgo/interrupthandler",
+    "ginkgo/nodot",
+    "ginkgo/testrunner",
+    "ginkgo/testsuite",
+    "ginkgo/watch",
     "internal/codelocation",
     "internal/containernode",
     "internal/failer",
@@ -635,6 +642,7 @@
     "github.com/golang/protobuf/proto",
     "github.com/lib/pq",
     "github.com/onsi/ginkgo",
+    "github.com/onsi/ginkgo/ginkgo",
     "github.com/onsi/gomega",
     "github.com/onsi/gomega/gbytes",
     "github.com/onsi/gomega/gexec",
