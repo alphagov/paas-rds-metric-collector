@@ -140,7 +140,7 @@ var postgresMetricQueries = []metricQuery{
 	&columnMetricQuery{
 		Query: `
 			SELECT
-				COALESCE(EXTRACT(epoch FROM MAX(now() - a.xact_start))::INT, 0) as max_tx_age
+				COALESCE(EXTRACT(epoch FROM MAX(now() - a.xact_start))::FLOAT, 0) as max_tx_age
 			FROM pg_stat_activity a
 			INNER JOIN pg_roles r ON r.rolname = a.usename
 			INNER JOIN pg_group g ON r.oid = ANY (g.grolist)
@@ -158,7 +158,7 @@ var postgresMetricQueries = []metricQuery{
 	&columnMetricQuery{
 		Query: `
 			SELECT
-				COALESCE(EXTRACT(epoch FROM MAX(now() - xact_start))::INT, 0) as max_system_tx_age
+				COALESCE(EXTRACT(epoch FROM MAX(now() - xact_start))::FLOAT, 0) as max_system_tx_age
 			FROM pg_stat_activity a
 			INNER JOIN pg_roles r ON r.rolname = a.usename
 			LEFT JOIN pg_group g ON r.oid = ANY (g.grolist)
