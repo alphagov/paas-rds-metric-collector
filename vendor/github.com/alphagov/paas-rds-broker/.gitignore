@@ -1,8 +1,0 @@
-out
-pkg
-gobin/*
-
-*\.test
-
-# JetBrains-style project files
-.idea

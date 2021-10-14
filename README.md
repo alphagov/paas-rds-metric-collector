@@ -80,15 +80,11 @@ The metrics are queried from various PostgreSQL statistics tables.
 | max_tx_age          | gauge | The longest running transaction's age excluding system queries, in seconds                           |
 | max_system_tx_age   | gauge | The longest running system transaction's age, in seconds                                             |
 
-## Getting started
-
-Install the dependencies with [dep](https://github.com/golang/dep):
-
-```
-dep ensure
-```
-
 ## Testing
+
+The tests require [ginkgo](https://onsi.github.io/ginkgo/) which can be installed
+by various methods including via `go install github.com/onsi/ginkgo/ginkgo@latest` and
+ensuring the resulting binary is on your `$PATH`.
 
 To run the tests you need to run the databases on your machine:
 
