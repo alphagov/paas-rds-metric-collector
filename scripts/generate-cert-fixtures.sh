@@ -46,7 +46,7 @@ openssl req -config scripts/openssl.cnf -new -sha256 \
   -key fixtures/locket-server.key.pem \
   -out fixtures/locket-server.csr.pem
 # Note: we have to set the SAN to the loopback address for the Locket client to accept it.
-openssl ca -config scripts/openssl.cnf -extensions server_cert_with_san \
+openssl ca -config scripts/openssl.cnf -extensions localhost_cert_with_san \
   -batch \
   -days 3650 -notext -md sha256 \
   -in fixtures/locket-server.csr.pem \
@@ -59,8 +59,7 @@ openssl req -config scripts/openssl.cnf -new -sha256 \
   -subj "/C=GB/ST=London/L=London/O=Global Security/OU=IT Department/CN=metron" \
   -key fixtures/loggregator-server.key.pem \
   -out fixtures/loggregator-server.csr.pem
-# Note: we should NOT add a SAN here
-openssl ca -config scripts/openssl.cnf -extensions server_cert \
+openssl ca -config scripts/openssl.cnf -extensions metron_cert_with_san \
   -batch \
   -days 3650 -notext -md sha256 \
   -in fixtures/loggregator-server.csr.pem \
