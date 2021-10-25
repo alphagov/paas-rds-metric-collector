@@ -26,8 +26,8 @@
                 "db_instance_class": "db.t2.micro",
                 "db_subnet_group_name": "POPULATED_BY_TEST_SUITE",
                 "engine": "postgres",
-                "engine_version": "9.5",
-                "engine_family": "postgres9.5",
+                "engine_version": "12",
+                "engine_family": "postgres12",
                 "skip_final_snapshot": true,
                 "vpc_security_group_ids": [
                   "POPULATED_BY_TEST_SUITE"
