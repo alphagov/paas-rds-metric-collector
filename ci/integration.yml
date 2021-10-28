@@ -5,7 +5,7 @@ image_resource:
   type: docker-image
   source:
     repository: golang
-    tag: "1.12"
+    tag: "1.17"
 inputs:
   - name: repo
     path: src/github.com/alphagov/paas-rds-metric-collector
@@ -18,15 +18,16 @@ run:
       export GOPATH=$(pwd)
       export PATH="${GOPATH}/bin:${PATH}"
 
-      (cd "${GOPATH}/src/github.com/alphagov/paas-rds-metric-collector/vendor/github.com/onsi/ginkgo/ginkgo" && go install)
-
       # install the AWS RDS CA certs
       curl https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem > /usr/local/share/ca-certificates/rds-combined-ca-bundle.pem
       update-ca-certificates
 
-      cp -Ra ${GOPATH}/src/github.com/alphagov/paas-rds-metric-collector/vendor/* "${GOPATH}/src"
-      cd "${GOPATH}/src/github.com/alphagov/paas-rds-broker"
-      go get ./...
-
       cd "${GOPATH}/src/github.com/alphagov/paas-rds-metric-collector"
+      go install github.com/onsi/ginkgo/ginkgo@latest
+      go install github.com/alphagov/paas-rds-broker@v1.14.0
+
+      # uncomment to debug grpc connections
+      #export GRPC_GO_LOG_VERBOSITY_LEVEL=99
+      #export GRPC_GO_LOG_SEVERITY_LEVEL=info
+
       make integration

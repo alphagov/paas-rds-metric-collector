@@ -34,7 +34,7 @@ func startNewBroker(rdsBrokerConfig *rdsconfig.Config) (*gexec.Session, *BrokerA
 	Expect(ioutil.WriteFile(configFile.Name(), configJSON, 0644)).To(Succeed())
 	Expect(configFile.Close()).To(Succeed())
 
-	command := exec.Command(rdsBrokerPath,
+	command := exec.Command("paas-rds-broker",
 		fmt.Sprintf("-config=%s", configFile.Name()),
 	)
 	rdsBrokerSession, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)

@@ -2,8 +2,10 @@ package integration_rds_metric_collector_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
+	"code.cloudfoundry.org/lager"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	. "github.com/onsi/ginkgo"
@@ -27,11 +29,12 @@ var (
 	rdsSubnetGroupName *string
 	ec2SecurityGroupID *string
 
-	rdsBrokerPath    string
 	rdsBrokerConfig  *rdsconfig.Config
 	rdsBrokerSession *gexec.Session
 	brokerAPIClient  *BrokerAPIClient
 	rdsClient        *RDSClient
+
+	testSuiteLogger  lager.Logger
 
 	mockLocketServerSession *gexec.Session
 
@@ -47,9 +50,8 @@ func TestSuite(t *testing.T) {
 		const fixturesPath = "../../fixtures"
 		var err error
 
-		// Compile the broker
-		rdsBrokerPath, err = gexec.Build("github.com/alphagov/paas-rds-broker")
-		Expect(err).ShouldNot(HaveOccurred())
+		testSuiteLogger = lager.NewLogger("test-suite")
+		testSuiteLogger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.INFO))
 
 		// Compile test Locket server
 		mockLocketServer := testhelpers.MockLocketServer{}
@@ -150,10 +152,10 @@ func TestSuite(t *testing.T) {
 			Region: aws.String(rdsBrokerConfig.RDSConfig.Region)},
 		)
 		if ec2SecurityGroupID != nil {
-			Expect(DestroySecurityGroup(ec2SecurityGroupID, awsSession)).To(Succeed())
+			Expect(DestroySecurityGroup(ec2SecurityGroupID, awsSession, testSuiteLogger)).To(Succeed())
 		}
 		if rdsSubnetGroupName != nil {
-			Expect(DestroySubnetGroup(rdsSubnetGroupName, awsSession)).To(Succeed())
+			Expect(DestroySubnetGroup(rdsSubnetGroupName, awsSession, testSuiteLogger)).To(Succeed())
 		}
 		mockLocketServerSession.Kill()
 	})

@@ -42,6 +42,7 @@ var _ = Describe("RDS Metrics Collector", func() {
 
 				By("receiving some envelopes in the fake loggregator server")
 				envelopes := receiveEnvelopes(30, 60*time.Second)
+				Expect(envelopes).ToNot(BeEmpty())
 
 				By("checking we received the expected metrics")
 				cloudwatchEnvelopes := filterEnvelopesBySourceAndTag(envelopes, instanceID, "source", "sql")
