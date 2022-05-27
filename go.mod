@@ -1,6 +1,6 @@
 module github.com/alphagov/paas-rds-metric-collector
 
-go 1.17
+go 1.18
 
 require (
 	code.cloudfoundry.org/clock v0.0.0-20180518195852-02e53af36e6c
