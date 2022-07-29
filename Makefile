@@ -6,7 +6,7 @@ export TETS_MYSQL_URL ?= root:@tcp(localhost:3306)/mysql?tls=false
 test: unit
 
 unit:
-	ginkgo -r --skipPackage=ci --nodes=8
+	ginkgo -r --skip-package=ci --nodes=8
 
 integration:
 	ginkgo -v -r ci/blackbox
