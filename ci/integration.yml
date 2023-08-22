@@ -23,7 +23,7 @@ run:
       update-ca-certificates
 
       cd "${GOPATH}/src/github.com/alphagov/paas-rds-metric-collector"
-      go install github.com/alphagov/paas-rds-broker@v1.14.0
+      go install github.com/alphagov/paas-rds-broker@v1.48.0
 
       # uncomment to debug grpc connections
       #export GRPC_GO_LOG_VERBOSITY_LEVEL=99
