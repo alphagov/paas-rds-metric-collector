@@ -23,7 +23,6 @@ run:
       update-ca-certificates
 
       cd "${GOPATH}/src/github.com/alphagov/paas-rds-metric-collector"
-      go install github.com/onsi/ginkgo/ginkgo@latest
       go install github.com/alphagov/paas-rds-broker@v1.14.0
 
       # uncomment to debug grpc connections
