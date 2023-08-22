@@ -14,7 +14,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/lib/pq v1.10.3
-	github.com/onsi/ginkgo v1.16.4
+	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.16.0
 	github.com/phayes/freeport v0.0.0-20171002181615-b8543db493a5
 	github.com/satori/go.uuid v1.2.0
@@ -24,9 +24,7 @@ require (
 	gopkg.in/go-playground/validator.v9 v9.20.2
 )
 
-replace (
-	github.com/Kount/pq-timeouts v1.0.0 => ./fork/pq-timeouts
-)
+replace github.com/Kount/pq-timeouts v1.0.0 => ./fork/pq-timeouts
 
 require (
 	code.cloudfoundry.org/cfhttp v1.0.0 // indirect
@@ -39,14 +37,13 @@ require (
 	github.com/armon/go-metrics v0.3.9 // indirect
 	github.com/cloudfoundry/sonde-go v0.0.0-20171206171820-b33733203bb4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/drewolson/testflight v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect
+	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/gogo/protobuf v1.1.1 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/consul v1.2.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.0 // indirect
@@ -55,7 +52,6 @@ require (
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/memberlist v0.2.4 // indirect
 	github.com/hashicorp/serf v0.8.1 // indirect
-	github.com/hpcloud/tail v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mailru/easyjson v0.0.0-20180723221831-d5012789d665 // indirect
@@ -69,17 +65,15 @@ require (
 	github.com/pivotal-cf/brokerapi v6.4.2+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/robfig/cron v1.2.0 // indirect
 	github.com/stretchr/objx v0.1.1 // indirect
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9 // indirect
 	golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/appengine v1.1.0 // indirect
+	golang.org/x/tools v0.0.0-20201224043029-2b0845dc783e // indirect
 	google.golang.org/genproto v0.0.0-20180722052100-02b4e9547331 // indirect
 	google.golang.org/grpc v1.13.0 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
