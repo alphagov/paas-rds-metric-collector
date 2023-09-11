@@ -2,7 +2,7 @@ package testhelpers
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path"
 
 	"code.cloudfoundry.org/locket"
@@ -40,12 +40,12 @@ func BuildTempConfigFile(locketAddress, fixturesPath string) (configFilePath str
 			LocketAddress:        locketAddress,
 		},
 	}
-	temporaryConfigFile, err := ioutil.TempFile("", "rds-metrics-collector-config-")
+	temporaryConfigFile, err := os.CreateTemp("", "rds-metrics-collector-config-")
 	Expect(err).ToNot(HaveOccurred())
 	configJSON, err := json.Marshal(rdsMetricCollectorConfig)
 	Expect(err).ToNot(HaveOccurred())
 	configFilePath = temporaryConfigFile.Name()
-	err = ioutil.WriteFile(configFilePath, configJSON, 0644)
+	err = os.WriteFile(configFilePath, configJSON, 0644)
 	Expect(err).ToNot(HaveOccurred())
 	return configFilePath
 }

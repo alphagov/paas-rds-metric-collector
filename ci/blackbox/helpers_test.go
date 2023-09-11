@@ -3,12 +3,11 @@ package integration_rds_metric_collector_test
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"time"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
@@ -21,7 +20,7 @@ import (
 )
 
 func startNewBroker(rdsBrokerConfig *rdsconfig.Config) (*gexec.Session, *BrokerAPIClient, *RDSClient) {
-	configFile, err := ioutil.TempFile("", "rds-broker")
+	configFile, err := os.CreateTemp("", "rds-broker")
 	Expect(err).ToNot(HaveOccurred())
 	defer os.Remove(configFile.Name())
 
@@ -31,7 +30,7 @@ func startNewBroker(rdsBrokerConfig *rdsconfig.Config) (*gexec.Session, *BrokerA
 
 	configJSON, err := json.Marshal(rdsBrokerConfig)
 	Expect(err).ToNot(HaveOccurred())
-	Expect(ioutil.WriteFile(configFile.Name(), configJSON, 0644)).To(Succeed())
+	Expect(os.WriteFile(configFile.Name(), configJSON, 0644)).To(Succeed())
 	Expect(configFile.Close()).To(Succeed())
 
 	command := exec.Command("paas-rds-broker",
@@ -58,13 +57,13 @@ func startNewBroker(rdsBrokerConfig *rdsconfig.Config) (*gexec.Session, *BrokerA
 }
 
 func startNewCollector(rdsMetricCollectorConfig *collectorconfig.Config) *gexec.Session {
-	configFile, err := ioutil.TempFile("", "rds-collector")
+	configFile, err := os.CreateTemp("", "rds-collector")
 	Expect(err).ToNot(HaveOccurred())
 	defer os.Remove(configFile.Name())
 
 	configJSON, err := json.Marshal(rdsMetricCollectorConfig)
 	Expect(err).ToNot(HaveOccurred())
-	Expect(ioutil.WriteFile(configFile.Name(), configJSON, 0644)).To(Succeed())
+	Expect(os.WriteFile(configFile.Name(), configJSON, 0644)).To(Succeed())
 	Expect(configFile.Close()).To(Succeed())
 
 	// start the collector
@@ -113,7 +112,7 @@ func deprovisionInstance(instanceID, serviceID, planID string) {
 }
 
 func rebootInstance(instanceID, serviceID, planID string) {
-	code, operation, err := brokerAPIClient.UpdateInstance(instanceID, serviceID, planID, planID, `{ "reboot": true }`)
+	code, operation, _, err := brokerAPIClient.UpdateInstance(instanceID, serviceID, planID, planID, `{ "reboot": true }`)
 	Expect(err).ToNot(HaveOccurred())
 	Expect(code).To(Equal(202))
 	pollForOperationCompletion(brokerAPIClient, instanceID, serviceID, planID, operation)

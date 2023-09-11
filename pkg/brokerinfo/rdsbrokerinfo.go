@@ -39,7 +39,7 @@ func (r *RDSBrokerInfo) ListInstances() ([]InstanceInfo, error) {
 
 	dbInstanceDetailsList, err := r.dbInstance.DescribeByTag("Broker Name", r.brokerName)
 	if err != nil {
-		r.logger.Error("retriving list of AWS instances", err, lager.Data{"brokerName": r.brokerName})
+		r.logger.Error("retrieving list of AWS instances", err, lager.Data{"brokerName": r.brokerName})
 		return serviceInstances, err
 	}
 
