@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"time"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
@@ -113,7 +113,8 @@ func deprovisionInstance(instanceID, serviceID, planID string) {
 }
 
 func rebootInstance(instanceID, serviceID, planID string) {
-	code, operation, err := brokerAPIClient.UpdateInstance(instanceID, serviceID, planID, planID, `{ "reboot": true }`)
+	code, operation, description, err := brokerAPIClient.UpdateInstance(instanceID, serviceID, planID, planID, `{ "reboot": true }`)
+	Expect(description).NotTo(BeEmpty())
 	Expect(err).ToNot(HaveOccurred())
 	Expect(code).To(Equal(202))
 	pollForOperationCompletion(brokerAPIClient, instanceID, serviceID, planID, operation)

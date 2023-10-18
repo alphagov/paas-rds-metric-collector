@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/v3"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -82,7 +82,7 @@ func (cw *CloudWatchCollector) Collect(ctx context.Context) ([]metrics.Metric, e
 	for metricName, label := range metricNamesToLabels {
 		input := &cloudwatch.GetMetricStatisticsInput{
 			Dimensions: []*cloudwatch.Dimension{
-				&cloudwatch.Dimension{
+				{
 					Name:  aws.String("DBInstanceIdentifier"),
 					Value: aws.String(cw.instance),
 				},

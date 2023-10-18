@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -13,7 +14,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/v3"
 
 	"github.com/alphagov/paas-rds-broker/awsrds"
 
@@ -27,7 +28,7 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/scheduler"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	"github.com/tedsuo/ifrit"
 	"github.com/tedsuo/ifrit/grouper"
 	"github.com/tedsuo/ifrit/sigmon"
@@ -81,7 +82,7 @@ func main() {
 	awsConfig := aws.NewConfig().WithRegion(cfg.AWS.Region)
 	awsSession := session.New(awsConfig)
 	rdssvc := rds.New(awsSession)
-	dbInstance := awsrds.NewRDSDBInstance(cfg.AWS.Region, "aws", rdssvc, logger)
+	dbInstance := awsrds.NewRDSDBInstance(cfg.AWS.Region, "aws", rdssvc, logger, time.Hour, nil)
 
 	rdsBrokerInfo := brokerinfo.NewRDSBrokerInfo(
 		cfg.RDSBrokerInfo,
@@ -139,8 +140,8 @@ func main() {
 	members := []grouper.Member{}
 	locketRunner := createLocketRunner(logger, cfg)
 
-	members = append(members, grouper.Member{"locketRunner", locketRunner})
-	members = append(members, grouper.Member{"scheduleRunner", scheduler})
+	members = append(members, grouper.Member{Name: "locketRunner", Runner: locketRunner})
+	members = append(members, grouper.Member{Name: "scheduleRunner", Runner: scheduler})
 
 	group := grouper.NewOrdered(os.Interrupt, members)
 

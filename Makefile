@@ -6,10 +6,10 @@ export TETS_MYSQL_URL ?= root:@tcp(localhost:3306)/mysql?tls=false
 test: unit
 
 unit:
-	go run github.com/onsi/ginkgo/ginkgo -r --skipPackage=ci --nodes=8
+	go run github.com/onsi/ginkgo/ginkgo/v2 -r --skipPackage=ci --nodes=8
 
 integration:
-	go run github.com/onsi/ginkgo/ginkgo -v -r ci/blackbox
+	go run github.com/onsi/ginkgo/ginkgo/v2 -v -r ci/blackbox
 
 start_docker_dbs:
 	docker run --rm -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=123abc -d postgres:12

@@ -13,7 +13,7 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/collector/mocks"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
@@ -67,17 +67,17 @@ var _ = Describe("cloudwatch_collector", func() {
 			fakeClient.GetMetricStatisticsWithContextReturns(&cloudwatch.GetMetricStatisticsOutput{
 				Label: aws.String("test"),
 				Datapoints: []*cloudwatch.Datapoint{
-					&cloudwatch.Datapoint{
+					{
 						Timestamp: aws.Time(now.Add(-3 * time.Second)),
 						Average:   aws.Float64(1),
 						Unit:      aws.String("Second"),
 					},
-					&cloudwatch.Datapoint{
+					{
 						Timestamp: aws.Time(now.Add(-2 * time.Second)),
 						Average:   aws.Float64(2),
 						Unit:      aws.String("Second"),
 					},
-					&cloudwatch.Datapoint{
+					{
 						Timestamp: aws.Time(now.Add(-1 * time.Second)),
 						Average:   aws.Float64(3),
 						Unit:      aws.String("Second"),
@@ -100,7 +100,7 @@ var _ = Describe("cloudwatch_collector", func() {
 			fakeClient.GetMetricStatisticsWithContextReturns(&cloudwatch.GetMetricStatisticsOutput{
 				Label: aws.String("test"),
 				Datapoints: []*cloudwatch.Datapoint{
-					&cloudwatch.Datapoint{
+					{
 						Timestamp: aws.Time(metricTime),
 						Average:   aws.Float64(1),
 						Unit:      aws.String("Second"),
@@ -120,7 +120,7 @@ var _ = Describe("cloudwatch_collector", func() {
 			fakeClient.GetMetricStatisticsWithContextReturns(&cloudwatch.GetMetricStatisticsOutput{
 				Label: aws.String("test"),
 				Datapoints: []*cloudwatch.Datapoint{
-					&cloudwatch.Datapoint{
+					{
 						Timestamp: aws.Time(time.Now()),
 						Average:   aws.Float64(1),
 						Unit:      aws.String("Second"),
