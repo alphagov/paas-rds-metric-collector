@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/v3"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 
 	"github.com/aws/aws-sdk-go/aws"

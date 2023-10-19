@@ -13,7 +13,7 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/collector/mocks"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 

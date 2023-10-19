@@ -21,8 +21,9 @@ type Config struct {
 }
 
 type AWSConfig struct {
-	Region       string `json:"region" validate:"required"`
-	AWSPartition string `json:"aws_partition" validate:"required"`
+	Region             string `json:"region" validate:"required"`
+	AWSPartition       string `json:"aws_partition" validate:"required"`
+	AWSTagCacheSeconds uint   `json:"aws_tag_cache_seconds"`
 }
 
 type RDSBrokerInfoConfig struct {
@@ -51,7 +52,8 @@ const defaultConfig = `
 {
 	"log_level": "INFO",
 	"aws": {
-		"aws_partition": "aws"
+		"aws_partition": "aws",
+		"aws_tag_cache_seconds": 604800
 	},
 	"scheduler": {
 		"instance_refresh_interval": 120,
