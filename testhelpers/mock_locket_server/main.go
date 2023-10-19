@@ -4,15 +4,16 @@ import (
 	"crypto/tls"
 	"os"
 
-	"code.cloudfoundry.org/lager"
-	"code.cloudfoundry.org/locket/grpcserver"
-	"code.cloudfoundry.org/locket/models"
 	"errors"
 	"flag"
 	"fmt"
+	"path"
+
+	"code.cloudfoundry.org/lager/v3"
+	"code.cloudfoundry.org/locket/grpcserver"
+	"code.cloudfoundry.org/locket/models"
 	"github.com/tedsuo/ifrit"
 	gcontext "golang.org/x/net/context"
-	"path"
 )
 
 var (

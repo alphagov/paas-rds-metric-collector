@@ -5,10 +5,10 @@ import (
 	"os"
 	"testing"
 
-	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/v3"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 	uuid "github.com/satori/go.uuid"
@@ -34,7 +34,7 @@ var (
 	brokerAPIClient  *BrokerAPIClient
 	rdsClient        *RDSClient
 
-	testSuiteLogger  lager.Logger
+	testSuiteLogger lager.Logger
 
 	mockLocketServerSession *gexec.Session
 

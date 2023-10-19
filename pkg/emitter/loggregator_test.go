@@ -9,7 +9,7 @@ import (
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 

@@ -3,7 +3,7 @@ package collector
 import (
 	"fmt"
 
-	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/v3"
 
 	// Used in the SQL driver.
 	_ "github.com/go-sql-driver/mysql"
