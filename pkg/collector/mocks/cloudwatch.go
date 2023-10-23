@@ -404,6 +404,32 @@ type FakeCloudWatchAPI struct {
 		result1 *cloudwatch.DescribeAnomalyDetectorsOutput
 		result2 error
 	}
+	DescribeAnomalyDetectorsPagesStub        func(*cloudwatch.DescribeAnomalyDetectorsInput, func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool) error
+	describeAnomalyDetectorsPagesMutex       sync.RWMutex
+	describeAnomalyDetectorsPagesArgsForCall []struct {
+		arg1 *cloudwatch.DescribeAnomalyDetectorsInput
+		arg2 func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool
+	}
+	describeAnomalyDetectorsPagesReturns struct {
+		result1 error
+	}
+	describeAnomalyDetectorsPagesReturnsOnCall map[int]struct {
+		result1 error
+	}
+	DescribeAnomalyDetectorsPagesWithContextStub        func(context.Context, *cloudwatch.DescribeAnomalyDetectorsInput, func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool, ...request.Option) error
+	describeAnomalyDetectorsPagesWithContextMutex       sync.RWMutex
+	describeAnomalyDetectorsPagesWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DescribeAnomalyDetectorsInput
+		arg3 func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool
+		arg4 []request.Option
+	}
+	describeAnomalyDetectorsPagesWithContextReturns struct {
+		result1 error
+	}
+	describeAnomalyDetectorsPagesWithContextReturnsOnCall map[int]struct {
+		result1 error
+	}
 	DescribeAnomalyDetectorsRequestStub        func(*cloudwatch.DescribeAnomalyDetectorsInput) (*request.Request, *cloudwatch.DescribeAnomalyDetectorsOutput)
 	describeAnomalyDetectorsRequestMutex       sync.RWMutex
 	describeAnomalyDetectorsRequestArgsForCall []struct {
@@ -1002,6 +1028,73 @@ type FakeCloudWatchAPI struct {
 		result1 *cloudwatch.ListDashboardsOutput
 		result2 error
 	}
+	ListManagedInsightRulesStub        func(*cloudwatch.ListManagedInsightRulesInput) (*cloudwatch.ListManagedInsightRulesOutput, error)
+	listManagedInsightRulesMutex       sync.RWMutex
+	listManagedInsightRulesArgsForCall []struct {
+		arg1 *cloudwatch.ListManagedInsightRulesInput
+	}
+	listManagedInsightRulesReturns struct {
+		result1 *cloudwatch.ListManagedInsightRulesOutput
+		result2 error
+	}
+	listManagedInsightRulesReturnsOnCall map[int]struct {
+		result1 *cloudwatch.ListManagedInsightRulesOutput
+		result2 error
+	}
+	ListManagedInsightRulesPagesStub        func(*cloudwatch.ListManagedInsightRulesInput, func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool) error
+	listManagedInsightRulesPagesMutex       sync.RWMutex
+	listManagedInsightRulesPagesArgsForCall []struct {
+		arg1 *cloudwatch.ListManagedInsightRulesInput
+		arg2 func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool
+	}
+	listManagedInsightRulesPagesReturns struct {
+		result1 error
+	}
+	listManagedInsightRulesPagesReturnsOnCall map[int]struct {
+		result1 error
+	}
+	ListManagedInsightRulesPagesWithContextStub        func(context.Context, *cloudwatch.ListManagedInsightRulesInput, func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool, ...request.Option) error
+	listManagedInsightRulesPagesWithContextMutex       sync.RWMutex
+	listManagedInsightRulesPagesWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.ListManagedInsightRulesInput
+		arg3 func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool
+		arg4 []request.Option
+	}
+	listManagedInsightRulesPagesWithContextReturns struct {
+		result1 error
+	}
+	listManagedInsightRulesPagesWithContextReturnsOnCall map[int]struct {
+		result1 error
+	}
+	ListManagedInsightRulesRequestStub        func(*cloudwatch.ListManagedInsightRulesInput) (*request.Request, *cloudwatch.ListManagedInsightRulesOutput)
+	listManagedInsightRulesRequestMutex       sync.RWMutex
+	listManagedInsightRulesRequestArgsForCall []struct {
+		arg1 *cloudwatch.ListManagedInsightRulesInput
+	}
+	listManagedInsightRulesRequestReturns struct {
+		result1 *request.Request
+		result2 *cloudwatch.ListManagedInsightRulesOutput
+	}
+	listManagedInsightRulesRequestReturnsOnCall map[int]struct {
+		result1 *request.Request
+		result2 *cloudwatch.ListManagedInsightRulesOutput
+	}
+	ListManagedInsightRulesWithContextStub        func(context.Context, *cloudwatch.ListManagedInsightRulesInput, ...request.Option) (*cloudwatch.ListManagedInsightRulesOutput, error)
+	listManagedInsightRulesWithContextMutex       sync.RWMutex
+	listManagedInsightRulesWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.ListManagedInsightRulesInput
+		arg3 []request.Option
+	}
+	listManagedInsightRulesWithContextReturns struct {
+		result1 *cloudwatch.ListManagedInsightRulesOutput
+		result2 error
+	}
+	listManagedInsightRulesWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.ListManagedInsightRulesOutput
+		result2 error
+	}
 	ListMetricStreamsStub        func(*cloudwatch.ListMetricStreamsInput) (*cloudwatch.ListMetricStreamsOutput, error)
 	listMetricStreamsMutex       sync.RWMutex
 	listMetricStreamsArgsForCall []struct {
@@ -1339,6 +1432,47 @@ type FakeCloudWatchAPI struct {
 	}
 	putInsightRuleWithContextReturnsOnCall map[int]struct {
 		result1 *cloudwatch.PutInsightRuleOutput
+		result2 error
+	}
+	PutManagedInsightRulesStub        func(*cloudwatch.PutManagedInsightRulesInput) (*cloudwatch.PutManagedInsightRulesOutput, error)
+	putManagedInsightRulesMutex       sync.RWMutex
+	putManagedInsightRulesArgsForCall []struct {
+		arg1 *cloudwatch.PutManagedInsightRulesInput
+	}
+	putManagedInsightRulesReturns struct {
+		result1 *cloudwatch.PutManagedInsightRulesOutput
+		result2 error
+	}
+	putManagedInsightRulesReturnsOnCall map[int]struct {
+		result1 *cloudwatch.PutManagedInsightRulesOutput
+		result2 error
+	}
+	PutManagedInsightRulesRequestStub        func(*cloudwatch.PutManagedInsightRulesInput) (*request.Request, *cloudwatch.PutManagedInsightRulesOutput)
+	putManagedInsightRulesRequestMutex       sync.RWMutex
+	putManagedInsightRulesRequestArgsForCall []struct {
+		arg1 *cloudwatch.PutManagedInsightRulesInput
+	}
+	putManagedInsightRulesRequestReturns struct {
+		result1 *request.Request
+		result2 *cloudwatch.PutManagedInsightRulesOutput
+	}
+	putManagedInsightRulesRequestReturnsOnCall map[int]struct {
+		result1 *request.Request
+		result2 *cloudwatch.PutManagedInsightRulesOutput
+	}
+	PutManagedInsightRulesWithContextStub        func(context.Context, *cloudwatch.PutManagedInsightRulesInput, ...request.Option) (*cloudwatch.PutManagedInsightRulesOutput, error)
+	putManagedInsightRulesWithContextMutex       sync.RWMutex
+	putManagedInsightRulesWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *cloudwatch.PutManagedInsightRulesInput
+		arg3 []request.Option
+	}
+	putManagedInsightRulesWithContextReturns struct {
+		result1 *cloudwatch.PutManagedInsightRulesOutput
+		result2 error
+	}
+	putManagedInsightRulesWithContextReturnsOnCall map[int]struct {
+		result1 *cloudwatch.PutManagedInsightRulesOutput
 		result2 error
 	}
 	PutMetricAlarmStub        func(*cloudwatch.PutMetricAlarmInput) (*cloudwatch.PutMetricAlarmOutput, error)
@@ -3587,6 +3721,132 @@ func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsReturnsOnCall(i int, resu
 		result1 *cloudwatch.DescribeAnomalyDetectorsOutput
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPages(arg1 *cloudwatch.DescribeAnomalyDetectorsInput, arg2 func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool) error {
+	fake.describeAnomalyDetectorsPagesMutex.Lock()
+	ret, specificReturn := fake.describeAnomalyDetectorsPagesReturnsOnCall[len(fake.describeAnomalyDetectorsPagesArgsForCall)]
+	fake.describeAnomalyDetectorsPagesArgsForCall = append(fake.describeAnomalyDetectorsPagesArgsForCall, struct {
+		arg1 *cloudwatch.DescribeAnomalyDetectorsInput
+		arg2 func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool
+	}{arg1, arg2})
+	stub := fake.DescribeAnomalyDetectorsPagesStub
+	fakeReturns := fake.describeAnomalyDetectorsPagesReturns
+	fake.recordInvocation("DescribeAnomalyDetectorsPages", []interface{}{arg1, arg2})
+	fake.describeAnomalyDetectorsPagesMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesCallCount() int {
+	fake.describeAnomalyDetectorsPagesMutex.RLock()
+	defer fake.describeAnomalyDetectorsPagesMutex.RUnlock()
+	return len(fake.describeAnomalyDetectorsPagesArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesCalls(stub func(*cloudwatch.DescribeAnomalyDetectorsInput, func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool) error) {
+	fake.describeAnomalyDetectorsPagesMutex.Lock()
+	defer fake.describeAnomalyDetectorsPagesMutex.Unlock()
+	fake.DescribeAnomalyDetectorsPagesStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesArgsForCall(i int) (*cloudwatch.DescribeAnomalyDetectorsInput, func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool) {
+	fake.describeAnomalyDetectorsPagesMutex.RLock()
+	defer fake.describeAnomalyDetectorsPagesMutex.RUnlock()
+	argsForCall := fake.describeAnomalyDetectorsPagesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesReturns(result1 error) {
+	fake.describeAnomalyDetectorsPagesMutex.Lock()
+	defer fake.describeAnomalyDetectorsPagesMutex.Unlock()
+	fake.DescribeAnomalyDetectorsPagesStub = nil
+	fake.describeAnomalyDetectorsPagesReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesReturnsOnCall(i int, result1 error) {
+	fake.describeAnomalyDetectorsPagesMutex.Lock()
+	defer fake.describeAnomalyDetectorsPagesMutex.Unlock()
+	fake.DescribeAnomalyDetectorsPagesStub = nil
+	if fake.describeAnomalyDetectorsPagesReturnsOnCall == nil {
+		fake.describeAnomalyDetectorsPagesReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.describeAnomalyDetectorsPagesReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesWithContext(arg1 context.Context, arg2 *cloudwatch.DescribeAnomalyDetectorsInput, arg3 func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool, arg4 ...request.Option) error {
+	fake.describeAnomalyDetectorsPagesWithContextMutex.Lock()
+	ret, specificReturn := fake.describeAnomalyDetectorsPagesWithContextReturnsOnCall[len(fake.describeAnomalyDetectorsPagesWithContextArgsForCall)]
+	fake.describeAnomalyDetectorsPagesWithContextArgsForCall = append(fake.describeAnomalyDetectorsPagesWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.DescribeAnomalyDetectorsInput
+		arg3 func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool
+		arg4 []request.Option
+	}{arg1, arg2, arg3, arg4})
+	stub := fake.DescribeAnomalyDetectorsPagesWithContextStub
+	fakeReturns := fake.describeAnomalyDetectorsPagesWithContextReturns
+	fake.recordInvocation("DescribeAnomalyDetectorsPagesWithContext", []interface{}{arg1, arg2, arg3, arg4})
+	fake.describeAnomalyDetectorsPagesWithContextMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4...)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesWithContextCallCount() int {
+	fake.describeAnomalyDetectorsPagesWithContextMutex.RLock()
+	defer fake.describeAnomalyDetectorsPagesWithContextMutex.RUnlock()
+	return len(fake.describeAnomalyDetectorsPagesWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesWithContextCalls(stub func(context.Context, *cloudwatch.DescribeAnomalyDetectorsInput, func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool, ...request.Option) error) {
+	fake.describeAnomalyDetectorsPagesWithContextMutex.Lock()
+	defer fake.describeAnomalyDetectorsPagesWithContextMutex.Unlock()
+	fake.DescribeAnomalyDetectorsPagesWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesWithContextArgsForCall(i int) (context.Context, *cloudwatch.DescribeAnomalyDetectorsInput, func(*cloudwatch.DescribeAnomalyDetectorsOutput, bool) bool, []request.Option) {
+	fake.describeAnomalyDetectorsPagesWithContextMutex.RLock()
+	defer fake.describeAnomalyDetectorsPagesWithContextMutex.RUnlock()
+	argsForCall := fake.describeAnomalyDetectorsPagesWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesWithContextReturns(result1 error) {
+	fake.describeAnomalyDetectorsPagesWithContextMutex.Lock()
+	defer fake.describeAnomalyDetectorsPagesWithContextMutex.Unlock()
+	fake.DescribeAnomalyDetectorsPagesWithContextStub = nil
+	fake.describeAnomalyDetectorsPagesWithContextReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsPagesWithContextReturnsOnCall(i int, result1 error) {
+	fake.describeAnomalyDetectorsPagesWithContextMutex.Lock()
+	defer fake.describeAnomalyDetectorsPagesWithContextMutex.Unlock()
+	fake.DescribeAnomalyDetectorsPagesWithContextStub = nil
+	if fake.describeAnomalyDetectorsPagesWithContextReturnsOnCall == nil {
+		fake.describeAnomalyDetectorsPagesWithContextReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.describeAnomalyDetectorsPagesWithContextReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeCloudWatchAPI) DescribeAnomalyDetectorsRequest(arg1 *cloudwatch.DescribeAnomalyDetectorsInput) (*request.Request, *cloudwatch.DescribeAnomalyDetectorsOutput) {
@@ -6425,6 +6685,326 @@ func (fake *FakeCloudWatchAPI) ListDashboardsWithContextReturnsOnCall(i int, res
 	}{result1, result2}
 }
 
+func (fake *FakeCloudWatchAPI) ListManagedInsightRules(arg1 *cloudwatch.ListManagedInsightRulesInput) (*cloudwatch.ListManagedInsightRulesOutput, error) {
+	fake.listManagedInsightRulesMutex.Lock()
+	ret, specificReturn := fake.listManagedInsightRulesReturnsOnCall[len(fake.listManagedInsightRulesArgsForCall)]
+	fake.listManagedInsightRulesArgsForCall = append(fake.listManagedInsightRulesArgsForCall, struct {
+		arg1 *cloudwatch.ListManagedInsightRulesInput
+	}{arg1})
+	stub := fake.ListManagedInsightRulesStub
+	fakeReturns := fake.listManagedInsightRulesReturns
+	fake.recordInvocation("ListManagedInsightRules", []interface{}{arg1})
+	fake.listManagedInsightRulesMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesCallCount() int {
+	fake.listManagedInsightRulesMutex.RLock()
+	defer fake.listManagedInsightRulesMutex.RUnlock()
+	return len(fake.listManagedInsightRulesArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesCalls(stub func(*cloudwatch.ListManagedInsightRulesInput) (*cloudwatch.ListManagedInsightRulesOutput, error)) {
+	fake.listManagedInsightRulesMutex.Lock()
+	defer fake.listManagedInsightRulesMutex.Unlock()
+	fake.ListManagedInsightRulesStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesArgsForCall(i int) *cloudwatch.ListManagedInsightRulesInput {
+	fake.listManagedInsightRulesMutex.RLock()
+	defer fake.listManagedInsightRulesMutex.RUnlock()
+	argsForCall := fake.listManagedInsightRulesArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesReturns(result1 *cloudwatch.ListManagedInsightRulesOutput, result2 error) {
+	fake.listManagedInsightRulesMutex.Lock()
+	defer fake.listManagedInsightRulesMutex.Unlock()
+	fake.ListManagedInsightRulesStub = nil
+	fake.listManagedInsightRulesReturns = struct {
+		result1 *cloudwatch.ListManagedInsightRulesOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesReturnsOnCall(i int, result1 *cloudwatch.ListManagedInsightRulesOutput, result2 error) {
+	fake.listManagedInsightRulesMutex.Lock()
+	defer fake.listManagedInsightRulesMutex.Unlock()
+	fake.ListManagedInsightRulesStub = nil
+	if fake.listManagedInsightRulesReturnsOnCall == nil {
+		fake.listManagedInsightRulesReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.ListManagedInsightRulesOutput
+			result2 error
+		})
+	}
+	fake.listManagedInsightRulesReturnsOnCall[i] = struct {
+		result1 *cloudwatch.ListManagedInsightRulesOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPages(arg1 *cloudwatch.ListManagedInsightRulesInput, arg2 func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool) error {
+	fake.listManagedInsightRulesPagesMutex.Lock()
+	ret, specificReturn := fake.listManagedInsightRulesPagesReturnsOnCall[len(fake.listManagedInsightRulesPagesArgsForCall)]
+	fake.listManagedInsightRulesPagesArgsForCall = append(fake.listManagedInsightRulesPagesArgsForCall, struct {
+		arg1 *cloudwatch.ListManagedInsightRulesInput
+		arg2 func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool
+	}{arg1, arg2})
+	stub := fake.ListManagedInsightRulesPagesStub
+	fakeReturns := fake.listManagedInsightRulesPagesReturns
+	fake.recordInvocation("ListManagedInsightRulesPages", []interface{}{arg1, arg2})
+	fake.listManagedInsightRulesPagesMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesCallCount() int {
+	fake.listManagedInsightRulesPagesMutex.RLock()
+	defer fake.listManagedInsightRulesPagesMutex.RUnlock()
+	return len(fake.listManagedInsightRulesPagesArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesCalls(stub func(*cloudwatch.ListManagedInsightRulesInput, func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool) error) {
+	fake.listManagedInsightRulesPagesMutex.Lock()
+	defer fake.listManagedInsightRulesPagesMutex.Unlock()
+	fake.ListManagedInsightRulesPagesStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesArgsForCall(i int) (*cloudwatch.ListManagedInsightRulesInput, func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool) {
+	fake.listManagedInsightRulesPagesMutex.RLock()
+	defer fake.listManagedInsightRulesPagesMutex.RUnlock()
+	argsForCall := fake.listManagedInsightRulesPagesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesReturns(result1 error) {
+	fake.listManagedInsightRulesPagesMutex.Lock()
+	defer fake.listManagedInsightRulesPagesMutex.Unlock()
+	fake.ListManagedInsightRulesPagesStub = nil
+	fake.listManagedInsightRulesPagesReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesReturnsOnCall(i int, result1 error) {
+	fake.listManagedInsightRulesPagesMutex.Lock()
+	defer fake.listManagedInsightRulesPagesMutex.Unlock()
+	fake.ListManagedInsightRulesPagesStub = nil
+	if fake.listManagedInsightRulesPagesReturnsOnCall == nil {
+		fake.listManagedInsightRulesPagesReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.listManagedInsightRulesPagesReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesWithContext(arg1 context.Context, arg2 *cloudwatch.ListManagedInsightRulesInput, arg3 func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool, arg4 ...request.Option) error {
+	fake.listManagedInsightRulesPagesWithContextMutex.Lock()
+	ret, specificReturn := fake.listManagedInsightRulesPagesWithContextReturnsOnCall[len(fake.listManagedInsightRulesPagesWithContextArgsForCall)]
+	fake.listManagedInsightRulesPagesWithContextArgsForCall = append(fake.listManagedInsightRulesPagesWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.ListManagedInsightRulesInput
+		arg3 func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool
+		arg4 []request.Option
+	}{arg1, arg2, arg3, arg4})
+	stub := fake.ListManagedInsightRulesPagesWithContextStub
+	fakeReturns := fake.listManagedInsightRulesPagesWithContextReturns
+	fake.recordInvocation("ListManagedInsightRulesPagesWithContext", []interface{}{arg1, arg2, arg3, arg4})
+	fake.listManagedInsightRulesPagesWithContextMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4...)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesWithContextCallCount() int {
+	fake.listManagedInsightRulesPagesWithContextMutex.RLock()
+	defer fake.listManagedInsightRulesPagesWithContextMutex.RUnlock()
+	return len(fake.listManagedInsightRulesPagesWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesWithContextCalls(stub func(context.Context, *cloudwatch.ListManagedInsightRulesInput, func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool, ...request.Option) error) {
+	fake.listManagedInsightRulesPagesWithContextMutex.Lock()
+	defer fake.listManagedInsightRulesPagesWithContextMutex.Unlock()
+	fake.ListManagedInsightRulesPagesWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesWithContextArgsForCall(i int) (context.Context, *cloudwatch.ListManagedInsightRulesInput, func(*cloudwatch.ListManagedInsightRulesOutput, bool) bool, []request.Option) {
+	fake.listManagedInsightRulesPagesWithContextMutex.RLock()
+	defer fake.listManagedInsightRulesPagesWithContextMutex.RUnlock()
+	argsForCall := fake.listManagedInsightRulesPagesWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesWithContextReturns(result1 error) {
+	fake.listManagedInsightRulesPagesWithContextMutex.Lock()
+	defer fake.listManagedInsightRulesPagesWithContextMutex.Unlock()
+	fake.ListManagedInsightRulesPagesWithContextStub = nil
+	fake.listManagedInsightRulesPagesWithContextReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesPagesWithContextReturnsOnCall(i int, result1 error) {
+	fake.listManagedInsightRulesPagesWithContextMutex.Lock()
+	defer fake.listManagedInsightRulesPagesWithContextMutex.Unlock()
+	fake.ListManagedInsightRulesPagesWithContextStub = nil
+	if fake.listManagedInsightRulesPagesWithContextReturnsOnCall == nil {
+		fake.listManagedInsightRulesPagesWithContextReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.listManagedInsightRulesPagesWithContextReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesRequest(arg1 *cloudwatch.ListManagedInsightRulesInput) (*request.Request, *cloudwatch.ListManagedInsightRulesOutput) {
+	fake.listManagedInsightRulesRequestMutex.Lock()
+	ret, specificReturn := fake.listManagedInsightRulesRequestReturnsOnCall[len(fake.listManagedInsightRulesRequestArgsForCall)]
+	fake.listManagedInsightRulesRequestArgsForCall = append(fake.listManagedInsightRulesRequestArgsForCall, struct {
+		arg1 *cloudwatch.ListManagedInsightRulesInput
+	}{arg1})
+	stub := fake.ListManagedInsightRulesRequestStub
+	fakeReturns := fake.listManagedInsightRulesRequestReturns
+	fake.recordInvocation("ListManagedInsightRulesRequest", []interface{}{arg1})
+	fake.listManagedInsightRulesRequestMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesRequestCallCount() int {
+	fake.listManagedInsightRulesRequestMutex.RLock()
+	defer fake.listManagedInsightRulesRequestMutex.RUnlock()
+	return len(fake.listManagedInsightRulesRequestArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesRequestCalls(stub func(*cloudwatch.ListManagedInsightRulesInput) (*request.Request, *cloudwatch.ListManagedInsightRulesOutput)) {
+	fake.listManagedInsightRulesRequestMutex.Lock()
+	defer fake.listManagedInsightRulesRequestMutex.Unlock()
+	fake.ListManagedInsightRulesRequestStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesRequestArgsForCall(i int) *cloudwatch.ListManagedInsightRulesInput {
+	fake.listManagedInsightRulesRequestMutex.RLock()
+	defer fake.listManagedInsightRulesRequestMutex.RUnlock()
+	argsForCall := fake.listManagedInsightRulesRequestArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesRequestReturns(result1 *request.Request, result2 *cloudwatch.ListManagedInsightRulesOutput) {
+	fake.listManagedInsightRulesRequestMutex.Lock()
+	defer fake.listManagedInsightRulesRequestMutex.Unlock()
+	fake.ListManagedInsightRulesRequestStub = nil
+	fake.listManagedInsightRulesRequestReturns = struct {
+		result1 *request.Request
+		result2 *cloudwatch.ListManagedInsightRulesOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.ListManagedInsightRulesOutput) {
+	fake.listManagedInsightRulesRequestMutex.Lock()
+	defer fake.listManagedInsightRulesRequestMutex.Unlock()
+	fake.ListManagedInsightRulesRequestStub = nil
+	if fake.listManagedInsightRulesRequestReturnsOnCall == nil {
+		fake.listManagedInsightRulesRequestReturnsOnCall = make(map[int]struct {
+			result1 *request.Request
+			result2 *cloudwatch.ListManagedInsightRulesOutput
+		})
+	}
+	fake.listManagedInsightRulesRequestReturnsOnCall[i] = struct {
+		result1 *request.Request
+		result2 *cloudwatch.ListManagedInsightRulesOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesWithContext(arg1 context.Context, arg2 *cloudwatch.ListManagedInsightRulesInput, arg3 ...request.Option) (*cloudwatch.ListManagedInsightRulesOutput, error) {
+	fake.listManagedInsightRulesWithContextMutex.Lock()
+	ret, specificReturn := fake.listManagedInsightRulesWithContextReturnsOnCall[len(fake.listManagedInsightRulesWithContextArgsForCall)]
+	fake.listManagedInsightRulesWithContextArgsForCall = append(fake.listManagedInsightRulesWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.ListManagedInsightRulesInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	stub := fake.ListManagedInsightRulesWithContextStub
+	fakeReturns := fake.listManagedInsightRulesWithContextReturns
+	fake.recordInvocation("ListManagedInsightRulesWithContext", []interface{}{arg1, arg2, arg3})
+	fake.listManagedInsightRulesWithContextMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesWithContextCallCount() int {
+	fake.listManagedInsightRulesWithContextMutex.RLock()
+	defer fake.listManagedInsightRulesWithContextMutex.RUnlock()
+	return len(fake.listManagedInsightRulesWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesWithContextCalls(stub func(context.Context, *cloudwatch.ListManagedInsightRulesInput, ...request.Option) (*cloudwatch.ListManagedInsightRulesOutput, error)) {
+	fake.listManagedInsightRulesWithContextMutex.Lock()
+	defer fake.listManagedInsightRulesWithContextMutex.Unlock()
+	fake.ListManagedInsightRulesWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesWithContextArgsForCall(i int) (context.Context, *cloudwatch.ListManagedInsightRulesInput, []request.Option) {
+	fake.listManagedInsightRulesWithContextMutex.RLock()
+	defer fake.listManagedInsightRulesWithContextMutex.RUnlock()
+	argsForCall := fake.listManagedInsightRulesWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesWithContextReturns(result1 *cloudwatch.ListManagedInsightRulesOutput, result2 error) {
+	fake.listManagedInsightRulesWithContextMutex.Lock()
+	defer fake.listManagedInsightRulesWithContextMutex.Unlock()
+	fake.ListManagedInsightRulesWithContextStub = nil
+	fake.listManagedInsightRulesWithContextReturns = struct {
+		result1 *cloudwatch.ListManagedInsightRulesOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) ListManagedInsightRulesWithContextReturnsOnCall(i int, result1 *cloudwatch.ListManagedInsightRulesOutput, result2 error) {
+	fake.listManagedInsightRulesWithContextMutex.Lock()
+	defer fake.listManagedInsightRulesWithContextMutex.Unlock()
+	fake.ListManagedInsightRulesWithContextStub = nil
+	if fake.listManagedInsightRulesWithContextReturnsOnCall == nil {
+		fake.listManagedInsightRulesWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.ListManagedInsightRulesOutput
+			result2 error
+		})
+	}
+	fake.listManagedInsightRulesWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.ListManagedInsightRulesOutput
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeCloudWatchAPI) ListMetricStreams(arg1 *cloudwatch.ListMetricStreamsInput) (*cloudwatch.ListMetricStreamsOutput, error) {
 	fake.listMetricStreamsMutex.Lock()
 	ret, specificReturn := fake.listMetricStreamsReturnsOnCall[len(fake.listMetricStreamsArgsForCall)]
@@ -8031,6 +8611,200 @@ func (fake *FakeCloudWatchAPI) PutInsightRuleWithContextReturnsOnCall(i int, res
 	}
 	fake.putInsightRuleWithContextReturnsOnCall[i] = struct {
 		result1 *cloudwatch.PutInsightRuleOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRules(arg1 *cloudwatch.PutManagedInsightRulesInput) (*cloudwatch.PutManagedInsightRulesOutput, error) {
+	fake.putManagedInsightRulesMutex.Lock()
+	ret, specificReturn := fake.putManagedInsightRulesReturnsOnCall[len(fake.putManagedInsightRulesArgsForCall)]
+	fake.putManagedInsightRulesArgsForCall = append(fake.putManagedInsightRulesArgsForCall, struct {
+		arg1 *cloudwatch.PutManagedInsightRulesInput
+	}{arg1})
+	stub := fake.PutManagedInsightRulesStub
+	fakeReturns := fake.putManagedInsightRulesReturns
+	fake.recordInvocation("PutManagedInsightRules", []interface{}{arg1})
+	fake.putManagedInsightRulesMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesCallCount() int {
+	fake.putManagedInsightRulesMutex.RLock()
+	defer fake.putManagedInsightRulesMutex.RUnlock()
+	return len(fake.putManagedInsightRulesArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesCalls(stub func(*cloudwatch.PutManagedInsightRulesInput) (*cloudwatch.PutManagedInsightRulesOutput, error)) {
+	fake.putManagedInsightRulesMutex.Lock()
+	defer fake.putManagedInsightRulesMutex.Unlock()
+	fake.PutManagedInsightRulesStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesArgsForCall(i int) *cloudwatch.PutManagedInsightRulesInput {
+	fake.putManagedInsightRulesMutex.RLock()
+	defer fake.putManagedInsightRulesMutex.RUnlock()
+	argsForCall := fake.putManagedInsightRulesArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesReturns(result1 *cloudwatch.PutManagedInsightRulesOutput, result2 error) {
+	fake.putManagedInsightRulesMutex.Lock()
+	defer fake.putManagedInsightRulesMutex.Unlock()
+	fake.PutManagedInsightRulesStub = nil
+	fake.putManagedInsightRulesReturns = struct {
+		result1 *cloudwatch.PutManagedInsightRulesOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesReturnsOnCall(i int, result1 *cloudwatch.PutManagedInsightRulesOutput, result2 error) {
+	fake.putManagedInsightRulesMutex.Lock()
+	defer fake.putManagedInsightRulesMutex.Unlock()
+	fake.PutManagedInsightRulesStub = nil
+	if fake.putManagedInsightRulesReturnsOnCall == nil {
+		fake.putManagedInsightRulesReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.PutManagedInsightRulesOutput
+			result2 error
+		})
+	}
+	fake.putManagedInsightRulesReturnsOnCall[i] = struct {
+		result1 *cloudwatch.PutManagedInsightRulesOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesRequest(arg1 *cloudwatch.PutManagedInsightRulesInput) (*request.Request, *cloudwatch.PutManagedInsightRulesOutput) {
+	fake.putManagedInsightRulesRequestMutex.Lock()
+	ret, specificReturn := fake.putManagedInsightRulesRequestReturnsOnCall[len(fake.putManagedInsightRulesRequestArgsForCall)]
+	fake.putManagedInsightRulesRequestArgsForCall = append(fake.putManagedInsightRulesRequestArgsForCall, struct {
+		arg1 *cloudwatch.PutManagedInsightRulesInput
+	}{arg1})
+	stub := fake.PutManagedInsightRulesRequestStub
+	fakeReturns := fake.putManagedInsightRulesRequestReturns
+	fake.recordInvocation("PutManagedInsightRulesRequest", []interface{}{arg1})
+	fake.putManagedInsightRulesRequestMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesRequestCallCount() int {
+	fake.putManagedInsightRulesRequestMutex.RLock()
+	defer fake.putManagedInsightRulesRequestMutex.RUnlock()
+	return len(fake.putManagedInsightRulesRequestArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesRequestCalls(stub func(*cloudwatch.PutManagedInsightRulesInput) (*request.Request, *cloudwatch.PutManagedInsightRulesOutput)) {
+	fake.putManagedInsightRulesRequestMutex.Lock()
+	defer fake.putManagedInsightRulesRequestMutex.Unlock()
+	fake.PutManagedInsightRulesRequestStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesRequestArgsForCall(i int) *cloudwatch.PutManagedInsightRulesInput {
+	fake.putManagedInsightRulesRequestMutex.RLock()
+	defer fake.putManagedInsightRulesRequestMutex.RUnlock()
+	argsForCall := fake.putManagedInsightRulesRequestArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesRequestReturns(result1 *request.Request, result2 *cloudwatch.PutManagedInsightRulesOutput) {
+	fake.putManagedInsightRulesRequestMutex.Lock()
+	defer fake.putManagedInsightRulesRequestMutex.Unlock()
+	fake.PutManagedInsightRulesRequestStub = nil
+	fake.putManagedInsightRulesRequestReturns = struct {
+		result1 *request.Request
+		result2 *cloudwatch.PutManagedInsightRulesOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesRequestReturnsOnCall(i int, result1 *request.Request, result2 *cloudwatch.PutManagedInsightRulesOutput) {
+	fake.putManagedInsightRulesRequestMutex.Lock()
+	defer fake.putManagedInsightRulesRequestMutex.Unlock()
+	fake.PutManagedInsightRulesRequestStub = nil
+	if fake.putManagedInsightRulesRequestReturnsOnCall == nil {
+		fake.putManagedInsightRulesRequestReturnsOnCall = make(map[int]struct {
+			result1 *request.Request
+			result2 *cloudwatch.PutManagedInsightRulesOutput
+		})
+	}
+	fake.putManagedInsightRulesRequestReturnsOnCall[i] = struct {
+		result1 *request.Request
+		result2 *cloudwatch.PutManagedInsightRulesOutput
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesWithContext(arg1 context.Context, arg2 *cloudwatch.PutManagedInsightRulesInput, arg3 ...request.Option) (*cloudwatch.PutManagedInsightRulesOutput, error) {
+	fake.putManagedInsightRulesWithContextMutex.Lock()
+	ret, specificReturn := fake.putManagedInsightRulesWithContextReturnsOnCall[len(fake.putManagedInsightRulesWithContextArgsForCall)]
+	fake.putManagedInsightRulesWithContextArgsForCall = append(fake.putManagedInsightRulesWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *cloudwatch.PutManagedInsightRulesInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	stub := fake.PutManagedInsightRulesWithContextStub
+	fakeReturns := fake.putManagedInsightRulesWithContextReturns
+	fake.recordInvocation("PutManagedInsightRulesWithContext", []interface{}{arg1, arg2, arg3})
+	fake.putManagedInsightRulesWithContextMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesWithContextCallCount() int {
+	fake.putManagedInsightRulesWithContextMutex.RLock()
+	defer fake.putManagedInsightRulesWithContextMutex.RUnlock()
+	return len(fake.putManagedInsightRulesWithContextArgsForCall)
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesWithContextCalls(stub func(context.Context, *cloudwatch.PutManagedInsightRulesInput, ...request.Option) (*cloudwatch.PutManagedInsightRulesOutput, error)) {
+	fake.putManagedInsightRulesWithContextMutex.Lock()
+	defer fake.putManagedInsightRulesWithContextMutex.Unlock()
+	fake.PutManagedInsightRulesWithContextStub = stub
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesWithContextArgsForCall(i int) (context.Context, *cloudwatch.PutManagedInsightRulesInput, []request.Option) {
+	fake.putManagedInsightRulesWithContextMutex.RLock()
+	defer fake.putManagedInsightRulesWithContextMutex.RUnlock()
+	argsForCall := fake.putManagedInsightRulesWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesWithContextReturns(result1 *cloudwatch.PutManagedInsightRulesOutput, result2 error) {
+	fake.putManagedInsightRulesWithContextMutex.Lock()
+	defer fake.putManagedInsightRulesWithContextMutex.Unlock()
+	fake.PutManagedInsightRulesWithContextStub = nil
+	fake.putManagedInsightRulesWithContextReturns = struct {
+		result1 *cloudwatch.PutManagedInsightRulesOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCloudWatchAPI) PutManagedInsightRulesWithContextReturnsOnCall(i int, result1 *cloudwatch.PutManagedInsightRulesOutput, result2 error) {
+	fake.putManagedInsightRulesWithContextMutex.Lock()
+	defer fake.putManagedInsightRulesWithContextMutex.Unlock()
+	fake.PutManagedInsightRulesWithContextStub = nil
+	if fake.putManagedInsightRulesWithContextReturnsOnCall == nil {
+		fake.putManagedInsightRulesWithContextReturnsOnCall = make(map[int]struct {
+			result1 *cloudwatch.PutManagedInsightRulesOutput
+			result2 error
+		})
+	}
+	fake.putManagedInsightRulesWithContextReturnsOnCall[i] = struct {
+		result1 *cloudwatch.PutManagedInsightRulesOutput
 		result2 error
 	}{result1, result2}
 }
@@ -9896,6 +10670,10 @@ func (fake *FakeCloudWatchAPI) Invocations() map[string][][]interface{} {
 	defer fake.describeAlarmsWithContextMutex.RUnlock()
 	fake.describeAnomalyDetectorsMutex.RLock()
 	defer fake.describeAnomalyDetectorsMutex.RUnlock()
+	fake.describeAnomalyDetectorsPagesMutex.RLock()
+	defer fake.describeAnomalyDetectorsPagesMutex.RUnlock()
+	fake.describeAnomalyDetectorsPagesWithContextMutex.RLock()
+	defer fake.describeAnomalyDetectorsPagesWithContextMutex.RUnlock()
 	fake.describeAnomalyDetectorsRequestMutex.RLock()
 	defer fake.describeAnomalyDetectorsRequestMutex.RUnlock()
 	fake.describeAnomalyDetectorsWithContextMutex.RLock()
@@ -9984,6 +10762,16 @@ func (fake *FakeCloudWatchAPI) Invocations() map[string][][]interface{} {
 	defer fake.listDashboardsRequestMutex.RUnlock()
 	fake.listDashboardsWithContextMutex.RLock()
 	defer fake.listDashboardsWithContextMutex.RUnlock()
+	fake.listManagedInsightRulesMutex.RLock()
+	defer fake.listManagedInsightRulesMutex.RUnlock()
+	fake.listManagedInsightRulesPagesMutex.RLock()
+	defer fake.listManagedInsightRulesPagesMutex.RUnlock()
+	fake.listManagedInsightRulesPagesWithContextMutex.RLock()
+	defer fake.listManagedInsightRulesPagesWithContextMutex.RUnlock()
+	fake.listManagedInsightRulesRequestMutex.RLock()
+	defer fake.listManagedInsightRulesRequestMutex.RUnlock()
+	fake.listManagedInsightRulesWithContextMutex.RLock()
+	defer fake.listManagedInsightRulesWithContextMutex.RUnlock()
 	fake.listMetricStreamsMutex.RLock()
 	defer fake.listMetricStreamsMutex.RUnlock()
 	fake.listMetricStreamsPagesMutex.RLock()
@@ -10034,6 +10822,12 @@ func (fake *FakeCloudWatchAPI) Invocations() map[string][][]interface{} {
 	defer fake.putInsightRuleRequestMutex.RUnlock()
 	fake.putInsightRuleWithContextMutex.RLock()
 	defer fake.putInsightRuleWithContextMutex.RUnlock()
+	fake.putManagedInsightRulesMutex.RLock()
+	defer fake.putManagedInsightRulesMutex.RUnlock()
+	fake.putManagedInsightRulesRequestMutex.RLock()
+	defer fake.putManagedInsightRulesRequestMutex.RUnlock()
+	fake.putManagedInsightRulesWithContextMutex.RLock()
+	defer fake.putManagedInsightRulesWithContextMutex.RUnlock()
 	fake.putMetricAlarmMutex.RLock()
 	defer fake.putMetricAlarmMutex.RUnlock()
 	fake.putMetricAlarmRequestMutex.RLock()

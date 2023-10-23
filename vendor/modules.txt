@@ -14,7 +14,7 @@ code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2
 ## explicit; go 1.19
 code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
-# code.cloudfoundry.org/locket v0.0.0-20230329155605-9586d8160de6
+# code.cloudfoundry.org/locket v0.0.0-20230612151453-08e003863044
 ## explicit
 code.cloudfoundry.org/locket
 code.cloudfoundry.org/locket/grpcserver
@@ -32,7 +32,7 @@ github.com/Kount/pq-timeouts
 # github.com/Masterminds/semver v1.5.0
 ## explicit
 github.com/Masterminds/semver
-# github.com/alphagov/paas-rds-broker v1.52.0
+# github.com/alphagov/paas-rds-broker v0.0.0-20231023125028-1fac944a64d7
 ## explicit; go 1.20
 github.com/alphagov/paas-rds-broker/awsrds
 github.com/alphagov/paas-rds-broker/awsrds/fakes
@@ -41,9 +41,10 @@ github.com/alphagov/paas-rds-broker/config
 github.com/alphagov/paas-rds-broker/rdsbroker
 github.com/alphagov/paas-rds-broker/sqlengine
 github.com/alphagov/paas-rds-broker/utils
-# github.com/aws/aws-sdk-go v1.42.50
+# github.com/aws/aws-sdk-go v1.46.1
 ## explicit; go 1.11
 github.com/aws/aws-sdk-go/aws
+github.com/aws/aws-sdk-go/aws/auth/bearer
 github.com/aws/aws-sdk-go/aws/awserr
 github.com/aws/aws-sdk-go/aws/awsutil
 github.com/aws/aws-sdk-go/aws/client
@@ -63,6 +64,7 @@ github.com/aws/aws-sdk-go/aws/request
 github.com/aws/aws-sdk-go/aws/session
 github.com/aws/aws-sdk-go/aws/signer/v4
 github.com/aws/aws-sdk-go/internal/context
+github.com/aws/aws-sdk-go/internal/encoding/gzip
 github.com/aws/aws-sdk-go/internal/ini
 github.com/aws/aws-sdk-go/internal/sdkio
 github.com/aws/aws-sdk-go/internal/sdkmath
@@ -86,6 +88,7 @@ github.com/aws/aws-sdk-go/service/ec2
 github.com/aws/aws-sdk-go/service/rds
 github.com/aws/aws-sdk-go/service/sso
 github.com/aws/aws-sdk-go/service/sso/ssoiface
+github.com/aws/aws-sdk-go/service/ssooidc
 github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/davecgh/go-spew v1.1.1
@@ -146,6 +149,8 @@ github.com/jmespath/go-jmespath
 github.com/lib/pq
 github.com/lib/pq/oid
 github.com/lib/pq/scram
+# github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
+## explicit; go 1.17
 # github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 ## explicit
 github.com/nu7hatch/gouuid
@@ -178,7 +183,7 @@ github.com/onsi/ginkgo/reporters/stenographer
 github.com/onsi/ginkgo/reporters/stenographer/support/go-colorable
 github.com/onsi/ginkgo/reporters/stenographer/support/go-isatty
 github.com/onsi/ginkgo/types
-# github.com/onsi/ginkgo/v2 v2.13.0
+# github.com/onsi/ginkgo/v2 v2.12.0
 ## explicit; go 1.18
 github.com/onsi/ginkgo/v2
 github.com/onsi/ginkgo/v2/config
@@ -376,7 +381,6 @@ google.golang.org/protobuf/internal/set
 google.golang.org/protobuf/internal/strs
 google.golang.org/protobuf/internal/version
 google.golang.org/protobuf/proto
-google.golang.org/protobuf/protoadapt
 google.golang.org/protobuf/reflect/protodesc
 google.golang.org/protobuf/reflect/protoreflect
 google.golang.org/protobuf/reflect/protoregistry

@@ -29,7 +29,8 @@ var _ = Describe("cloudwatch_collector", func() {
 				"mydb",
 			)
 
-			s := session.New()
+			s, err := session.NewSession()
+			Expect(err).NotTo(HaveOccurred())
 			metricsCollectorDriver = NewCloudWatchCollectorDriver(5, s, brokerInfo, logger)
 		})
 

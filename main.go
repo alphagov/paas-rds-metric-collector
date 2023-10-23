@@ -16,13 +16,12 @@ import (
 
 	"code.cloudfoundry.org/lager/v3"
 
-	"github.com/alphagov/paas-rds-broker/awsrds"
-
 	"code.cloudfoundry.org/clock"
 	"code.cloudfoundry.org/locket"
 	"code.cloudfoundry.org/locket/lock"
 	locketmodels "code.cloudfoundry.org/locket/models"
 
+	"github.com/alphagov/paas-rds-broker/awsrds"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/collector"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"

@@ -7,9 +7,10 @@ import (
 	"code.cloudfoundry.org/go-loggregator"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 	"code.cloudfoundry.org/lager/v3"
-	"google.golang.org/protobuf/protoadapt"
 
-	//"github.com/golang/protobuf/proto"
+	//"google.golang.org/protobuf/protoadapt"
+
+	"github.com/golang/protobuf/proto"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
@@ -17,7 +18,8 @@ import (
 
 // WithTimestamp overrides an envelope timestamp
 func WithTimestamp(timestamp int64) loggregator.EmitGaugeOption {
-	return func(m protoadapt.MessageV1) {
+	return func(m proto.Message) {
+		// return func(m protoadapt.MessageV1) { use when locket source uses google.golang.org/protobuf/protoadapt
 		switch e := m.(type) {
 		case *loggregator_v2.Envelope:
 			e.Timestamp = timestamp
