@@ -4,15 +4,16 @@ import (
 	"crypto/tls"
 	"os"
 
-	"code.cloudfoundry.org/lager"
-	"code.cloudfoundry.org/locket/grpcserver"
-	"code.cloudfoundry.org/locket/models"
 	"errors"
 	"flag"
 	"fmt"
+	"path"
+
+	"code.cloudfoundry.org/lager/v3"
+	"code.cloudfoundry.org/locket/grpcserver"
+	"code.cloudfoundry.org/locket/models"
 	"github.com/tedsuo/ifrit"
 	gcontext "golang.org/x/net/context"
-	"path"
 )
 
 var (
@@ -87,7 +88,12 @@ func (h *testHandler) Release(ctx gcontext.Context, req *models.ReleaseRequest) 
 	return &models.ReleaseResponse{}, nil
 }
 func (h *testHandler) Fetch(ctx gcontext.Context, req *models.FetchRequest) (*models.FetchResponse, error) {
-	return &models.FetchResponse{}, nil
+	resp := &models.FetchResponse{
+		Resource: &models.Resource{
+			Owner: "some-owner",
+		},
+	}
+	return resp, nil
 }
 func (h *testHandler) FetchAll(ctx gcontext.Context, req *models.FetchAllRequest) (*models.FetchAllResponse, error) {
 	return &models.FetchAllResponse{}, nil

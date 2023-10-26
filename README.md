@@ -83,7 +83,7 @@ The metrics are queried from various PostgreSQL statistics tables.
 ## Testing
 
 The tests require [ginkgo](https://onsi.github.io/ginkgo/) which can be installed
-by various methods including via `go install github.com/onsi/ginkgo/ginkgo@latest` and
+by various methods including via `go install github.com/onsi/ginkgo/v2/ginkgo@latest` and
 ensuring the resulting binary is on your `$PATH`.
 
 To run the tests you need to run the databases on your machine:

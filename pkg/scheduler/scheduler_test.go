@@ -16,7 +16,7 @@ import (
 
 	"os"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
@@ -193,7 +193,7 @@ var _ = Describe("collector scheduler", func() {
 			mock.Anything,
 		).Return(
 			[]metrics.Metric{
-				metrics.Metric{Key: "foo", Value: 1, Unit: "b"},
+				{Key: "foo", Value: 1, Unit: "b"},
 			},
 			fmt.Errorf("error collecting metrics"),
 		)
@@ -250,7 +250,7 @@ var _ = Describe("collector scheduler", func() {
 				mock.Anything,
 			).Return(
 				[]metrics.Metric{
-					metrics.Metric{Key: "foo", Value: 3, Unit: "b"},
+					{Key: "foo", Value: 3, Unit: "b"},
 				},
 				nil,
 			)
@@ -301,7 +301,7 @@ var _ = Describe("collector scheduler", func() {
 				mock.Anything,
 			).Return(
 				[]metrics.Metric{
-					metrics.Metric{Key: "foo", Value: 3, Unit: "b"},
+					{Key: "foo", Value: 3, Unit: "b"},
 				},
 				nil,
 			)
@@ -367,7 +367,7 @@ var _ = Describe("collector scheduler", func() {
 				mock.Anything,
 			).Return(
 				[]metrics.Metric{
-					metrics.Metric{Key: "foo", Value: 1, Unit: "b"},
+					{Key: "foo", Value: 1, Unit: "b"},
 				},
 				nil,
 			)
@@ -728,7 +728,7 @@ var _ = Describe("collector scheduler", func() {
 					mock.Anything,
 				).Return(
 					[]metrics.Metric{
-						metrics.Metric{Key: "bar", Value: 3, Unit: "s"},
+						{Key: "bar", Value: 3, Unit: "s"},
 					},
 					nil,
 				)
@@ -784,7 +784,7 @@ var _ = Describe("collector scheduler", func() {
 					mock.Anything,
 				).Return(
 					[]metrics.Metric{
-						metrics.Metric{Key: "bar", Value: 3, Unit: "s"},
+						{Key: "bar", Value: 3, Unit: "s"},
 					},
 					nil,
 				)
@@ -837,7 +837,7 @@ var _ = Describe("collector scheduler", func() {
 					mock.Anything,
 				).Return(
 					[]metrics.Metric{
-						metrics.Metric{Key: "bar", Value: 3, Unit: "s"},
+						{Key: "bar", Value: 3, Unit: "s"},
 					},
 					nil,
 				)
@@ -935,7 +935,7 @@ var _ = Describe("collector scheduler", func() {
 					mock.Anything,
 				).Return(
 					[]metrics.Metric{
-						metrics.Metric{Key: "bar", Value: 3, Unit: "s"},
+						{Key: "bar", Value: 3, Unit: "s"},
 					},
 					nil,
 				)
