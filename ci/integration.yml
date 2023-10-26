@@ -5,7 +5,7 @@ image_resource:
   type: docker-image
   source:
     repository: golang
-    tag: "1.18"
+    tag: "1.20"
 inputs:
   - name: repo
     path: src/github.com/alphagov/paas-rds-metric-collector
@@ -23,7 +23,7 @@ run:
       update-ca-certificates
 
       cd "${GOPATH}/src/github.com/alphagov/paas-rds-metric-collector"
-      go install github.com/alphagov/paas-rds-broker@v1.48.0
+      go install github.com/alphagov/paas-rds-broker@v1.54.0
 
       # uncomment to debug grpc connections
       #export GRPC_GO_LOG_VERBOSITY_LEVEL=99

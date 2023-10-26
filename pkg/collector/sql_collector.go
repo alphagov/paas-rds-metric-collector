@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/v3"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
@@ -113,11 +113,13 @@ type metricQueryMeta struct {
 // The query retuns one metric per column in the form:
 //
 // mysql> SELECT
-//     ->     variable_value as connections
-//     -> FROM
-//     ->     performance_schema.global_status
-//     -> WHERE
-//     ->     variable_name = 'Threads_connected';
+//
+//	->     variable_value as connections
+//	-> FROM
+//	->     performance_schema.global_status
+//	-> WHERE
+//	->     variable_name = 'Threads_connected';
+//
 // +-------------+
 // | connections |
 // +-------------+
@@ -173,7 +175,6 @@ func (q *columnMetricQuery) getMetrics(ctx context.Context, db *sql.DB) ([]metri
 // | Threads_connected | 1     |
 // +-------------------+-------+
 // 1 row in set (0.09 sec)
-//
 type rowMetricQuery struct {
 	Query   string
 	Metrics []metricQueryMeta
@@ -250,7 +251,6 @@ func (q *rowMetricQuery) getMetrics(ctx context.Context, db *sql.DB) (resultMetr
 //
 // Values should be returned as the first columns. You must pass the expected number
 // of values in the query.
-//
 func getRowDataAsMaps(numberOfValues int, rows *sql.Rows) (valuesMap map[string]float64, tagsMap map[string]string, err error) {
 	valuesMap = make(map[string]float64)
 	tagsMap = make(map[string]string)

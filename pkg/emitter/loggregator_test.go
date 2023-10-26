@@ -3,13 +3,13 @@ package emitter_test
 import (
 	"time"
 
-	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
-	fakeLoggregator "github.com/alphagov/paas-go/testing/fakes/loggregator"
+	"code.cloudfoundry.org/go-loggregator/v9/rpc/loggregator_v2"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/emitter"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
+	fakeLoggregator "github.com/alphagov/paas-rds-metric-collector/testing/fakes/loggregator"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 

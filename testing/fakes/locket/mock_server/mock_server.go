@@ -1,59 +1,34 @@
-package main
+package mock_server
 
 import (
 	"crypto/tls"
-	"os"
-
 	"errors"
-	"flag"
 	"fmt"
+	"os"
 	"path"
 
 	"code.cloudfoundry.org/lager/v3"
 	"code.cloudfoundry.org/locket/grpcserver"
 	"code.cloudfoundry.org/locket/models"
+	"github.com/phayes/freeport"
 	"github.com/tedsuo/ifrit"
 	gcontext "golang.org/x/net/context"
 )
 
-var (
-	fixturesPath  string
-	lockingMode   string
-	listenAddress string
-)
-
-func init() {
-	flag.StringVar(&fixturesPath, "fixturesPath", "", "Path to a directory containing client.{crt,key}")
-	flag.StringVar(&lockingMode, "mode", "alwaysGrantLock", "Determines the locking behaviour")
-	flag.StringVar(&listenAddress, "listenAddress", "", "The host and port to listen on. Example: 0.0.0.0:8891")
+func NewMockLocketServer(fixturesPath, lockingMode string) *MockLocketServer {
+	return &MockLocketServer{
+		fixturesPath: fixturesPath,
+		handler: &testHandler{
+			mode: lockingMode,
+		},
+	}
 }
 
-func main() {
-	flag.Parse()
-
-	logger := lager.NewLogger("grpc")
-	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
-
-	logger.Debug("LockingMode: " + lockingMode)
-	var handler = testHandler{
-		mode: lockingMode,
-	}
-	certificate, err := tls.LoadX509KeyPair(
-		path.Join(fixturesPath, "locket-server.cert.pem"),
-		path.Join(fixturesPath, "locket-server.key.pem"),
-	)
-	if err != nil {
-		logger.Error("Error loading certs", err)
-		os.Exit(1)
-	}
-	grpcServer := grpcserver.NewGRPCServer(logger, listenAddress, &tls.Config{
-		Certificates: []tls.Certificate{certificate},
-	}, &handler)
-	err = <-ifrit.Invoke(grpcServer).Wait()
-	if err != nil {
-		logger.Error("exited-with-failure", err)
-		os.Exit(1)
-	}
+type MockLocketServer struct {
+	ListenAddress string
+	fixturesPath  string
+	handler       *testHandler
+	process       ifrit.Process
 }
 
 type testHandler struct {
@@ -92,4 +67,40 @@ func (h *testHandler) Fetch(ctx gcontext.Context, req *models.FetchRequest) (*mo
 }
 func (h *testHandler) FetchAll(ctx gcontext.Context, req *models.FetchAllRequest) (*models.FetchAllResponse, error) {
 	return &models.FetchAllResponse{}, nil
+}
+
+func (server *MockLocketServer) Run() error {
+	port, err := freeport.GetFreePort()
+	if err != nil {
+		return err
+	}
+
+	server.ListenAddress = fmt.Sprintf("127.0.0.1:%d", port)
+
+	logger := lager.NewLogger("grpc")
+	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
+
+	logger.Debug("LockingMode: " + server.handler.mode)
+	certificate, err := tls.LoadX509KeyPair(
+		path.Join(server.fixturesPath, "locket-server.cert.pem"),
+		path.Join(server.fixturesPath, "locket-server.key.pem"),
+	)
+	if err != nil {
+		return err
+	}
+
+	grpcServer := grpcserver.NewGRPCServer(logger, server.ListenAddress, &tls.Config{
+		Certificates: []tls.Certificate{certificate},
+	}, server.handler)
+	server.process = ifrit.Invoke(grpcServer)
+
+	go func() {
+		err = <-server.process.Wait()
+		logger.Error("grpc server process exited", err)
+	}()
+	return nil
+}
+
+func (server *MockLocketServer) Kill() {
+	server.process.Signal(os.Interrupt)
 }

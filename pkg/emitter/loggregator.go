@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"code.cloudfoundry.org/go-loggregator"
-	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
-	"code.cloudfoundry.org/lager"
-	"github.com/golang/protobuf/proto"
+	"code.cloudfoundry.org/go-loggregator/v9"
+	"code.cloudfoundry.org/go-loggregator/v9/rpc/loggregator_v2"
+	"code.cloudfoundry.org/lager/v3"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"
 	"github.com/alphagov/paas-rds-metric-collector/pkg/metrics"
