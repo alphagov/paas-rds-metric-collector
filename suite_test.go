@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/alphagov/paas-rds-metric-collector/testhelpers"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
@@ -24,7 +24,7 @@ func TestPaasPostgresMetricCollector(t *testing.T) {
 		mockLocketServer = testhelpers.MockLocketServer{}
 		mockLocketServer.Build()
 		mockLocketServerSession = mockLocketServer.Run("./fixtures", "alwaysGrantLock")
-		Eventually(mockLocketServerSession.Buffer).Should(gbytes.Say("grpc.grpc-server.started"))
+		Eventually(mockLocketServerSession.Buffer, "5s").Should(gbytes.Say("grpc.grpc-server.started"))
 	})
 
 	AfterSuite(func() {

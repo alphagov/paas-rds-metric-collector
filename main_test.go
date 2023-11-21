@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/alphagov/paas-rds-metric-collector/testhelpers"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
@@ -27,20 +27,19 @@ var _ = Describe("collector", func() {
 		rdsMetricsCollectorSession, err = gexec.Start(command, GinkgoWriter, GinkgoWriter)
 		Expect(err).ShouldNot(HaveOccurred())
 
-		Eventually(rdsMetricsCollectorSession).Should(gexec.Exit(1))
+		Eventually(rdsMetricsCollectorSession, "5s").Should(gexec.Exit(1))
 		Expect(rdsMetricsCollectorSession.Err).To(gbytes.Say("Error loading config file"))
 		Expect(rdsMetricsCollectorSession.Err).To(gbytes.Say("no such file or directory"))
 	})
 
 	It("fails to start if the config is invalid", func() {
-		var err error
 		command := exec.Command(rdsMetricCollectorPath,
 			fmt.Sprintf("-config=./fixtures/invalid_collector_config.json"),
 		)
-		rdsMetricsCollectorSession, err = gexec.Start(command, GinkgoWriter, GinkgoWriter)
+		rdsMetricsCollectorSession, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 		Expect(err).ShouldNot(HaveOccurred())
 
-		Eventually(rdsMetricsCollectorSession).Should(gexec.Exit(1))
+		Eventually(rdsMetricsCollectorSession, "5s").Should(gexec.Exit(1))
 		Expect(rdsMetricsCollectorSession.Err).To(gbytes.Say("Error loading config file"))
 		Expect(rdsMetricsCollectorSession.Err).To(gbytes.Say("invalid character"))
 	})

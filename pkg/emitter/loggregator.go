@@ -6,7 +6,7 @@ import (
 
 	"code.cloudfoundry.org/go-loggregator"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
-	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/v3"
 	"github.com/golang/protobuf/proto"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/config"

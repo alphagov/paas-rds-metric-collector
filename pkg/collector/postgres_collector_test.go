@@ -14,7 +14,7 @@ import (
 	_ "github.com/Kount/pq-timeouts"
 	"github.com/stretchr/testify/mock"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/alphagov/paas-rds-metric-collector/pkg/brokerinfo"
@@ -33,7 +33,7 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		testDBName             string
 		testDBConnectionString string
 		testDBConn             *sql.DB
-		groupName			   string
+		groupName              string
 	)
 
 	BeforeEach(func() {
@@ -406,14 +406,14 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		_, err := testDBConn.BeginTx(ctx1, nil)
 		Expect(err).NotTo(HaveOccurred())
 
-		Eventually(func () float64{
+		Eventually(func() float64 {
 			collectedMetrics, err = metricsCollector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			metric := getMetricByKey(collectedMetrics, "max_tx_age")
 			Expect(metric).ToNot(BeNil())
 			Expect(metric.Unit).To(Equal("s"))
 			return metric.Value
-		}, 5 * time.Second).Should(
+		}, 5*time.Second).Should(
 			BeNumerically(">=", 1),
 		)
 	})
@@ -427,14 +427,14 @@ var _ = Describe("NewPostgresMetricsCollectorDriver", func() {
 		_, err = testDBConn.BeginTx(ctx1, nil)
 		Expect(err).NotTo(HaveOccurred())
 
-		Eventually(func () float64{
+		Eventually(func() float64 {
 			collectedMetrics, err = metricsCollector.Collect(context.Background())
 			Expect(err).NotTo(HaveOccurred())
 			metric := getMetricByKey(collectedMetrics, "max_system_tx_age")
 			Expect(metric).ToNot(BeNil())
 			Expect(metric.Unit).To(Equal("s"))
 			return metric.Value
-		}, 5 * time.Second).Should(
+		}, 5*time.Second).Should(
 			BeNumerically(">=", 1),
 		)
 	})
